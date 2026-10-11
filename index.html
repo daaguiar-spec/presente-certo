@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#d9467e">
+<meta name="description" content="PresenteCerto: a rede social dos presentes. Saiba os tamanhos, os gostos e o que seus amigos querem ganhar.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:14px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+.logged-out nav.tabs,.logged-out #meChip{display:none!important}
+.login{max-width:420px;margin:0 auto;padding-top:28px;display:flex;flex-direction:column;gap:16px}
+.login .g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font:600 15px var(--body,system-ui);padding:12px;border-radius:999px;border:1px solid var(--line,#ddd);background:#fff;color:#2e2536;cursor:pointer}
+.login .sep{display:flex;align-items:center;gap:10px;color:var(--muted,#888);font-size:13px}
+.login .sep::before,.login .sep::after{content:"";flex:1;height:1px;background:var(--line,#ddd)}
+.login .err{color:#b42318;font-size:14px;min-height:1em}
+.login .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk,#f4f4f4);border-radius:999px;padding:4px}
+.login .seg button{border:0;background:none;padding:8px;border-radius:999px;font:600 14px var(--body,system-ui);color:var(--muted,#777);cursor:pointer}
+.login .seg button[aria-pressed="true"]{background:#fff;color:var(--fg,#222);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<title>PresenteCerto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* Layout: app de uma coluna, cabeçalho fixo e navegação em abas; fichas de "etiqueta de presente" para perfis */
+:root{
+  --bg:#fdfbfd; --surface:#ffffff; --sunk:#f7f2f8; --line:#ece4ef;
+  --fg:#2e2536; --muted:#7d7186; --accent:#d9467e; --accent-ink:#ffffff; --accent-soft:#fdeef4;
+  --ribbon:#2a9d8c; --ribbon-soft:#e8f7f4; --warn:#a8670a; --warn-soft:#fdf5e6; --gold:#8a6d12; --gold-soft:#fbf4dc;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px; color-scheme:light;
+}
+/* Visual claro fixo: não muda para o modo escuro do celular */
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:0 110px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:720px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.logo{background:none;border:0;padding:0;color:var(--fg);cursor:pointer;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.logo svg{width:26px;height:26px}
+.me-chip{margin-left:auto;display:flex;align-items:center;gap:10px}
+.admin-btn{font:700 12px var(--body);letter-spacing:.04em;background:var(--fg);color:var(--bg);border:0;border-radius:999px;padding:7px 12px;cursor:pointer}
+.banner{background:var(--ribbon-soft);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.urow{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.urow img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.avatar-btn{border:2px solid var(--accent-soft);background:none;padding:0;border-radius:50%;cursor:pointer;display:flex}
+.avatar-btn img{width:34px;height:34px;border-radius:50%;object-fit:cover}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tab{background:none;border:0;color:var(--muted);font:600 11px var(--body);padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;position:relative}
+.tab svg{width:22px;height:22px}
+.tab[aria-selected="true"]{color:var(--accent)}
+.badge{position:absolute;top:6px;left:calc(50% + 8px);background:var(--accent);color:var(--accent-ink);font-size:10px;font-weight:700;border-radius:999px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:28px;font-weight:800;line-height:1.15}
+h2{font-size:19px;font-weight:600}
+h3{font-size:16px;font-weight:600}
+.lede{color:var(--muted);margin:6px 0 0}
+.muted{color:var(--muted);font-size:14px}
+.small{font-size:13px}
+.view{display:flex;flex-direction:column;gap:18px;padding-top:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px}
+.panel.hl{background:var(--accent-soft);border-color:transparent}
+.panel.ad{background:var(--gold-soft);border-color:transparent}
+.eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+label.f,.flabel{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none;padding:0}
+textarea{resize:vertical;min-height:64px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+.btn{font:600 14px var(--body);border-radius:999px;padding:10px 18px;border:1px solid transparent;cursor:pointer;background:var(--accent);color:var(--accent-ink);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.ghost{background:var(--surface);color:var(--fg);border-color:var(--line)}
+.btn.small{padding:7px 14px;font-size:13px}
+.btn.on{background:var(--ribbon-soft);color:var(--ribbon);border-color:transparent}
+.btn.green{background:var(--ribbon);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--accent);font:600 13px var(--body);cursor:pointer;text-decoration:none}
+.link.alt{color:var(--ribbon)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font:500 13px var(--body);color:var(--fg)}
+button.chip{cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.chip.avoid[aria-pressed="true"]{border-color:var(--warn);background:var(--warn-soft)}
+.chip.style[aria-pressed="true"]{border-color:var(--ribbon);background:var(--ribbon-soft)}
+.chip .dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--line)}
+.grau{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:2px;white-space:nowrap}
+.grau.g1{background:var(--accent);color:var(--accent-ink)}
+.grau.g2{background:var(--accent-soft);color:var(--accent)}
+.grau.g3{background:var(--sunk);color:var(--muted)}
+.wish{display:flex;flex-direction:column;gap:8px}
+.wish-item{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:start;background:var(--sunk);border-radius:12px;padding:10px 12px}
+.wish-item .n{font-family:var(--display);font-weight:800;color:var(--accent);font-size:18px;line-height:1.3}
+.need .wish-item .n{color:var(--ribbon)}
+.wish-item .t{font-weight:600;overflow-wrap:anywhere}
+.wish-item .s{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.wish-item a{color:var(--ribbon);font-weight:600;font-size:13px}
+.thumb{width:64px;height:64px;border-radius:10px;object-fit:cover;display:block}
+.thumb.sm{width:52px;height:52px;margin-top:6px}
+.shop{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;margin-top:2px}
+.shop span{color:var(--muted)}
+.item-actions{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}
+.status{grid-column:2 / -1;display:flex;flex-direction:column;gap:8px;border-top:1px dashed var(--line);padding-top:8px;font-size:13px}
+.status .msg{color:var(--muted)}
+.status .msg b{color:var(--fg)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ribbon);border-radius:99px}
+.icon-btn{border:0;background:none;color:var(--muted);cursor:pointer;padding:4px;font-size:18px;line-height:1}
+.person{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.person img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.person .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.person .meta{font-size:13px;color:var(--muted)}
+.tap{cursor:pointer}
+.when{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap;background:var(--sunk);color:var(--muted);font-variant-numeric:tabular-nums}
+.when.soon{background:var(--warn-soft);color:var(--warn)}
+.when.today{background:var(--accent);color:var(--accent-ink)}
+.list{display:flex;flex-direction:column;gap:10px}
+.holidays{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.holiday{flex:none;background:var(--ribbon-soft);color:var(--ribbon);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600}
+.holiday span{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.empty{text-align:center;color:var(--muted);padding:24px 16px;border:1.5px dashed var(--line);border-radius:var(--r);display:flex;flex-direction:column;gap:10px;align-items:center}
+.tag-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.tag-head{background:var(--accent-soft);padding:18px 16px;display:flex;gap:14px;align-items:center;position:relative}
+.tag-head img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--surface)}
+.tag-head .hole{position:absolute;right:18px;top:18px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+.tag-body{padding:16px;display:flex;flex-direction:column;gap:22px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sizes{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px}
+.size{background:var(--sunk);border-radius:10px;padding:10px;text-align:center}
+.size b{display:block;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.size span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.kv{display:grid;grid-template-columns:minmax(90px,130px) 1fr;gap:0 14px;font-size:14px;margin:0}
+.kv dt,.kv dd{padding-block:12px;border-top:1px solid var(--line)}
+.kv dt:first-of-type,.kv dd:first-of-type{border-top:0;padding-top:0}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:9;max-width:calc(100% - 32px);text-align:center}
+.notice{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:14px}
+.back{background:none;border:0;color:var(--accent);font:600 14px var(--body);cursor:pointer;padding:0;align-self:flex-start}
+.savebar{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom,0px));background:var(--bg);padding-block:10px;z-index:3}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.inline-form{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.date-row{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--sunk);border-radius:10px;padding:8px 12px;font-size:14px}
+.pix-code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--sunk);border-radius:8px;padding:8px;overflow-wrap:anywhere;user-select:all}
+.qr{background:#fff;padding:8px;border-radius:8px;align-self:flex-start}
+.qr img,.qr canvas{display:block;width:180px;height:180px}
+.secret{background:var(--accent-soft);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.secret b.big{font-family:var(--display);font-size:22px}
+.idea{background:var(--sunk);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.idea .t{font-weight:700}
+.thanks{background:var(--ribbon-soft);border-radius:12px;padding:10px 12px;font-size:14px}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.stat div{background:var(--surface);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.feed{display:flex;flex-direction:column;gap:10px}
+.post{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.post img.av{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.post .txt{font-size:14px;overflow-wrap:anywhere}
+.post .when2{font-size:12px;color:var(--muted);margin-top:2px}
+.post.hot{background:var(--accent-soft);border-color:transparent}
+.post blockquote{margin:6px 0 0;padding:8px 10px;background:var(--sunk);border-radius:10px;font-size:14px}
+.msg-card{display:grid;grid-template-columns:32px 1fr;gap:10px;background:var(--sunk);border-radius:12px;padding:10px 12px}
+.msg-card img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+@media (prefers-reduced-motion:no-preference){.btn,.tab,.chip{transition:background .15s,color .15s,border-color .15s}}
+</style>
+
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <button class="logo" id="logoBtn" aria-label="Ir para a página principal"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="12" width="24" height="16" rx="3" fill="var(--accent)"/><rect x="2" y="8" width="28" height="6" rx="2" fill="var(--accent)"/><rect x="14" y="8" width="4" height="20" fill="var(--ribbon)"/><path d="M16 8c-3-5-9-5-8-1 1 2 5 1 8 1zm0 0c3-5 9-5 8-1-1 2-5 1-8 1z" fill="var(--ribbon)"/></svg><span>Presente<span style="color:var(--accent)">Certo</span></span></button>
+  <div class="me-chip" id="meChip"></div>
+</div></header>
+
+<main class="wrap" id="app">
+  <div class="view">
+    <h1>Carregando sua conta…</h1>
+    <p class="lede">Cada pessoa monta sua ficha de presentes: tamanhos, cores, estilo, o que pretende ganhar e o que está precisando com urgência. Você segue amigos e família e consulta a ficha deles perto das datas especiais.</p>
+  </div>
+</main>
+<input type="file" id="fotoInput" accept="image/*" hidden>
+
+<nav class="tabs" aria-label="Seções"><div class="tabs-in" role="tablist">
+  <button class="tab" role="tab" data-tab="mural" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Mural</button>
+  <button class="tab" role="tab" data-tab="datas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Datas<span class="badge" id="badge" hidden></span></button>
+  <button class="tab" role="tab" data-tab="pessoas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Encontrar</button>
+  <button class="tab" role="tab" data-tab="sorteio" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9C10 4 6 5 7 7s5 2 5 2zm0 0c2-5 6-4 5-2s-5 2-5 2z"/></svg>Amigo secreto</button>
+  <button class="tab" role="tab" data-tab="perfil" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Minha ficha</button>
+</div></nav>
+
+<script>
+/* Ponte PresenteCerto ⇄ Firebase: login (Google e e-mail), banco de dados e sugestões por IA */
+(function(){
+  const app=document.getElementById('app');
+  const cfg=window.FIREBASE_CONFIG;
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  if(!window.firebase||!cfg||!cfg.apiKey||/COLE/i.test(cfg.apiKey)){
+    window.__semConfig=true;window.claude=null;window.__loggedOut=true;document.body.classList.add('logged-out');
+    app.innerHTML='<div class="view"><h1>Falta configurar o Firebase</h1><p class="lede">Abra o arquivo <b>firebase-config.js</b> e cole os dados do seu projeto Firebase, como explica o guia LEIA-ME.</p></div>';
+    return;
+  }
+  firebase.initializeApp(cfg);
+  const auth=firebase.auth(),fs=firebase.firestore();
+  try{fs.settings({ignoreUndefinedProperties:true})}catch(e){}
+  const ADMIN=String(window.ADMIN_EMAIL||'').toLowerCase();
+  function initials(name){const ini=String(name||'?').split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+    return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#fdeef4"/><text x="32" y="41" font-family="sans-serif" font-size="24" font-weight="700" fill="#d9467e" text-anchor="middle">${ini.replace(/[<&]/g,'')}</text></svg>`)}
+  const nomeDe=u=>u.displayName||(u.email||'').split('@')[0]||'Você';
+
+  let resolveUser;const ready=new Promise(r=>resolveUser=r);
+  const usuarios={};let resolveUsuarios;const usuariosOk=new Promise(r=>resolveUsuarios=r);
+
+  /* ---------- tela de login ---------- */
+  let modo='entrar',erro='',ocupado=false;
+  const MSG={'auth/invalid-email':'Este e-mail não parece válido.','auth/missing-password':'Digite sua senha.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.',
+    'auth/email-already-in-use':'Já existe uma conta com este e-mail. Toque em Entrar.','auth/invalid-credential':'E-mail ou senha incorretos.','auth/wrong-password':'E-mail ou senha incorretos.',
+    'auth/user-not-found':'Não encontramos conta com este e-mail. Toque em Criar conta.','auth/too-many-requests':'Muitas tentativas. Espere alguns minutos e tente de novo.',
+    'auth/network-request-failed':'Sem conexão com a internet.','auth/popup-closed-by-user':'','auth/cancelled-popup-request':'','auth/unauthorized-domain':'Este endereço ainda não foi autorizado no Firebase. Veja o passo 6 do guia LEIA-ME.'};
+  const msgDe=e=>(e&&e.code in MSG)?MSG[e.code]:'Não foi possível entrar agora. Tente de novo.';
+  function showLogin(){
+    document.body.classList.add('logged-out');window.__loggedOut=true;
+    app.innerHTML=`<div class="login">
+      <div><h1>Entre no PresenteCerto</h1><p class="lede">Monte sua ficha de presentes e descubra o que seus amigos querem ganhar.</p></div>
+      <button class="g-btn" id="lgGoogle" ${ocupado?'disabled':''}><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.4 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.8c-.5-1.4-.8-3-.8-4.8s.3-3.3.8-4.8l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.7 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>Entrar com Google</button>
+      <div class="sep">ou com e-mail</div>
+      <div class="seg"><button id="lgM1" aria-pressed="${modo==='entrar'}">Entrar</button><button id="lgM2" aria-pressed="${modo==='criar'}">Criar conta</button></div>
+      <form id="lgForm" class="panel" novalidate>
+        ${modo==='criar'?'<label class="f">Seu nome<input id="lgNome" autocomplete="name" required></label>':''}
+        <label class="f">E-mail<input id="lgEmail" type="email" autocomplete="${modo==='criar'?'email':'username'}" inputmode="email" autocapitalize="off" required></label>
+        <label class="f">Senha<input id="lgSenha" type="password" autocomplete="${modo==='criar'?'new-password':'current-password'}" minlength="6" required></label>
+        <div class="err" role="alert">${esc(erro)}</div>
+        <button class="btn" type="submit" ${ocupado?'disabled':''}>${ocupado?'Aguarde…':modo==='criar'?'Criar minha conta':'Entrar'}</button>
+        ${modo==='entrar'?'<button class="link" type="button" id="lgReset">Esqueci minha senha</button>':''}
+      </form></div>`;
+    const v=id=>(document.getElementById(id)?.value||'').trim();
+    document.getElementById('lgM1').onclick=()=>{modo='entrar';erro='';showLogin()};
+    document.getElementById('lgM2').onclick=()=>{modo='criar';erro='';showLogin()};
+    document.getElementById('lgGoogle').onclick=async()=>{
+      const prov=new firebase.auth.GoogleAuthProvider();prov.setCustomParameters({prompt:'select_account'});
+      try{await auth.signInWithPopup(prov)}catch(e){
+        if(e&&['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)){try{await auth.signInWithRedirect(prov)}catch(e2){erro=msgDe(e2);showLogin()}}
+        else{erro=msgDe(e);showLogin()}}
+    };
+    document.getElementById('lgForm').onsubmit=async ev=>{
+      ev.preventDefault();const email=v('lgEmail'),senha=document.getElementById('lgSenha').value;
+      if(modo==='criar'&&!v('lgNome')){erro='Digite seu nome.';return showLogin()}
+      ocupado=true;erro='';showLogin();
+      try{
+        if(modo==='criar'){const c=await auth.createUserWithEmailAndPassword(email,senha);await c.user.updateProfile({displayName:v('lgNome')||nomeDe(c.user)});await salvarUsuario(c.user)}
+        else await auth.signInWithEmailAndPassword(email,senha);
+      }catch(e){ocupado=false;erro=msgDe(e);showLogin()}
+    };
+    const rs=document.getElementById('lgReset');
+    if(rs)rs.onclick=async()=>{const email=v('lgEmail');if(!email){erro='Digite seu e-mail acima e toque de novo em Esqueci minha senha.';return showLogin()}
+      try{await auth.sendPasswordResetEmail(email);erro='';app.querySelector('.err').textContent='Enviamos um link para redefinir a senha. Confira seu e-mail.'}catch(e){erro=msgDe(e);showLogin()}};
+  }
+  async function salvarUsuario(u){try{await fs.doc('usuarios/'+u.uid).set({nome:nomeDe(u),foto:u.photoURL||'',atualizado:new Date().toISOString()},{merge:true})}catch(e){}}
+
+  auth.getRedirectResult().catch(e=>{erro=msgDe(e)});
+  let started=false;
+  auth.onAuthStateChanged(async u=>{
+    if(!u){if(started){location.reload();return}showLogin();return}
+    if(started)return;started=true;
+    document.body.classList.remove('logged-out');window.__loggedOut=false;
+    app.innerHTML='<div class="view"><h1>Carregando sua conta…</h1></div>';
+    await salvarUsuario(u);
+    fs.collection('usuarios').onSnapshot(s=>{s.docs.forEach(d=>{usuarios[d.id]=d.data()});resolveUsuarios()},()=>resolveUsuarios());
+    resolveUser(u);
+  });
+
+  const userApi=u=>({
+    id:async()=>u.uid,
+    me:async()=>({id:u.uid,name:nomeDe(u),avatarUrl:u.photoURL||initials(nomeDe(u)),email:u.email||''}),
+    isOwner:async()=>!!ADMIN&&String(u.email||'').toLowerCase()===ADMIN&&!!u.emailVerified,
+    profiles:async ids=>{await usuariosOk;const out={};ids.forEach(id=>{const x=usuarios[id];if(x)out[id]={id,name:x.nome||'',avatarUrl:x.foto||initials(x.nome)}});return out},
+    logout:()=>auth.signOut()
+  });
+  const sampleApi=u=>({
+    json:async prompt=>{
+      const t=await u.getIdToken();
+      const r=await fetch('/api/sugestoes',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({prompt})});
+      if(r.status===429)throw {code:'rate_limited'};
+      if(!r.ok)throw {code:'unavailable'};
+      return (await r.json()).resultado;
+    }
+  });
+  window.claude={use:async name=>{const u=await ready;if(name==='db')return fs;if(name==='user')return userApi(u);if(name==='sample')return sampleApi(u);return null}};
+})();
+</script>
+<script>
+(function(){
+const APP_URL=location.origin;
+const app=document.getElementById('app');
+const MESES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const CORES={'Preto':'#111','Branco':'#fff','Cinza':'#9a9a9a','Bege':'#d9c7a7','Marrom':'#7a4b2a','Vermelho':'#c62828','Rosa':'#ec7fb0','Roxo':'#7b3fa0','Azul':'#2f5fc4','Azul-marinho':'#1b2a4e','Verde':'#2e7d4f','Amarelo':'#f2c230','Laranja':'#ef7d22','Dourado':'#c9a23a','Prata':'#c0c4c8'};
+const ESTILOS=['Básico','Clássico','Esportivo','Casual','Romântico','Moderno','Alternativo','Elegante','Praiano','Geek'];
+const PERFUMES=['Floral','Amadeirado','Cítrico','Doce','Fresco','Oriental','Não uso perfume'];
+const TIPOS_PRESENTE=['Objetos','Experiências','Tanto faz'];
+const TIPOS_DATA=['Aniversário de casamento','Casamento','Chá de bebê','Chá de casa nova','Formatura','Outra data'];
+const RECORRENTE={'Aniversário de casamento':true};
+const GRAUS={'Sonho':'g1','Gostaria muito':'g2','Seria legal':'g3'};
+const brl=v=>(+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+let db=null,user=null,sample=null,myId=null,myName='',myEmail='',isOwner=false;
+let profiles={},followsAll={},acoes={},names={},agrad={},sorteios={},config={},grupos=[],fotos={},fotoSubs={},aiRes={};
+let tab='mural',parabens={},viewing=null,draft=null,dirty=false,query='',form=null,grupoFiltro='',fotoTarget=null,pendingRender=false;
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+const failMsg='Não foi possível salvar. Confira sua internet e tente de novo.';
+function blank(){return{dia:'',mes:'',ano:'',camiseta:'',calca:'',calcado:'',vestido:'',anel:'',cama:'',cores:[],evitarCores:[],estilos:[],perfume:[],tipoPresente:'',marcas:'',hobbies:'',gosta:'',naoGosta:'',alergias:'',obs:'',desejos:[],precisa:[],recebidos:[],datas:[],fechado:false,aviso:15,atualizado:''}}
+const isEx=id=>!!profiles[id]?.exemplo;
+const nm=id=>id===myId?'Você':isEx(id)?(profiles[id].nome+' (exemplo)'):(names[id]?.name||'Alguém');
+const firstName=id=>id===myId?(myName||'Você'):isEx(id)?profiles[id].nome:(names[id]?.name||'Alguém');
+function initialsAvatar(name){const ini=String(name||'?').split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#fdeef4"/><text x="32" y="41" font-family="sans-serif" font-size="24" font-weight="700" fill="#d9467e" text-anchor="middle">${ini.replace(/[<&]/g,'')}</text></svg>`)}
+const av=id=>isEx(id)?initialsAvatar(profiles[id].nome):(names[id]?.avatar||initialsAvatar(nm(id)));
+const following=()=>(followsAll[myId]?.ids)||[];
+const myAcoes=()=>{const a=acoes[myId]||{};return{reservas:[...(a.reservas||[])],vaquinhas:[...(a.vaquinhas||[])],cotas:[...(a.cotas||[])]}};
+function canSee(id){const p=profiles[id];if(!p)return false;return id===myId||!p.fechado||(p.aprovados||[]).includes(myId)}
+function pendingRequests(){const me=profiles[myId];if(!me||!me.fechado)return[];const ok=new Set([...(me.aprovados||[]),...(me.recusados||[])]);return Object.keys(followsAll).filter(id=>id!==myId&&(followsAll[id].ids||[]).includes(myId)&&!ok.has(id))}
+const safeLink=u=>/^https:\/\//i.test(u||'')||/^http:\/\//i.test(u||'');
+
+/* ---------- lojas, afiliados e publicidade ---------- */
+function affiliate(u){
+  try{const x=new URL(u);if(/(^|\.)amazon\.com\.br$/i.test(x.hostname)&&config.amazonTag&&!x.searchParams.get('tag')){x.searchParams.set('tag',config.amazonTag);return x.toString()}}catch(e){}
+  return u;
+}
+function shopLinks(q){
+  const e=encodeURIComponent(q);
+  const amz=`https://www.amazon.com.br/s?k=${e}${config.amazonTag?'&tag='+encodeURIComponent(config.amazonTag):''}`;
+  const ml=`https://lista.mercadolivre.com.br/${encodeURIComponent(q.trim().replace(/\s+/g,'-'))}`;
+  const mg=config.magaluLoja?`https://www.magazinevoce.com.br/${encodeURIComponent(config.magaluLoja)}/busca/${e}/`:`https://www.magazineluiza.com.br/busca/${e}/`;
+  return `<div class="shop"><span>Procurar:</span><a href="${esc(amz)}" target="_blank" rel="noopener sponsored" data-track="loja:amazon">Amazon</a><a href="${esc(ml)}" target="_blank" rel="noopener sponsored" data-track="loja:ml">Mercado Livre</a><a href="${esc(mg)}" target="_blank" rel="noopener sponsored" data-track="loja:magalu">Magalu</a></div>`;
+}
+function adCard(seed){
+  const ads=(config.anuncios||[]).filter(a=>a.ativo&&a.titulo);if(!ads.length)return '';
+  const d=new Date();const a=ads[(d.getDate()+(seed||0))%ads.length];
+  trackView(a.id);
+  return `<section class="panel ad"><div class="eyebrow">Oferta de parceiro</div><h3>${esc(a.titulo)}</h3>${a.texto?`<div class="muted">${esc(a.texto)}</div>`:''}${safeLink(a.link)?`<div><a class="btn small" href="${esc(affiliate(a.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(a.id)}">Ver oferta</a></div>`:''}</section>`;
+}
+
+/* ---------- métricas (cada pessoa grava só o próprio contador; o dono não é contado) ---------- */
+let met={ads:{},lojas:{}},metReady=false,metTimer=null,metDirty=false,allMet={};
+const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function metFlush(){if(!metDirty||!db||!myId)return;metDirty=false;db.doc('metricas/'+myId).set(JSON.parse(JSON.stringify(met))).catch(()=>{})}
+function metQueue(){metDirty=true;clearTimeout(metTimer);metTimer=setTimeout(metFlush,2000)}
+function trackView(id){if(!metReady||isOwner||!id)return;const a=met.ads[id]||(met.ads[id]={v:0,c:0,dia:''});if(a.dia===hoje())return;a.dia=hoje();a.v++;metQueue()}
+function trackClick(key){if(!metReady||isOwner)return;const [k,id]=key.split(':');
+  if(k==='ad'){const a=met.ads[id]||(met.ads[id]={v:0,c:0,dia:''});a.c++}else met.lojas[id]=(met.lojas[id]||0)+1;
+  metQueue();setTimeout(metFlush,300)}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[data-track]');if(a)trackClick(a.dataset.track)},true);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')metFlush()});
+
+/* ---------- ficha completa ---------- */
+function completude(p){
+  p=p||{};const checks=[
+    ['aniversário',p.dia&&p.mes],['tamanho de camiseta',p.camiseta],['tamanho de calça',p.calca],['número do calçado',p.calcado],
+    ['cores que você gosta',(p.cores||[]).length],['seu estilo',(p.estilos||[]).length],['do que você gosta',String(p.gosta||'').trim()],
+    ['hobbies ou marcas',String(p.hobbies||'').trim()||String(p.marcas||'').trim()],['algo em Pretendo ganhar',(p.desejos||[]).length],['algo em Precisando com urgência',(p.precisa||[]).length]];
+  const ok=checks.filter(c=>c[1]).length;return{pct:Math.round(ok/checks.length*100),faltam:checks.filter(c=>!c[1]).map(c=>c[0])};
+}
+function completudeHtml(p,compact){
+  const c=completude(p);if(c.pct===100&&compact)return '';
+  return `<section class="panel ${compact?'hl':''}" style="gap:8px"><div class="row between"><b>${c.pct===100?'Sua ficha está completa':'Sua ficha está '+c.pct+'% completa'}</b><span class="when ${c.pct===100?'':'soon'}">${c.pct}%</span></div><div class="bar"><i style="width:${c.pct}%;${c.pct<100?'background:var(--accent)':''}"></i></div>${c.faltam.length?`<span class="small" style="color:var(--muted)">Falta: ${c.faltam.slice(0,4).map(esc).join(', ')}${c.faltam.length>4?' e mais '+(c.faltam.length-4):''}. Fichas completas ajudam seus amigos a acertar.</span>`:''}${compact?`<div><button class="btn small" data-act="tab" data-id="perfil">Completar minha ficha</button></div>`:''}</section>`;
+}
+
+/* ---------- datas ---------- */
+const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())};
+function daysTo(dia,mes,ano,recorrente){
+  if(!dia||!mes)return null;const t=today();
+  if(!recorrente&&ano){const d=new Date(+ano,+mes-1,+dia);const n=Math.round((d-t)/864e5);return n<0?null:n}
+  let d=new Date(t.getFullYear(),+mes-1,+dia);if(d<t)d=new Date(t.getFullYear()+1,+mes-1,+dia);return Math.round((d-t)/864e5);
+}
+const bdayDays=p=>p?daysTo(p.dia,p.mes,null,true):null;
+function pill(n){if(n===null||n===undefined)return '<span class="when">sem data</span>';if(n===0)return '<span class="when today">É hoje!</span>';return `<span class="when ${n<=30?'soon':''}">${n===1?'amanhã':'em '+n+' dias'}</span>`}
+function bdayText(p){if(!p||!p.dia||!p.mes)return 'Aniversário não informado';let s=`${+p.dia} de ${MESES[+p.mes-1]}`;if(p.ano&&+p.ano>1900){const y=new Date(Date.now()+bdayDays(p)*864e5).getFullYear();s+=` · vai fazer ${y-(+p.ano)} anos`}return s}
+function nthSunday(y,m,n){const d=new Date(y,m,1);const first=(7-d.getDay())%7;return new Date(y,m,1+first+7*(n-1))}
+function holidays(){
+  const t=today(),out=[];
+  for(const y of [t.getFullYear(),t.getFullYear()+1])out.push(['Dia dos Namorados',new Date(y,5,12)],['Dia das Mães',nthSunday(y,4,2)],['Dia dos Pais',nthSunday(y,7,2)],['Dia das Crianças',new Date(y,9,12)],['Natal',new Date(y,11,25)]);
+  return out.map(([n,d])=>({n,d,dias:Math.round((d-t)/864e5)})).filter(h=>h.dias>=0).sort((a,b)=>a.dias-b.dias).slice(0,3);
+}
+function eventsFor(id){
+  const p=profiles[id];if(!p)return[];const ev=[];
+  const b=bdayDays(p);if(b!==null)ev.push({id,label:'Aniversário',dias:b,txt:bdayText(p)});
+  (p.datas||[]).forEach(d=>{const n=daysTo(d.dia,d.mes,d.ano,RECORRENTE[d.tipo]);if(n!==null)ev.push({id,label:d.tipo==='Outra data'&&d.nota?d.nota:d.tipo,dias:n,txt:`${+d.dia} de ${MESES[+d.mes-1]}${d.ano&&!RECORRENTE[d.tipo]?' de '+d.ano:''}`})});
+  return ev;
+}
+
+/* ---------- reservas, vaquinhas e Pix ---------- */
+function itemStatus(owner,item){
+  const st={reservers:[],vaq:null,cotas:[]};
+  for(const [u,a] of Object.entries(acoes)){
+    if((a.reservas||[]).some(r=>r.owner===owner&&r.item===item))st.reservers.push(u);
+    const v=(a.vaquinhas||[]).find(v=>v.owner===owner&&v.item===item);if(v&&!st.vaq)st.vaq={...v,org:u};
+  }
+  if(st.vaq)for(const [u,a] of Object.entries(acoes))(a.cotas||[]).forEach(c=>{if(c.vid===st.vaq.id)st.cotas.push({u,valor:+c.valor||0})});
+  return st;
+}
+async function saveAcoes(next,okMsg){
+  const was=acoes[myId];acoes[myId]=next;form=null;keep(render);
+  try{await db.doc('acoes/'+myId).set(next);if(okMsg)toast(okMsg)}catch(e){acoes[myId]=was;keep(render);toast(failMsg)}
+}
+const pixTxt=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9 .\-]/g,'').toUpperCase().trim();
+function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c.toString(16).toUpperCase().padStart(4,'0')}
+function pixPayload(key,name,city,amount){
+  const f=(id,v)=>id+String(v.length).padStart(2,'0')+v;
+  const p=f('00','01')+f('26',f('00','br.gov.bcb.pix')+f('01',String(key).trim()))+f('52','0000')+f('53','986')+(amount?f('54',(+amount).toFixed(2)):'')+f('58','BR')+f('59',(pixTxt(name)||'PRESENTECERTO').slice(0,25))+f('60',(pixTxt(city)||'BRASIL').slice(0,15))+f('62',f('05','***'))+'6304';
+  return p+crc16(p);
+}
+function pixBox(v,valor){
+  const code=pixPayload(v.pix,v.recebedor||firstName(v.org),v.cidade,valor);
+  return `<div class="inline-form"><b>Pagar ${brl(valor)} com Pix</b><span class="muted">Abra o app do banco, escolha Pix copia e cola ou leia o QR code. Confira o nome de quem recebe antes de pagar.</span><div class="qr" data-qr="${esc(code)}"></div><div class="pix-code" id="pixCode">${esc(code)}</div><div class="row"><button class="btn small" data-act="copy" data-text="${esc(code)}">Copiar código Pix</button><button class="link" data-act="cancel">Fechar</button></div></div>`;
+}
+
+/* ---------- render ---------- */
+function setTab(t){tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
+document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
+function keep(fn){const y=window.scrollY;fn();window.scrollTo(0,y)}
+function updateBadge(){const pr=pendingRequests().length,bd=document.getElementById('badge');bd.hidden=!pr;bd.textContent=pr}
+function render(){
+  if(window.__loggedOut)return;
+  pendingRender=false;updateBadge();
+  if(!db){app.innerHTML=`<div class="view"><h1>Entre para usar o PresenteCerto</h1><p class="lede">Faça login na sua conta para criar sua ficha, seguir pessoas e ver as listas delas.</p></div>`;return}
+  if(viewing)renderPerson(viewing);
+  else if(tab==='mural')renderMural();
+  else if(tab==='datas')renderDatas();
+  else if(tab==='pessoas')renderSearch();
+  else if(tab==='sorteio')renderSorteio();
+  else if(tab==='admin'&&isOwner)renderAdmin();
+  else renderMine();
+  app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
+  drawQrs();
+}
+function drawQrs(){app.querySelectorAll('[data-qr]').forEach(el=>{if(el.dataset.done)return;el.dataset.done=1;try{if(window.QRCode)new QRCode(el,{text:el.dataset.qr,width:360,height:360,correctLevel:QRCode.CorrectLevel.M});else el.remove()}catch(e){el.remove()}})}
+
+function personRow(id,right,meta){
+  return `<div class="person tap" data-act="open" data-id="${esc(id)}" tabindex="0" role="button"><img src="${esc(av(id))}" alt=""><div style="min-width:0"><div class="nm">${esc(nm(id))}</div><div class="meta">${esc(meta)}</div></div>${right}</div>`;
+}
+function followBtn(id){
+  const on=following().includes(id),p=profiles[id];
+  const closed=p&&p.fechado&&!(p.aprovados||[]).includes(myId);
+  const label=on?(closed?'Pedido enviado':'Seguindo'):(p&&p.fechado?'Pedir para seguir':'Seguir');
+  return `<button class="btn small ${on?'on':''}" data-act="follow" data-id="${esc(id)}">${label}</button>`;
+}
+
+/* ---------- Mural ---------- */
+function ago(t){const d=Math.floor((Date.now()-t)/864e5);if(d<=0){const h=Math.floor((Date.now()-t)/36e5);return h<=0?'agora há pouco':h===1?'há 1 hora':'há '+h+' horas'}return d===1?'ontem':'há '+d+' dias'}
+const hiddenMsg=m=>(profiles[m.para]?.parabensOcultos||[]).includes(m.id)||(config.moderados||[]).includes(m.id);
+const avisosList=()=>{const l=[...(config.avisos||[])];if(config.aviso&&config.aviso.texto&&!l.some(x=>x.id===config.aviso.id))l.unshift(config.aviso);return l};
+let fechMem=[];const avisosFechados=()=>{let l=[];try{l=JSON.parse(localStorage.getItem('avisosFechados')||'[]')}catch(e){}return [...l,...fechMem]};
+const raw={profiles:{},follows:{},acoes:{},sorteios:{},parabens:{}};
+const hideEx=id=>!!config.ocultarExemplos&&String(id).startsWith('exemplo-');
+function applyRaw(){
+  const keep=o=>Object.fromEntries(Object.entries(o).filter(([k])=>!hideEx(k)));
+  profiles=keep(raw.profiles);
+  followsAll=Object.fromEntries(Object.entries(keep(raw.follows)).map(([k,v])=>[k,{...v,ids:(v.ids||[]).filter(x=>!hideEx(x))}]));
+  acoes=Object.fromEntries(Object.entries(keep(raw.acoes)).map(([k,v])=>[k,{...v,reservas:(v.reservas||[]).filter(r=>!hideEx(r.owner)),vaquinhas:(v.vaquinhas||[]).filter(x=>!hideEx(x.owner)),cotas:v.cotas||[]}]));
+  sorteios=keep(raw.sorteios);
+  parabens=Object.fromEntries(Object.entries(keep(raw.parabens)).map(([k,v])=>[k,{...v,lista:(v.lista||[]).filter(m=>!hideEx(m.para))}]));
+}
+function allParabens(){return Object.entries(parabens).flatMap(([from,d])=>(d.lista||[]).map(m=>({...m,from})))}
+let feedFiltro='tudo',feedLimite=5;
+function buildFeed(){
+  const ids=following().filter(id=>profiles[id]&&canSee(id));
+  const now=Date.now(),lim=now-30*864e5,ev=[];
+  ids.forEach(id=>{const p=profiles[id];const N=`<b>${esc(nm(id))}</b>`;
+    eventsFor(id).filter(e=>e.dias<=7).forEach(e=>ev.push({hot:true,kind:'datas',ord:e.dias,id,html:e.dias===0?`Hoje é dia de <b>${esc(e.label.toLowerCase())}</b> de ${N}! Veja a lista e deixe seus parabéns.`:`${esc(e.label)} de ${N} ${e.dias===1?'é amanhã':'em '+e.dias+' dias'}.`,quando:e.dias===0?'hoje':e.txt}));
+    const novos=[];
+    [['desejos','Pretende ganhar'],['precisa','Precisando com urgência']].forEach(([k,l])=>(p[k]||[]).forEach(w=>{const t=Date.parse(w.criado||'');if(t>lim)novos.push({t,nome:w.t,lista:l})}));
+    if(novos.length===1){const x=novos[0];ev.push({t:x.t,kind:'listas',id,html:`${N} adicionou <b>${esc(x.nome)}</b> em ${x.lista}.`})}
+    else if(novos.length>1){novos.sort((a,b)=>b.t-a.t);const nomes=novos.slice(0,2).map(x=>`<b>${esc(x.nome)}</b>`).join(', ');ev.push({t:novos[0].t,kind:'listas',id,html:`${N} adicionou ${novos.length} itens às listas: ${nomes}${novos.length>2?` e mais ${novos.length-2}`:''}.`})}
+    const recs=(p.recebidos||[]).map(r=>({t:Date.parse(r.data||''),nome:r.t})).filter(r=>r.t>lim).sort((a,b)=>b.t-a.t);
+    if(recs.length===1)ev.push({t:recs[0].t,kind:'listas',id,html:`${N} ganhou <b>${esc(recs[0].nome)}</b>.`});
+    else if(recs.length>1)ev.push({t:recs[0].t,kind:'listas',id,html:`${N} ganhou ${recs.length} presentes, entre eles <b>${esc(recs[0].nome)}</b>.`});
+    const pa=Date.parse(p.atualizado||'');if(!novos.length&&pa>now-14*864e5)ev.push({t:pa,kind:'listas',id,html:`${N} atualizou a ficha de presentes.`});
+  });
+  // parabéns: agrupa por pessoa que recebe
+  const porPara={};
+  allParabens().forEach(m=>{const t=Date.parse(m.data||'');if(!(t>lim)||hiddenMsg(m))return;
+    if(m.para!==myId&&(!ids.includes(m.para)||m.from===myId))return;(porPara[m.para]=porPara[m.para]||[]).push({...m,t})});
+  Object.entries(porPara).forEach(([para,ms])=>{ms.sort((a,b)=>b.t-a.t);const m=ms[0];const outros=ms.length-1;
+    const quem=`<b>${esc(nm(m.from))}</b>${outros?` e mais ${outros} ${outros===1?'pessoa':'pessoas'}`:''}`;
+    ev.push({t:m.t,kind:'parabens',id:para===myId?m.from:para,av:m.from,html:para===myId?`${quem} ${outros?'deixaram':'deixou'} parabéns para você.`:`${quem} ${outros?'deixaram':'deixou'} parabéns para <b>${esc(nm(para))}</b>.`,quote:m.texto})});
+  const hot=ev.filter(e=>e.hot).sort((a,b)=>a.ord-b.ord),rest=ev.filter(e=>!e.hot).sort((a,b)=>b.t-a.t);
+  return {hot,rest};
+}
+function renderMural(){
+  const fol=following();const {hot,rest}=buildFeed();
+  const f=feedFiltro;
+  const hotShown=(f==='tudo'||f==='datas')?hot:[];
+  const restAll=f==='tudo'?rest:f==='datas'?[]:rest.filter(e=>e.kind===f);
+  const restShown=restAll.slice(0,feedLimite);
+  const filtros=[['tudo','Tudo'],['datas','Datas'],['listas','Listas'],['parabens','Parabéns']];
+  let h=`<div class="view"><div><h1>Novidades</h1><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
+  const fech=avisosFechados();
+  avisosList().filter(x=>x.ativo&&x.texto&&!fech.includes(x.id)).forEach(x=>{h+=`<div class="banner"><span>${esc(x.texto)}</span><button class="icon-btn" data-act="fecharAviso" data-id="${esc(x.id)}" aria-label="Fechar aviso">×</button></div>`});
+  if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
+  if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
+  else if(!hotShown.length&&!restShown.length)h+=`<div class="empty">${f==='tudo'?'Nenhuma novidade nos últimos 30 dias. Quando alguém que você segue mexer na lista ou tiver data chegando, aparece aqui.':f==='datas'?'Nenhuma data nos próximos 7 dias.':'Nada deste tipo nos últimos 30 dias.'}</div>`;
+  else{
+    const post=e=>`<div class="post tap ${e.hot?'hot':''}" data-act="open" data-id="${esc(e.id)}" tabindex="0" role="button"><img class="av" src="${esc(av(e.av||e.id))}" alt=""><div style="min-width:0"><div class="txt">${e.html}</div>${e.quote?`<blockquote>${esc(e.quote)}</blockquote>`:''}<div class="when2">${e.hot?esc(e.quando):ago(e.t)}</div></div></div>`;
+    h+='<div class="feed">'+hotShown.map(post).join('');
+    restShown.forEach((e,i)=>{h+=post(e);if(i===2)h+=adCard(2)});
+    h+='</div>';
+    if(restShown.length<3)h+=adCard(2);
+    if(restAll.length>restShown.length)h+=`<div class="row" style="justify-content:center"><button class="btn ghost" data-act="feedMais">Ver mais novidades (${restAll.length-restShown.length})</button></div>`;
+  }
+  app.innerHTML=h+'</div>';
+}
+function muralParabens(id){
+  const p=profiles[id];const self=id===myId;const n=bdayDays(p);
+  const aberto=n!==null&&(n<=7||n>=358);
+  const msgs=allParabens().filter(m=>m.para===id&&(self||!hiddenMsg(m))).sort((a,b)=>String(b.data).localeCompare(String(a.data))).slice(0,30);
+  let h=`<section class="sec"><div class="eyebrow">Mural de parabéns</div>`;
+  if(!self){
+    if(aberto)h+=`<div class="inline-form"><label class="f">Deixe seus parabéns para ${esc(firstName(id))}<textarea id="pbTexto" maxlength="280" placeholder="Feliz aniversário! Muita saúde e alegria."></textarea></label><div class="row"><button class="btn small" data-act="postParabens" data-id="${esc(id)}">Publicar</button><span class="small" style="color:var(--muted)">Todos que seguem ${esc(firstName(id))} podem ver.</span></div></div>`;
+    else if(n!==null)h+=`<span class="muted">O mural abre 7 dias antes do aniversário${n>7?` (faltam ${n} dias)`:''}.</span>`;
+  }
+  if(!msgs.length)h+=`<span class="muted">${self?'Quando seus amigos deixarem parabéns, as mensagens aparecem aqui e no seu Mural.':'Nenhuma mensagem ainda.'}</span>`;
+  h+=msgs.map(m=>{const hid=hiddenMsg(m);return `<div class="msg-card" style="${hid?'opacity:.55':''}"><img src="${esc(av(m.from))}" alt=""><div style="min-width:0"><div><b>${esc(nm(m.from))}</b> <span class="small" style="color:var(--muted)">${ago(Date.parse(m.data))}</span></div><div style="overflow-wrap:anywhere">${esc(m.texto)}</div>
+    <div class="item-actions">${m.from===myId?`<button class="link" data-act="delParabens" data-mid="${esc(m.id)}">Apagar</button>`:''}${self?`<button class="link alt" data-act="hideParabens" data-mid="${esc(m.id)}">${hid?'Mostrar de novo':'Ocultar'}</button>${hid?'<span class="small" style="color:var(--muted)">Oculta para os outros</span>':''}`:''}</div></div></div>`}).join('');
+  return h+'</section>';
+}
+
+/* ---------- Datas ---------- */
+function renderDatas(){
+  const me=profiles[myId];const aviso=+(me?.aviso||15);
+  const fol=following();
+  const g=grupos.find(x=>x.id===grupoFiltro);
+  const inGroup=id=>!g||(g.membros||[]).includes(id);
+  const visible=fol.filter(id=>profiles[id]&&canSee(id)&&inGroup(id));
+  const waiting=fol.filter(id=>profiles[id]&&!canSee(id)&&inGroup(id));
+  const ev=visible.flatMap(eventsFor).sort((a,b)=>a.dias-b.dias);
+  const lemb=ev.filter(e=>e.dias<=aviso);
+  const req=pendingRequests();
+  const thanks=Object.entries(agrad).flatMap(([from,d])=>(d.lista||[]).filter(t=>t.para===myId).map(t=>({...t,from}))).sort((a,b)=>String(b.data).localeCompare(String(a.data))).slice(0,5);
+  let h=`<div class="view"><div><h1>Próximas datas</h1><p class="lede">Aniversários e datas especiais de quem você segue, da mais próxima para a mais distante.</p></div>`;
+  h+=`<div class="holidays">${holidays().map(x=>`<div class="holiday">${x.n}<span>${x.dias===0?'hoje':x.dias===1?'amanhã':'em '+x.dias+' dias'}</span></div>`).join('')}</div>`;
+  if(req.length)h+=`<section class="panel"><h2>Pedidos para seguir você</h2>${req.map(id=>`<div class="person"><img src="${esc(av(id))}" alt=""><div style="min-width:0"><div class="nm">${esc(nm(id))}</div><div class="meta">Quer ver sua ficha de presentes</div></div><div class="row" style="gap:6px"><button class="btn small green" data-act="approve" data-id="${esc(id)}">Aceitar</button><button class="btn small ghost" data-act="refuse" data-id="${esc(id)}">Recusar</button></div></div>`).join('')}</section>`;
+  if(thanks.length)h+=`<section class="sec"><div class="eyebrow">Agradecimentos para você</div>${thanks.map(t=>`<div class="thanks"><b>${esc(nm(t.from))}</b> agradeceu${t.itemNome?` pelo presente “${esc(t.itemNome)}”`:''}: ${esc(t.texto)}</div>`).join('')}</section>`;
+  if(lemb.length)h+=`<section class="panel hl"><h2>Lembretes</h2><div class="list">${lemb.map(e=>`<div class="row tap between" data-act="open" data-id="${esc(e.id)}" tabindex="0" role="button"><span><b>${esc(e.label)}</b> de ${esc(nm(e.id))}</span>${pill(e.dias)}</div>`).join('')}</div><span class="small" style="color:var(--muted)">Lembretes de datas nos próximos ${aviso} dias. Ajuste em Minha ficha.</span></section>`;
+  if(!me)h+=`<div class="notice">Sua ficha ainda está vazia. Preencha em <b>Minha ficha</b> para que seus amigos também acertem no seu presente.</div>`;
+  else if(completude(me).pct<80)h+=completudeHtml(me,true);
+  // grupos
+  h+=`<section class="sec"><div class="row between"><div class="eyebrow">Grupos</div><button class="link" data-act="toggleGrupos">${form&&form.type==='grupos'?'Fechar':'Gerenciar grupos'}</button></div>
+    <div class="chips"><button class="chip" data-act="filtro" data-id="" aria-pressed="${!grupoFiltro}">Todos</button>${grupos.map(x=>`<button class="chip" data-act="filtro" data-id="${esc(x.id)}" aria-pressed="${grupoFiltro===x.id}">${esc(x.nome)} · ${(x.membros||[]).length}</button>`).join('')}</div>`;
+  if(form&&form.type==='grupos')h+=gruposEditor();
+  h+=`</section>`;
+  if(!fol.length)h+=`<div class="empty"><b>Você ainda não segue ninguém</b><span>Procure amigos e familiares e toque em Seguir. As datas deles aparecem aqui.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
+  else if(!ev.length&&!waiting.length)h+=`<div class="empty">${g?'Ninguém deste grupo tem datas informadas.':'Quem você segue ainda não informou datas.'}</div>`;
+  else h+=`<div class="list">${ev.map(e=>personRow(e.id,pill(e.dias),`${e.label} · ${e.txt}`)).join('')}</div>`;
+  if(waiting.length)h+=`<section class="sec"><div class="eyebrow">Aguardando aprovação</div><div class="list">${waiting.map(id=>personRow(id,'<span class="when">pendente</span>','Perfil fechado. Você verá a ficha quando aceitarem.')).join('')}</div></section>`;
+  h+=adCard(0);
+  app.innerHTML=h+'</div>';
+}
+function gruposEditor(){
+  const fol=following().filter(id=>profiles[id]);
+  let h=`<div class="inline-form"><span class="muted">Seus grupos são só seus. Ninguém mais vê como você organizou as pessoas.</span>`;
+  grupos.forEach(x=>{
+    h+=`<div class="sec" style="gap:6px;border-top:1px solid var(--line);padding-top:10px"><div class="row between"><b>${esc(x.nome)}</b><button class="link" data-act="delGrupo" data-id="${esc(x.id)}">Excluir grupo</button></div>
+    ${fol.length?`<div class="chips">${fol.map(id=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(nm(id))}</button>`).join('')}</div>`:'<span class="muted">Siga pessoas para colocá-las em grupos.</span>'}</div>`;
+  });
+  h+=`<div class="row" style="flex-wrap:nowrap;border-top:1px solid var(--line);padding-top:10px"><input id="gNome" placeholder="Novo grupo: Família, Trabalho…" maxlength="30"><button class="btn small" data-act="addGrupo">Criar</button></div></div>`;
+  return h;
+}
+async function saveGrupos(next,msg){
+  const was=grupos;grupos=next;keep(render);
+  try{await db.doc(`data/users/${myId}/grupos`).set({lista:next});if(msg)toast(msg)}catch(e){grupos=was;keep(render);toast(failMsg)}
+}
+
+/* ---------- Encontrar ---------- */
+function renderSearch(){
+  const all=Object.keys(profiles).filter(id=>id!==myId);
+  const q=query.trim().toLowerCase();
+  const list=all.filter(id=>!q||nm(id).toLowerCase().includes(q)).sort((a,b)=>nm(a).localeCompare(nm(b)));
+  const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e o que pretendo ganhar, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
+  let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>
+  <section class="panel hl"><h2>Convidar amigos</h2><span class="muted">Mande o convite pelo WhatsApp. A pessoa entra com a conta Google ou com e-mail e senha e cria a ficha dela.</span>
+   <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(convite)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="copy" data-text="${esc(convite)}">Copiar convite</button></div></section>
+  <label class="f">Buscar pelo nome<input id="q" type="search" placeholder="Digite um nome" value="${esc(query)}" autocomplete="off"></label><div class="list">`;
+  if(!all.length)h+=`<div class="empty"><b>Ninguém criou ficha ainda</b><span>Convide amigos e família. Quando eles salvarem a ficha, aparecem aqui.</span></div>`;
+  else if(!list.length)h+=`<div class="empty">Nenhuma pessoa com esse nome.</div>`;
+  else h+=list.map(id=>personRow(id,followBtn(id),profiles[id].fechado&&!canSee(id)?'Perfil fechado':bdayText(profiles[id]))).join('');
+  app.innerHTML=h+'</div></div>';
+  const qi=app.querySelector('#q');qi.addEventListener('input',()=>{query=qi.value;const pos=qi.selectionStart;renderSearch();const n=app.querySelector('#q');n.focus();n.setSelectionRange(pos,pos)});
+}
+
+/* ---------- Ficha de outra pessoa ---------- */
+const colorChip=c=>`<span class="chip"><span class="dot" style="background:${CORES[c]||'var(--sunk)'}"></span>${esc(c)}</span>`;
+const grauTag=g=>GRAUS[g]?`<span class="grau ${GRAUS[g]}">${esc(g)}</span>`:'';
+function ensureFotos(id){
+  if(!db||fotoSubs[id])return;
+  fotoSubs[id]=db.collection(`fotos/${id}/itens`).onSnapshot(s=>{const m={};s.docs.forEach(d=>{if(d.exists&&d.data().img)m[d.id]=d.data().img});fotos[id]=m;softRender()},()=>{});
+}
+const fotoOf=(owner,item)=>(fotos[owner]||{})[item];
+
+function itemStatusHtml(owner,w){
+  const st=itemStatus(owner,w.id);
+  const isForm=t=>form&&form.type===t&&form.owner===owner&&form.item===w.id;
+  let h='<div class="status">';
+  if(st.vaq){
+    const v=st.vaq,total=st.cotas.reduce((s,c)=>s+c.valor,0),pct=v.alvo?Math.min(100,total/v.alvo*100):0;
+    const mine=st.cotas.find(c=>c.u===myId);
+    h+=`<div class="msg"><b>Vaquinha</b> organizada por ${esc(nm(v.org))} · ${brl(total)} de ${brl(v.alvo)} · ${st.cotas.length} ${st.cotas.length===1?'pessoa':'pessoas'}</div><div class="bar"><i style="width:${pct}%"></i></div>`;
+    if(st.cotas.length)h+=`<div class="msg">${st.cotas.map(c=>`${esc(nm(c.u))} ${brl(c.valor)}`).join(' · ')}</div>`;
+    h+='<div class="row">';
+    if(mine&&v.org!==myId&&v.pix)h+=`<button class="btn small green" data-act="formPix" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Pagar minha parte com Pix</button>`;
+    if(mine)h+=`<button class="btn small ghost" data-act="leaveVaq" data-vid="${esc(v.id)}">Sair da vaquinha</button>`;
+    else if(!isForm('cota'))h+=`<button class="btn small green" data-act="formCota" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Participar</button>`;
+    if(v.org===myId)h+=`<button class="btn small ghost" data-act="endVaq" data-vid="${esc(v.id)}">Encerrar vaquinha</button>`;
+    h+='</div>';
+    if(isForm('cota'))h+=`<div class="inline-form"><label class="f">Quanto você vai colocar (R$)<input id="fCota" inputmode="decimal" placeholder="Ex.: 50"></label><div class="row"><button class="btn small" data-act="joinVaq" data-vid="${esc(v.id)}" data-org="${esc(v.org)}" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Confirmar</button><button class="link" data-act="cancel">Cancelar</button></div></div>`;
+    if(isForm('pix')&&mine)h+=pixBox(v,mine.valor);
+  }else if(st.reservers.length){
+    if(st.reservers.includes(myId))h+=`<div class="msg"><b>Você vai dar este presente.</b> Os outros amigos já sabem que está reservado.</div><div class="row"><button class="btn small ghost" data-act="unreserve" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Desfazer reserva</button></div>`;
+    else h+=`<div class="msg">Reservado por <b>${esc(nm(st.reservers[0]))}</b>. Escolha outro item.</div>`;
+  }else if(isForm('vaq')){
+    h+=`<div class="inline-form"><label class="f">Valor total do presente (R$)<input id="fAlvo" inputmode="decimal" placeholder="Ex.: 600"></label><label class="f">Sua parte (R$, opcional)<input id="fMinha" inputmode="decimal" placeholder="Ex.: 100"></label>
+    <label class="f">Sua chave Pix para receber as partes<input id="fPix" placeholder="CPF, e-mail, celular (+55…) ou chave aleatória"></label>
+    <div class="grid2"><label class="f">Nome de quem recebe<input id="fRec" value="${esc(myName)}" maxlength="25"></label><label class="f">Cidade<input id="fCid" placeholder="Ex.: São Paulo" maxlength="15"></label></div>
+    <span class="small" style="color:var(--muted)">Com a chave Pix, cada participante recebe um código Pix copia e cola e um QR code com o valor exato da parte dele.</span>
+    <div class="row"><button class="btn small" data-act="createVaq" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Criar vaquinha</button><button class="link" data-act="cancel">Cancelar</button></div></div>`;
+  }else{
+    h+=`<div class="row"><button class="btn small" data-act="reserve" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Vou dar este</button><button class="btn small ghost" data-act="formVaq" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Fazer vaquinha</button></div>`;
+  }
+  return h+'</div>';
+}
+function itemsView(owner,items,showStatus){
+  return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
+    return `<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:(showStatus?shopLinks(w.t):'')}</div>${f?`<img class="thumb" src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:'<span></span>'}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
+}
+function aiBlock(id){
+  const r=aiRes[id];
+  let h=`<section class="sec"><div class="eyebrow">Ideias de presente com IA</div>`;
+  if(!sample){h+=`<span class="muted">As sugestões por inteligência artificial não estão disponíveis nesta tela.</span></section>`;return h}
+  h+=`<div class="row" style="flex-wrap:nowrap"><select id="aiValor" aria-label="Quanto quer gastar">${['até R$ 50','até R$ 100','até R$ 200','até R$ 500','sem limite'].map(v=>`<option ${r&&r.valor===v?'selected':''}>${v}</option>`).join('')}</select><button class="btn small" data-act="ai" data-id="${esc(id)}" ${r&&r.loading?'disabled':''}>${r&&r.loading?'Pensando…':'Sugerir presentes'}</button></div>
+  <span class="small" style="color:var(--muted)">A IA lê só o que está nesta ficha. As ideias não têm preço conferido.</span>`;
+  if(r&&r.erro)h+=`<div class="notice">${esc(r.erro)}</div>`;
+  if(r&&r.ideias)h+=r.ideias.map(x=>`<div class="idea"><div class="t">${esc(x.ideia)}</div><div class="muted">${esc(x.porque||'')}${x.faixa?` · ${esc(x.faixa)}`:''}</div>${shopLinks(String(x.busca||x.ideia))}</div>`).join('');
+  return h+'</section>';
+}
+async function runAI(id){
+  const p=profiles[id];const valor=app.querySelector('#aiValor')?.value||'até R$ 200';
+  aiRes[id]={valor,loading:true};keep(render);
+  const ficha={
+    tamanhos:{camiseta:p.camiseta,calca:p.calca,calcado:p.calcado,vestido:p.vestido,anel:p.anel,cama:p.cama},
+    coresQueGosta:p.cores,coresParaEvitar:p.evitarCores,estilo:p.estilos,perfume:p.perfume,prefereGanhar:p.tipoPresente,
+    marcasFavoritas:p.marcas,hobbies:p.hobbies,gostaDe:p.gosta,naoGosta:p.naoGosta,alergias:p.alergias,observacoes:p.obs,
+    jaPediu:[...(p.desejos||[]),...(p.precisa||[])].map(x=>x.t),idade:p.ano&&+p.ano>1900?new Date().getFullYear()-(+p.ano):undefined
+  };
+  const prompt=`Você ajuda pessoas no Brasil a escolher presentes. Sugira 5 presentes para a pessoa descrita na ficha abaixo, com orçamento ${valor}.
+Regras: use só as informações da ficha; respeite tamanhos, cores a evitar, alergias e o que ela não gosta; não repita itens que ela já pediu (campo jaPediu); varie entre tipos de presente; se ela prefere experiências, inclua experiências. Preços em reais, realistas para o Brasil.
+Responda apenas com JSON neste formato: [{"ideia":"nome curto do presente","porque":"uma frase ligando aos gostos dela","faixa":"R$ X a R$ Y","busca":"termo curto para buscar em loja"}]
+Ficha: ${JSON.stringify(ficha)}`;
+  try{const out=await sample.json(prompt,{modelTier:'default'});const arr=Array.isArray(out)?out:(out&&out.ideias)||[];
+    aiRes[id]={valor,ideias:arr.slice(0,6).filter(x=>x&&x.ideia)};if(!aiRes[id].ideias.length)aiRes[id].erro='A IA não trouxe sugestões. Tente outro valor.'}
+  catch(e){aiRes[id]={valor,erro:e&&e.code==='not_granted'?'Você não autorizou o uso da IA nesta página.':e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco e tente de novo.':'Não foi possível gerar sugestões agora. Tente de novo em instantes.'}}
+  keep(render);
+}
+function renderPerson(id){
+  const p=profiles[id];if(!p){viewing=null;return render()}
+  const self=id===myId;ensureFotos(id);
+  let h=`<div class="view"><button class="back" data-act="back">← Voltar</button>`;
+  if(!canSee(id)){
+    h+=`<div class="tag-card"><div class="tag-head"><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div><h1 style="font-size:24px">${esc(nm(id))}</h1><div class="muted">Perfil fechado</div></div></div><div class="tag-body"><p style="margin:0">Esta pessoa só mostra a ficha para quem ela aprovar.</p><div class="row">${followBtn(id)}</div></div></div></div>`;
+    app.innerHTML=h;return;
+  }
+  const sz=[['Camiseta',p.camiseta],['Calça',p.calca],['Calçado',p.calcado],['Vestido',p.vestido],['Anel',p.anel],['Cama',p.cama]].filter(x=>x[1]);
+  const ev=eventsFor(id).filter(e=>e.label!=='Aniversário');
+  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],['Marcas favoritas',p.marcas],['Hobbies',p.hobbies],['Gosta de',p.gosta],['Não gosta',p.naoGosta],['Alergias',p.alergias],['Observações',p.obs]].filter(x=>x[1]);
+  const meusGrupos=grupos;
+  h+=`<div class="tag-card"><div class="tag-head"><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 style="font-size:24px">${esc(nm(id))}</h1><div class="muted">${esc(bdayText(p))}</div><div style="margin-top:6px">${pill(bdayDays(p))}</div></div></div><div class="tag-body">`;
+  if(self)h+=`<div class="notice">Assim os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
+  else{
+    h+=`<div class="row">${followBtn(id)}</div>`;
+    if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
+  }
+  h+=`<section class="sec"><div class="eyebrow">Pretende ganhar</div>${(p.desejos||[]).length?`<div class="wish">${itemsView(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`}</section>`;
+  h+=`<section class="sec need"><div class="eyebrow">Precisando com urgência</div>${(p.precisa||[]).length?`<div class="wish">${itemsView(id,p.precisa,!self)}</div>`:`<div class="muted">Nada listado no momento.</div>`}</section>`;
+  if(!self)h+=aiBlock(id);
+  h+=muralParabens(id);
+  if(sz.length)h+=`<section class="sec"><div class="eyebrow">Tamanhos</div><div class="sizes">${sz.map(s=>`<div class="size"><b>${esc(s[1])}</b><span>${s[0]}</span></div>`).join('')}</div></section>`;
+  if((p.cores||[]).length||(p.evitarCores||[]).length)h+=`<section class="sec"><div class="eyebrow">Cores</div>${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}</section>`;
+  if(kv.length)h+=`<dl class="kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+  if(ev.length)h+=`<section class="sec"><div class="eyebrow">Outras datas</div>${ev.map(e=>`<div class="date-row"><span><b>${esc(e.label)}</b> · ${esc(e.txt)}</span>${pill(e.dias)}</div>`).join('')}</section>`;
+  if(p.atualizado)h+=`<div class="small" style="color:var(--muted)">Ficha atualizada em ${esc(new Date(p.atualizado).toLocaleDateString('pt-BR'))}</div>`;
+  h+='</div></div>';
+  if(!self)h+=adCard(1);
+  app.innerHTML=h+'</div>';
+}
+
+/* ---------- Amigo secreto ---------- */
+const enc=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const dec=s=>{try{return JSON.parse(decodeURIComponent(escape(atob(s))))}catch(e){return{}}};
+function allSorteios(){return Object.entries(sorteios).flatMap(([org,d])=>(d.lista||[]).map(s=>({...s,org})))}
+function membrosPicker(){
+  const fol=following();
+  const q=(form.busca||'').trim().toLowerCase();
+  const all=Object.keys(profiles).filter(id=>id!==myId);
+  const sel=form.membros.filter(id=>id!==myId);
+  const rest=all.filter(id=>!sel.includes(id)&&(!q||nm(id).toLowerCase().includes(q)))
+    .sort((a,b)=>(fol.includes(b)-fol.includes(a))||nm(a).localeCompare(nm(b)));
+  const shown=rest.slice(0,q?40:12);
+  const nomeSorteio=(form.nome||'nosso amigo secreto').trim()||'nosso amigo secreto';
+  const convite=`Oi! Você foi chamado para o amigo secreto "${nomeSorteio}". Entre no PresenteCerto, crie sua ficha com seus tamanhos e o que pretende ganhar, e me avise para eu colocar você no sorteio: ${APP_URL}`;
+  let h=`<div class="flabel">Participantes (você já está incluído)</div>`;
+  if(sel.length)h+=`<div class="chips">${sel.map(id=>`<button class="chip style" data-act="sMembro" data-id="${esc(id)}" aria-pressed="true" aria-label="Tirar ${esc(nm(id))}">${esc(nm(id))} ×</button>`).join('')}</div>`;
+  h+=`<span class="small" style="color:var(--muted)">${sel.length+1} participantes. O mínimo é 3.</span>
+   <label class="f">Procurar pessoas<input id="sBusca" type="search" value="${esc(form.busca||'')}" placeholder="Digite um nome" autocomplete="off"></label>`;
+  if(!all.length)h+=`<span class="muted">Ainda não há outras pessoas no PresenteCerto. Convide pelo botão abaixo.</span>`;
+  else if(!shown.length)h+=`<span class="muted">${q?'Ninguém com esse nome no PresenteCerto. Se a pessoa ainda não usa, convide pelo botão abaixo.':'Todas as pessoas já foram adicionadas.'}</span>`;
+  else h+=`<div class="chips">${shown.map(id=>`<button class="chip" data-act="sMembro" data-id="${esc(id)}" aria-pressed="false">+ ${esc(nm(id))}</button>`).join('')}</div>${rest.length>shown.length?`<span class="small" style="color:var(--muted)">Mostrando ${shown.length} de ${rest.length}. Digite um nome para achar outras pessoas.</span>`:''}`;
+  h+=`<div class="inline-form" style="gap:6px"><b>Alguém ainda não usa o PresenteCerto?</b><span class="small" style="color:var(--muted)">Mande o convite. Depois que a pessoa criar a ficha, procure o nome dela aqui.</span>
+   <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(convite)}" target="_blank" rel="noopener">Convidar pelo WhatsApp</a><button class="btn small ghost" data-act="copy" data-text="${esc(convite)}">Copiar convite</button></div></div>`;
+  return h;
+}
+function renderSorteio(){
+  const mine=allSorteios().filter(s=>s.org===myId||(s.membros||[]).includes(myId));
+  let h=`<div class="view"><div><h1>Amigo secreto</h1><p class="lede">Crie o grupo, sorteie e cada um vê só quem tirou, já com a ficha de presentes da pessoa.</p></div>`;
+  if(form&&form.type==='novoSorteio'){
+    h+=`<section class="panel"><h2>Novo amigo secreto</h2>
+     <label class="f">Nome<input id="sNome" value="${esc(form.nome||'')}" placeholder="Ex.: Natal da família 2026" maxlength="50"></label>
+     <div class="grid2"><label class="f">Data da troca<input id="sData" type="date" value="${esc(form.data||'')}"></label><label class="f">Valor sugerido<input id="sValor" value="${esc(form.valor||'')}" placeholder="Ex.: R$ 100"></label></div>
+     ${membrosPicker()}
+     <div class="row"><button class="btn" data-act="criarSorteio">Criar</button><button class="link" data-act="cancel">Cancelar</button></div></section>`;
+  }else if(!(form&&form.type==='editSorteio'))h+=`<div class="row"><button class="btn" data-act="novoSorteio">Criar amigo secreto</button></div>`;
+  if(!mine.length&&!(form&&form.type==='novoSorteio'))h+=`<div class="empty"><b>Nenhum amigo secreto ainda</b><span>Crie um para a família, o trabalho ou os amigos. Quem participa vê aqui quem tirou.</span></div>`;
+  mine.sort((a,b)=>String(a.data||'').localeCompare(String(b.data||''))).forEach(s=>{
+    const membros=[s.org,...(s.membros||[]).filter(x=>x!==s.org)];
+    const pares=s.pares?dec(s.pares):null;const tirou=pares&&pares[myId];
+    const dt=s.data?new Date(s.data+'T12:00:00').toLocaleDateString('pt-BR'):'';
+    const editing=form&&form.type==='editSorteio'&&form.id===s.id;
+    h+=`<section class="panel"><div class="row between"><h2>${esc(s.nome)}</h2>${s.org===myId&&!editing?`<button class="link" data-act="delSorteio" data-id="${esc(s.id)}">Excluir</button>`:''}</div>
+     <div class="muted">${[dt&&('Troca em '+dt),s.valor&&('Valor sugerido: '+s.valor),`Organizado por ${nm(s.org)}`].filter(Boolean).map(esc).join(' · ')}</div>`;
+    if(editing){h+=membrosPicker()+`<div class="row"><button class="btn small" data-act="saveSorteioMembros" data-id="${esc(s.id)}">Salvar participantes</button><button class="link" data-act="cancel">Cancelar</button></div></section>`;return}
+    h+=`<div class="chips">${membros.map(id=>`<span class="chip">${esc(nm(id))}</span>`).join('')}</div>`;
+    if(tirou)h+=`<div class="secret"><span class="eyebrow">Você tirou</span><b class="big">${esc(nm(tirou))}</b>${profiles[tirou]?`<div><button class="btn small" data-act="open" data-id="${esc(tirou)}">Ver a ficha de presentes</button></div>`:'<span class="muted">Esta pessoa ainda não criou a ficha.</span>'}<span class="small" style="color:var(--muted)">Não conte para ninguém.</span></div>`;
+    else if(pares)h+=`<div class="muted">Sorteio feito. Você não está entre os participantes.</div>`;
+    else if(s.org===myId)h+=`<div class="row"><button class="btn green" data-act="sortear" data-id="${esc(s.id)}" ${membros.length<3?'disabled':''}>Sortear agora</button><button class="btn small ghost" data-act="editSorteio" data-id="${esc(s.id)}">Adicionar ou tirar participantes</button></div>${membros.length<3?'<span class="small" style="color:var(--muted)">Adicione pelo menos 3 participantes para sortear.</span>':''}`;
+    else h+=`<div class="muted">Aguardando ${esc(nm(s.org))} fazer o sorteio.</div>`;
+    h+='</section>';
+  });
+  app.innerHTML=h+'</div>';
+  if(form&&form.type==='novoSorteio')['sNome','sData','sValor'].forEach(k=>app.querySelector('#'+k).addEventListener('input',e=>{form[{sNome:'nome',sData:'data',sValor:'valor'}[k]]=e.target.value}));
+  const sb=app.querySelector('#sBusca');
+  if(sb)sb.addEventListener('input',()=>{form.busca=sb.value;const pos=sb.selectionStart;keep(renderSorteio);const n=app.querySelector('#sBusca');if(n){n.focus();n.setSelectionRange(pos,pos)}});
+}
+async function saveSorteios(lista,msg){
+  const was=sorteios[myId];sorteios[myId]={lista};form=null;keep(render);
+  try{await db.doc('sorteios/'+myId).set({lista});if(msg)toast(msg)}catch(e){sorteios[myId]=was;keep(render);toast(failMsg)}
+}
+function sortear(ids){const a=[...ids];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}const p={};a.forEach((g,i)=>p[g]=a[(i+1)%a.length]);return p}
+
+/* ---------- Painel do administrador ---------- */
+async function importSeed(){
+  toast('Importando dados…');
+  try{
+    const r=await fetch('seed/dados-iniciais.json',{cache:'no-store'});if(!r.ok)throw 0;
+    const seed=JSON.parse((await r.text()).split('__ME__').join(myId));
+    let batch=db.batch(),n=0;
+    for(const d of seed.docs){
+      const data=JSON.parse(JSON.stringify(d.data));
+      if(d.path.startsWith('sorteios/'))data.lista=(data.lista||[]).map(x=>{if(x.paresObj){const {paresObj,...rest}=x;return {...rest,pares:enc(paresObj)}}return x});
+      batch.set(db.doc(d.path),data);n++;
+      if(n%400===0){await batch.commit();batch=db.batch()}
+    }
+    await batch.commit();toast(n+' registros importados');keep(render);
+  }catch(e){toast('Não foi possível importar. Confira se está entrando com a conta de administrador.')}
+}
+function renderAdmin(){
+  const all=Object.entries(raw.profiles);
+  const reais=all.filter(([id,p])=>!p.exemplo),ex=all.filter(([id,p])=>p.exemplo);
+  const vis=Object.entries(profiles);
+  const completas=vis.filter(([id,p])=>completude(p).pct===100).length;
+  const itens=vis.reduce((n,[id,p])=>n+(p.desejos||[]).length+(p.precisa||[]).length,0);
+  const ac=Object.values(acoes);
+  const reservas=ac.reduce((n,a)=>n+(a.reservas||[]).length,0),vaqs=ac.reduce((n,a)=>n+(a.vaquinhas||[]).length,0);
+  const sorts=Object.values(sorteios).reduce((n,d)=>n+(d.lista||[]).length,0);
+  const msgs=Object.entries(parabens).flatMap(([from,d])=>(d.lista||[]).map(m=>({...m,from}))).sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+  const seguidores=id=>Object.values(followsAll).filter(f=>(f.ids||[]).includes(id)).length;
+  const tile=(n,l)=>`<div><b>${n}</b><span>${l}</span></div>`;
+  let h=`<div class="view"><div><h1>Painel</h1><p class="lede">Área do administrador. Só você vê esta página.</p></div>`;
+  // 1 visão geral
+  h+=`<section class="panel"><h2>Visão geral</h2><div class="stat">${tile(reais.length,'Usuários reais')}${tile(config.ocultarExemplos?'0':ex.length,'Pessoas de exemplo')}${tile(completas,'Fichas completas')}${tile(itens,'Itens nas listas')}${tile(reservas,'Reservas')}${tile(vaqs,'Vaquinhas')}${tile(sorts,'Amigos secretos')}${tile(msgs.length,'Parabéns')}</div></section>`;
+  // 2-4 dinheiro
+  h+=adminBlock();
+  // 5 usuários
+  const lista=vis.map(([id,p])=>({id,p,c:completude(p).pct,t:Date.parse(p.atualizado||'')||0})).sort((a,b)=>b.t-a.t);
+  h+=`<section class="panel"><h2>Usuários</h2><p class="lede" style="margin:0">Todas as pessoas com ficha, da atualização mais recente para a mais antiga.</p><div>${lista.map(u=>`<div class="urow"><img src="${esc(av(u.id))}" alt=""><div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.id===myId?(myName||'Você')+' (você)':nm(u.id))}</div><div class="small" style="color:var(--muted)">Ficha ${u.c}% · ${seguidores(u.id)} ${seguidores(u.id)===1?'seguidor':'seguidores'}${u.p.fechado?' · perfil fechado':''}${u.t?' · atualizou '+ago(u.t):''}</div></div><span class="when ${u.c===100?'':'soon'}">${u.c}%</span></div>`).join('')||'<span class="muted">Ninguém ainda.</span>'}</div></section>`;
+  // 6 moderação
+  const mod=config.moderados||[];
+  h+=`<section class="panel"><h2>Moderação</h2><p class="lede" style="margin:0">Todas as mensagens de parabéns. Ocultar esconde a mensagem para todos, sem apagar.</p>${msgs.length?msgs.slice(0,50).map(m=>{const hid=mod.includes(m.id);return `<div class="msg-card" style="${hid?'opacity:.55':''}"><img src="${esc(av(m.from))}" alt=""><div style="min-width:0"><div><b>${esc(nm(m.from))}</b> para <b>${esc(nm(m.para))}</b> <span class="small" style="color:var(--muted)">${ago(Date.parse(m.data))}</span></div><div style="overflow-wrap:anywhere">${esc(m.texto)}</div><div class="item-actions"><button class="link ${hid?'alt':''}" data-act="moderar" data-mid="${esc(m.id)}">${hid?'Mostrar de novo':'Ocultar para todos'}</button></div></div></div>`}).join(''):'<span class="muted">Nenhuma mensagem ainda.</span>'}</section>`;
+  // 7 exemplos
+  h+=`<section class="panel"><h2>Pessoas de exemplo</h2><p class="lede" style="margin:0">${ex.length} pessoas fictícias para testes. Ocultar esconde elas e tudo ligado a elas para todos os usuários, sem apagar.</p>
+   <div class="row"><b>${config.ocultarExemplos?'Ocultas para todos':'Visíveis para todos'}</b><button class="btn small ${config.ocultarExemplos?'':'ghost'}" data-act="toggleExemplos">${config.ocultarExemplos?'Mostrar de novo':'Ocultar exemplos'}</button></div></section>`;
+  // importação
+  h+=`<section class="panel"><h2>Importar dados da versão de teste</h2><p class="lede" style="margin:0">Traz a sua ficha, seus grupos, seu amigo secreto, os códigos de afiliado, os anúncios, os avisos e as 9 pessoas de exemplo que você montou na versão de teste.</p>
+   ${form&&form.type==='importar'?`<div class="notice">Isso substitui a sua ficha atual, se você já tiver criado uma aqui. Os dados de outros usuários reais não são mexidos.</div><div class="row"><button class="btn small" data-act="importSeedOk">Confirmar importação</button><button class="link" data-act="cancel">Cancelar</button></div>`:`<div class="row"><button class="btn small ghost" data-act="importSeed">Importar dados</button></div>`}</section>`;
+  // 8 avisos
+  const avs=avisosList();
+  h+=`<section class="panel"><h2>Avisos para todos</h2><p class="lede" style="margin:0">Os avisos no ar aparecem no topo do Mural de todos os usuários. Cada pessoa pode fechar um aviso no próprio celular.</p>
+   ${avs.length?avs.map(x=>`<div class="banner"><div style="min-width:0;display:flex;flex-direction:column;gap:6px"><span style="overflow-wrap:anywhere">${esc(x.texto)}</span><div class="item-actions" style="margin:0"><button class="link alt" data-act="pausarAviso" data-id="${esc(x.id)}">${x.ativo?'Pausar':'Reativar'}</button><button class="link" data-act="excluirAviso" data-id="${esc(x.id)}">Excluir</button></div></div><span class="when ${x.ativo?'soon':''}">${x.ativo?'no ar':'pausado'}</span></div>`).join(''):'<span class="muted">Nenhum aviso criado.</span>'}
+   <label class="f">Novo aviso<input id="avisoT" maxlength="140" placeholder="Ex.: Faltam 30 dias para o Natal. Atualize sua lista!"></label>
+   <div class="row"><button class="btn small" data-act="salvarAviso">Publicar novo aviso</button></div></section>`;
+  app.innerHTML=h+'</div>';
+}
+
+/* ---------- Minha ficha ---------- */
+function listEditor(key,title,hint,ph,cls){
+  const items=draft[key];
+  return `<section class="panel ${cls||''}"><h2>${title}</h2><p class="lede" style="margin:0">${hint}</p>
+   <div class="wish">${items.map((w,i)=>{const f=fotoOf(myId,w.id);
+     if(form&&form.type==='editItem'&&form.key===key&&form.id===w.id)return `<div class="wish-item"><span class="n">${i+1}</span><div class="inline-form" style="grid-column:2 / -1">
+       <label class="f">Item<input id="eT" value="${esc(w.t)}" maxlength="120"></label>
+       <div class="grid2"><label class="f">Faixa de preço<input id="eP" value="${esc(w.preco)}" maxlength="60"></label><label class="f">Quanto você quer<select id="eG"><option value="">—</option>${Object.keys(GRAUS).map(g=>`<option ${w.grau===g?'selected':''}>${g}</option>`).join('')}</select></label></div>
+       <label class="f">Detalhe<input id="eO" value="${esc(w.obs)}" maxlength="120"></label>
+       <label class="f">Link<input id="eL" type="url" value="${esc(w.link)}" placeholder="https://"></label>
+       <div class="row"><button class="btn small" data-act="saveEdit" data-key="${key}" data-i="${i}">Salvar alteração</button><button class="link" data-act="cancel">Cancelar</button></div></div></div>`;
+     return `<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<div class="s">${esc(w.link)}</div>`:''}${f?`<img class="thumb sm" src="${esc(f)}" alt="">`:''}
+     <div class="item-actions"><button class="link" data-act="editItem" data-key="${key}" data-id="${esc(w.id)}">Editar</button><button class="link alt" data-act="foto" data-item="${esc(w.id)}">${f?'Trocar foto':'Adicionar foto'}</button>${f?`<button class="link alt" data-act="delFoto" data-item="${esc(w.id)}">Tirar foto</button>`:''}<button class="link" data-act="recebi" data-key="${key}" data-i="${i}">Recebi</button></div></div>
+     <div class="row" style="gap:0;flex-wrap:nowrap"><button class="icon-btn" data-act="up" data-key="${key}" data-i="${i}" aria-label="Subir" ${i===0?'disabled':''}>↑</button><button class="icon-btn" data-act="del" data-key="${key}" data-i="${i}" aria-label="Remover">×</button></div></div>`}).join('')||'<div class="muted">Nada na lista ainda.</div>'}</div>
+   <div class="grid2"><label class="f">Item<input id="${key}T" placeholder="${ph}"></label><label class="f">Faixa de preço<input id="${key}P" placeholder="Ex.: até R$ 200"></label></div>
+   <div class="grid2"><label class="f">Quanto você quer<select id="${key}G"><option value="">—</option>${Object.keys(GRAUS).map(g=>`<option>${g}</option>`).join('')}</select></label><label class="f">Detalhe (opcional)<input id="${key}O" placeholder="Ex.: cor preta, modelo X"></label></div>
+   <label class="f">Link (opcional)<input id="${key}L" type="url" placeholder="https://"></label>
+   <div class="row"><button class="btn ghost small" data-act="addItem" data-key="${key}" ${items.length>=10?'disabled':''}>Adicionar à lista</button><span class="small" style="color:var(--muted)">Depois de adicionar, você pode pôr uma foto.</span></div></section>`;
+}
+function chipsPick(key,vals,cls,withColor){
+  return `<div class="chips">${vals.map(v=>`<button class="chip ${cls||''}" data-act="pick" data-key="${key}" data-v="${esc(v)}" aria-pressed="${draft[key].includes(v)}">${withColor?`<span class="dot" style="background:${CORES[v]}"></span>`:''}${esc(v)}</button>`).join('')}</div>`;
+}
+function giversOf(item){const st=itemStatus(myId,item);return [...new Set([...st.reservers,...st.cotas.map(c=>c.u)])].filter(x=>x!==myId)}
+function recebidosBlock(){
+  const rec=draft.recebidos||[];
+  let h=`<section class="panel"><h2>Presentes recebidos</h2><p class="lede" style="margin:0">Quando você toca em Recebi, o item sai da lista e aparece aqui com quem deu.</p>`;
+  if(!rec.length)return h+'<div class="muted">Nenhum presente marcado como recebido.</div></section>';
+  const sent=(agrad[myId]?.lista)||[];
+  h+=rec.slice().reverse().map(r=>{
+    const givers=giversOf(r.id);
+    const isForm=form&&form.type==='thanks'&&form.item===r.id;
+    return `<div class="inline-form"><div class="row between"><b>${esc(r.t)}</b><span class="small" style="color:var(--muted)">${r.data?new Date(r.data).toLocaleDateString('pt-BR'):''}</span></div>
+      <div class="muted">${givers.length?'Quem deu: '+givers.map(g=>esc(nm(g))).join(', '):'Ninguém marcou este presente pelo sistema.'}</div>
+      ${givers.map(g=>sent.some(t=>t.para===g&&t.item===r.id)?`<div class="small" style="color:var(--ribbon)">Agradecimento enviado para ${esc(nm(g))}</div>`:'').join('')}
+      ${isForm?`<label class="f">Mensagem de agradecimento<textarea id="tTexto" maxlength="300">Muito obrigado pelo presente! Adorei.</textarea></label><div class="row"><button class="btn small green" data-act="sendThanks" data-item="${esc(r.id)}">Enviar para ${givers.length>1?'todos':esc(firstName(givers[0]))}</button><button class="link" data-act="cancel">Cancelar</button></div>`
+        :givers.some(g=>!sent.some(t=>t.para===g&&t.item===r.id))?`<div class="row"><button class="btn small ghost" data-act="formThanks" data-item="${esc(r.id)}">Agradecer</button></div>`:''}
+    </div>`}).join('');
+  return h+'</section>';
+}
+function adminBlock(){
+  if(!isOwner)return '';
+  const ads=config.anuncios||[];
+  const docs=Object.values(allMet);
+  const sumAd=(id,k)=>docs.reduce((s,m)=>s+(+(m.ads?.[id]?.[k])||0),0);
+  const sumLoja=k=>docs.reduce((s,m)=>s+(+(m.lojas?.[k])||0),0);
+  const totalCliques=ads.reduce((s,a)=>s+sumAd(a.id,'c'),0);
+  return `<section class="panel ad"><h2>Dinheiro: afiliados e anúncios</h2><p class="lede" style="margin:0">Resultados, códigos de afiliado e ofertas de parceiro.</p>
+   <div class="eyebrow">Resultados</div>
+   <div class="stat"><div><b>${sumLoja('amazon')}</b><span>Cliques Amazon</span></div><div><b>${sumLoja('magalu')}</b><span>Cliques Magalu</span></div><div><b>${sumLoja('ml')}</b><span>Cliques Mercado Livre</span></div><div><b>${sumLoja('link')}</b><span>Links das listas</span></div><div><b>${totalCliques}</b><span>Cliques em anúncios</span></div><div><b>${docs.length}</b><span>Pessoas contadas</span></div></div>
+   <span class="small" style="color:var(--muted)">Seus próprios cliques não entram na conta, para os números mostrarem só o interesse dos usuários. Visualização de anúncio conta uma vez por pessoa por dia.</span>
+   <div class="grid2"><label class="f">Código de afiliado Amazon<input id="cfgAmz" value="${esc(config.amazonTag||'')}" placeholder="Ex.: presentecerto-20"></label><label class="f">Sua loja Parceiro Magalu<input id="cfgMg" value="${esc(config.magaluLoja||'')}" placeholder="Ex.: magazinepresentecerto"></label></div>
+   <span class="small" style="color:var(--muted)">Os botões “Procurar” e os links da Amazon nas listas passam a levar seu código. Cada compra feita por eles gera comissão para você.</span>
+   <div class="row"><button class="btn small" data-act="saveCfg">Salvar códigos</button></div>
+   <div class="eyebrow" style="margin-top:6px">Anúncios</div>
+   ${ads.map((a,i)=>form&&form.type==='editAd'&&form.i===i?`<div class="inline-form">
+     <label class="f">Título<input id="eaT" maxlength="60" value="${esc(a.titulo)}"></label>
+     <label class="f">Texto<input id="eaX" maxlength="120" value="${esc(a.texto||'')}"></label>
+     <label class="f">Link da oferta (opcional)<input id="eaL" inputmode="url" autocapitalize="off" value="${esc(a.link||'')}" placeholder="Ex.: www.sualoja.com.br"></label>
+     <div class="row"><button class="btn small" data-act="saveAd" data-i="${i}">Salvar alterações</button><button class="link" data-act="cancel">Cancelar</button></div></div>`:`<div class="date-row"><span><b>${esc(a.titulo)}</b>${a.ativo?'':' · pausado'}<br><span class="small" style="color:var(--muted)">${sumAd(a.id,'v')} visualizações · ${sumAd(a.id,'c')} cliques</span></span><span class="row" style="gap:10px"><button class="link" data-act="editAd" data-i="${i}">Editar</button><button class="link alt" data-act="toggleAd" data-i="${i}">${a.ativo?'Pausar':'Ativar'}</button><button class="link" data-act="delAd" data-i="${i}">Excluir</button></span></div>`).join('')||'<div class="muted">Nenhum anúncio. Quando houver, aparece um por vez na página de Datas e nas fichas, marcado como Oferta de parceiro.</div>'}
+   <label class="f">Título do anúncio<input id="adT" maxlength="60" placeholder="Ex.: Flores com 15% de desconto"></label>
+   <label class="f">Texto<input id="adX" maxlength="120" placeholder="Ex.: Entrega no mesmo dia em São Paulo"></label>
+   <label class="f">Link da oferta (opcional)<input id="adL" inputmode="url" autocapitalize="off" placeholder="Ex.: www.sualoja.com.br ou wa.me/5585999999999"></label>
+   <div class="row"><button class="btn small ghost" data-act="addAd">Adicionar anúncio</button></div></section>`;
+}
+function renderMine(){
+  if(!draft){draft={...blank(),...JSON.parse(JSON.stringify(profiles[myId]||{}))};['desejos','precisa'].forEach(k=>(draft[k]||[]).forEach((w,i)=>{if(!w.id)w.id='i'+i}));draft.recebidos=draft.recebidos||[];dirty=false}
+  ensureFotos(myId);
+  const d=draft;
+  const opt=(vals,cur)=>vals.map(v=>`<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(v)}</option>`).join('');
+  const mesOpt=cur=>MESES.map((m,i)=>`<option value="${i+1}" ${String(cur)===String(i+1)?'selected':''}>${m}</option>`).join('');
+  const dias=Array.from({length:31},(_,i)=>i+1);
+  let h=`<div class="view"><div><h1>Minha ficha de presentes</h1><p class="lede">Quem segue você vê o que está aqui. Mantenha as listas atualizadas para ninguém errar.</p></div>
+  ${completudeHtml(d,false)}
+  <div class="row"><button class="btn ghost small" data-act="preview">Ver como os outros veem</button></div>
+  ${listEditor('desejos','Pretendo ganhar','O que você gostaria de ganhar, em ordem de preferência. Até 10 itens.','Ex.: Fone sem fio')}
+  ${listEditor('precisa','Precisando com urgência','Coisas úteis que estão fazendo falta no dia a dia. Até 10 itens.','Ex.: Jogo de toalhas','need')}
+  ${recebidosBlock()}
+  <section class="panel"><h2>Aniversário</h2>
+   <div class="grid2"><label class="f">Dia<select id="dia"><option value="">—</option>${opt(dias,d.dia)}</select></label>
+   <label class="f">Mês<select id="mes"><option value="">—</option>${mesOpt(d.mes)}</select></label>
+   <label class="f">Ano (opcional)<input id="ano" inputmode="numeric" maxlength="4" value="${esc(d.ano)}" placeholder="Ex.: 1990"></label></div></section>
+  <section class="panel"><h2>Outras datas especiais</h2><p class="lede" style="margin:0">Casamento, chá de bebê, formatura e outras ocasiões.</p>
+   ${d.datas.map((x,i)=>`<div class="date-row"><span><b>${esc(x.tipo==='Outra data'&&x.nota?x.nota:x.tipo)}</b> · ${+x.dia} de ${MESES[+x.mes-1]}${x.ano?' de '+esc(x.ano):''}</span><button class="icon-btn" data-act="delData" data-i="${i}" aria-label="Remover data">×</button></div>`).join('')}
+   <div class="grid2"><label class="f">Tipo<select id="dTipo">${opt(TIPOS_DATA,'')}</select></label><label class="f">Nome (para "Outra data")<input id="dNota" placeholder="Ex.: Bodas de prata"></label></div>
+   <div class="grid2"><label class="f">Dia<select id="dDia"><option value="">—</option>${opt(dias,'')}</select></label><label class="f">Mês<select id="dMes"><option value="">—</option>${mesOpt('')}</select></label><label class="f">Ano<input id="dAno" inputmode="numeric" maxlength="4" placeholder="Ex.: 2027"></label></div>
+   <div class="row"><button class="btn ghost small" data-act="addData">Adicionar data</button></div></section>
+  <section class="panel"><h2>Tamanhos</h2><div class="grid2">
+    <label class="f">Camiseta / blusa<select id="camiseta"><option value="">—</option>${opt(['PP','P','M','G','GG','XG','XGG'],d.camiseta)}</select></label>
+    <label class="f">Calça (numeração)<select id="calca"><option value="">—</option>${opt([34,36,38,40,42,44,46,48,50,52,54],d.calca)}</select></label>
+    <label class="f">Calçado<select id="calcado"><option value="">—</option>${opt(Array.from({length:17},(_,i)=>i+30),d.calcado)}</select></label>
+    <label class="f">Vestido (opcional)<select id="vestido"><option value="">—</option>${opt(['PP','P','M','G','GG',34,36,38,40,42,44,46],d.vestido)}</select></label>
+    <label class="f">Anel (opcional)<select id="anel"><option value="">—</option>${opt(Array.from({length:21},(_,i)=>i+10),d.anel)}</select></label>
+    <label class="f">Cama<select id="cama"><option value="">—</option>${opt(['Solteiro','Viúva','Casal','Queen','King'],d.cama)}</select></label></div></section>
+  <section class="panel"><h2>Cores e estilo</h2>
+   <div class="flabel">Cores que você gosta</div>${chipsPick('cores',Object.keys(CORES),'',true)}
+   <div class="flabel">Cores para evitar</div>${chipsPick('evitarCores',Object.keys(CORES),'avoid',true)}
+   <div class="flabel">Seu estilo</div>${chipsPick('estilos',ESTILOS,'style')}
+   <div class="flabel">Perfume</div>${chipsPick('perfume',PERFUMES,'style')}
+   <label class="f">Prefere ganhar<select id="tipoPresente"><option value="">—</option>${opt(TIPOS_PRESENTE,d.tipoPresente)}</select></label></section>
+  <section class="panel"><h2>Gostos</h2>
+   <label class="f">Marcas favoritas<input id="marcas" value="${esc(d.marcas)}" placeholder="Ex.: Natura, Adidas, Tramontina"></label>
+   <label class="f">Hobbies<input id="hobbies" value="${esc(d.hobbies)}" placeholder="Ex.: cozinhar, corrida, jardinagem"></label>
+   <label class="f">Do que você gosta<textarea id="gosta" placeholder="Ex.: café especial, livros de suspense, plantas">${esc(d.gosta)}</textarea></label>
+   <label class="f">Do que você não gosta<textarea id="naoGosta" placeholder="Ex.: perfume doce, bijuteria dourada">${esc(d.naoGosta)}</textarea></label>
+   <label class="f">Alergias<input id="alergias" value="${esc(d.alergias)}" placeholder="Ex.: lã, níquel, amendoim"></label>
+   <label class="f">Observações<textarea id="obs" placeholder="Ex.: estou de mudança, prefiro coisas pequenas">${esc(d.obs)}</textarea></label></section>
+  <section class="panel"><h2>Privacidade e lembretes</h2>
+   <label class="check"><input type="checkbox" id="fechado" ${d.fechado?'checked':''}><span><b>Perfil fechado</b><br><span style="color:var(--muted)">Só quem você aprovar vê sua ficha. Os pedidos aparecem na aba Datas.</span></span></label>
+   <label class="f">Me lembrar das datas com antecedência de<select id="aviso">${[7,15,30,45].map(n=>`<option value="${n}" ${+d.aviso===n?'selected':''}>${n} dias</option>`).join('')}</select></label></section>
+  <section class="panel"><h2>Instalar no celular</h2><p class="lede" style="margin:0">Coloque o PresenteCerto na tela inicial e abra como um aplicativo.</p>
+   <div class="grid2"><div><b>iPhone (Safari)</b><ol class="steps"><li>Abra o link do PresenteCerto no Safari.</li><li>Toque no botão Compartilhar.</li><li>Escolha “Adicionar à Tela de Início”.</li></ol></div>
+   <div><b>Android (Chrome)</b><ol class="steps"><li>Abra o link do PresenteCerto no Chrome.</li><li>Toque nos três pontinhos.</li><li>Escolha “Adicionar à tela inicial”.</li></ol></div></div>
+   <div class="row"><button class="btn small ghost" data-act="copy" data-text="${esc(APP_URL)}">Copiar link do PresenteCerto</button></div></section>
+  <section class="panel"><h2>Conta</h2><span class="muted">Você está conectado como <b>${esc(myEmail||myName||'você')}</b>.</span><div class="row"><button class="btn small ghost" data-act="logout">Sair da conta</button></div></section>
+  <div class="row savebar"><button class="btn" data-act="save" id="save">${dirty?'Salvar ficha':'Ficha salva'}</button>${dirty?'<span class="small" style="color:var(--muted)">Alterações não salvas</span>':''}</div></div>`;
+  app.innerHTML=h;
+  const mark=()=>{if(!dirty){dirty=true;app.querySelector('#save').textContent='Salvar ficha'}};
+  ['dia','mes','camiseta','calca','calcado','vestido','anel','cama','tipoPresente','aviso'].forEach(k=>app.querySelector('#'+k).addEventListener('change',e=>{d[k]=e.target.value;mark()}));
+  ['ano','gosta','naoGosta','obs','marcas','hobbies','alergias'].forEach(k=>app.querySelector('#'+k).addEventListener('input',e=>{d[k]=e.target.value;mark()}));
+  app.querySelector('#fechado').addEventListener('change',e=>{d.fechado=e.target.checked;mark()});
+}
+async function saveMine(){
+  if(!dirty)return;const b=app.querySelector('#save');if(b){b.disabled=true;b.textContent='Salvando…'}
+  const cur=profiles[myId]||{};
+  const data={...draft,ano:String(draft.ano||'').replace(/\D/g,'').slice(0,4),aviso:+draft.aviso||15,aprovados:cur.aprovados||[],recusados:cur.recusados||[],parabensOcultos:cur.parabensOcultos||[],atualizado:new Date().toISOString()};
+  delete data.jaTem;
+  try{await db.doc('profiles/'+myId).set(data);profiles[myId]=data;draft=null;dirty=false;toast('Ficha salva');keep(render)}
+  catch(e){if(b){b.disabled=false;b.textContent='Salvar ficha'}toast(failMsg)}
+}
+
+/* ---------- fotos ---------- */
+function compress(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=480;let w=img.width,h=img.height;const s=Math.min(1,max/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);let q=.75,out=c.toDataURL('image/jpeg',q);while(out.length>120000&&q>.35){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
+document.getElementById('fotoInput').addEventListener('change',async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file||!fotoTarget)return;
+  const item=fotoTarget;fotoTarget=null;toast('Enviando foto…');
+  try{const img=await compress(file);await db.doc(`fotos/${myId}/itens/${item}`).set({img});fotos[myId]={...(fotos[myId]||{}),[item]:img};if(dirty)toast('Foto salva. Lembre de salvar a ficha.');else toast('Foto salva');keep(render)}
+  catch(err){toast('Não foi possível usar esta foto. Tente outra imagem.')}
+});
+
+/* ---------- ações ---------- */
+const val=id=>(app.querySelector('#'+id)?.value||'').trim();
+const num=s=>{let t=String(s).replace(/[^\d,.]/g,'');if(t.includes(','))t=t.replace(/\./g,'').replace(',','.');else if(/\.\d{3}$/.test(t))t=t.replace(/\./g,'');const n=parseFloat(t);return isFinite(n)&&n>0?Math.round(n*100)/100:0};
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copiado')}catch(e){const el=app.querySelector('#pixCode');if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)}toast('Selecione o texto e copie manualmente')}}
+async function toggleFollow(id){
+  const cur=following(),next=cur.includes(id)?cur.filter(x=>x!==id):[...cur,id];
+  const was=followsAll[myId];followsAll[myId]={ids:next};keep(render);
+  try{await db.doc('follows/'+myId).set({ids:next});const p=profiles[id];toast(next.includes(id)?(p&&p.fechado&&!canSee(id)?'Pedido enviado':`Agora você segue ${nm(id)}`):`Você deixou de seguir ${nm(id)}`)}
+  catch(e){followsAll[myId]=was;keep(render);toast(failMsg)}
+}
+async function decide(id,ok){
+  const me=profiles[myId];const ap=(me.aprovados||[]).filter(x=>x!==id),re=(me.recusados||[]).filter(x=>x!==id);
+  (ok?ap:re).push(id);
+  try{await db.doc('profiles/'+myId).update({aprovados:ap,recusados:re});profiles[myId]={...me,aprovados:ap,recusados:re};if(draft){draft.aprovados=ap;draft.recusados=re}keep(render);toast(ok?`${nm(id)} agora vê sua ficha`:'Pedido recusado')}catch(e){toast(failMsg)}
+}
+async function saveConfig(next,msg){try{await db.doc('config/app').set(next);config=next;applyRaw();keep(render);toast(msg)}catch(e){toast('Não foi possível salvar a configuração.')}}
+app.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset?.act==='open')e.target.click()});
+app.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act,ds=el.dataset;
+  if(a!=='open')e.stopPropagation();
+  const A=myAcoes();
+  switch(a){
+    case 'open': viewing=ds.id;form=null;render();window.scrollTo(0,0);break;
+    case 'back': viewing=null;form=null;render();break;
+    case 'tab': setTab(ds.id);break;
+    case 'copy': copyText(ds.text);break;
+    case 'follow': toggleFollow(ds.id);break;
+    case 'approve': decide(ds.id,true);break;
+    case 'refuse': decide(ds.id,false);break;
+    case 'filtro': grupoFiltro=ds.id;keep(render);break;
+    case 'toggleGrupos': form=form&&form.type==='grupos'?null:{type:'grupos'};keep(render);break;
+    case 'addGrupo': {const n=val('gNome');if(!n){toast('Dê um nome ao grupo');break}saveGrupos([...grupos,{id:uid(),nome:n.slice(0,30),membros:[]}],'Grupo criado');form={type:'grupos'};break}
+    case 'delGrupo': if(grupoFiltro===ds.id)grupoFiltro='';saveGrupos(grupos.filter(g=>g.id!==ds.id),'Grupo excluído');form={type:'grupos'};break;
+    case 'grupoMembro': {const keepForm=form;saveGrupos(grupos.map(g=>g.id!==ds.g?g:{...g,membros:(g.membros||[]).includes(ds.id)?g.membros.filter(x=>x!==ds.id):[...(g.membros||[]),ds.id]}));form=keepForm;break}
+    case 'reserve': {const st=itemStatus(ds.owner,ds.item);if(st.reservers.length||st.vaq){toast('Este item acabou de ser reservado');keep(render);break}A.reservas.push({owner:ds.owner,item:ds.item});saveAcoes(A,'Reservado. Ninguém mais vai comprar este item.');break}
+    case 'unreserve': A.reservas=A.reservas.filter(r=>!(r.owner===ds.owner&&r.item===ds.item));saveAcoes(A,'Reserva desfeita');break;
+    case 'formVaq': form={type:'vaq',owner:ds.owner,item:ds.item};keep(render);break;
+    case 'formCota': form={type:'cota',owner:ds.owner,item:ds.item};keep(render);break;
+    case 'formPix': form={type:'pix',owner:ds.owner,item:ds.item};keep(render);break;
+    case 'cancel': form=null;keep(render);break;
+    case 'createVaq': {const alvo=num(val('fAlvo'));if(!alvo){toast('Informe o valor total do presente');break}
+      const vid=myId.slice(-6)+uid();const minha=num(val('fMinha'));
+      A.vaquinhas.push({id:vid,owner:ds.owner,item:ds.item,alvo,pix:val('fPix').slice(0,77),recebedor:val('fRec').slice(0,25),cidade:val('fCid').slice(0,15)});if(minha)A.cotas.push({vid,org:myId,valor:minha});
+      saveAcoes(A,'Vaquinha criada. Os outros amigos já podem participar.');break}
+    case 'joinVaq': {const v=num(val('fCota'));if(!v){toast('Informe quanto você vai colocar');break}A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);A.cotas.push({vid:ds.vid,org:ds.org,valor:v});
+      const st=itemStatus(ds.owner,ds.item);saveAcoes(A,'Você entrou na vaquinha');if(st.vaq&&st.vaq.pix&&ds.org!==myId){form={type:'pix',owner:ds.owner,item:ds.item};keep(render)}break}
+    case 'leaveVaq': A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Você saiu da vaquinha');break;
+    case 'endVaq': A.vaquinhas=A.vaquinhas.filter(v=>v.id!==ds.vid);A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Vaquinha encerrada');break;
+    case 'ai': runAI(ds.id);break;
+    case 'logout': if(user&&user.logout)user.logout().then(()=>location.reload());break;
+    case 'importSeed': form={type:'importar'};keep(render);break;
+    case 'importSeedOk': form=null;importSeed();break;
+    case 'moderar': {const cur=config.moderados||[];saveConfig({...config,moderados:cur.includes(ds.mid)?cur.filter(x=>x!==ds.mid):[...cur,ds.mid]},cur.includes(ds.mid)?'Mensagem visível de novo':'Mensagem oculta para todos');break}
+    case 'toggleExemplos': saveConfig({...config,ocultarExemplos:!config.ocultarExemplos},config.ocultarExemplos?'Pessoas de exemplo visíveis':'Pessoas de exemplo ocultas para todos');break;
+    case 'salvarAviso': {const t=val('avisoT');if(!t){toast('Escreva o texto do aviso');app.querySelector('#avisoT')?.focus();break}const nx={...config,avisos:[{id:uid(),texto:t.slice(0,140),ativo:true,data:new Date().toISOString()},...avisosList()]};delete nx.aviso;saveConfig(nx,'Aviso publicado no Mural de todos');break}
+    case 'pausarAviso': {const l=avisosList();const x=l.find(v=>v.id===ds.id);const nx={...config,avisos:l.map(v=>v.id===ds.id?{...v,ativo:!v.ativo}:v)};delete nx.aviso;saveConfig(nx,x&&x.ativo?'Aviso pausado':'Aviso no ar de novo');break}
+    case 'excluirAviso': {const nx={...config,avisos:avisosList().filter(v=>v.id!==ds.id)};delete nx.aviso;saveConfig(nx,'Aviso excluído');break}
+    case 'fecharAviso': {fechMem.push(ds.id);const f=avisosFechados();try{localStorage.setItem('avisosFechados',JSON.stringify(f.slice(-50)))}catch(e){}keep(render);break}
+    case 'feedFiltro': feedFiltro=ds.id;feedLimite=5;keep(render);break;
+    case 'feedMais': feedLimite+=5;keep(render);break;
+    case 'postParabens': {const texto=val('pbTexto');if(!texto){toast('Escreva sua mensagem');app.querySelector('#pbTexto')?.focus();break}
+      const cur=(parabens[myId]?.lista)||[];const lista=[...cur,{id:uid(),para:ds.id,texto:texto.slice(0,280),data:new Date().toISOString()}].slice(-300);
+      const was=parabens[myId];parabens[myId]={lista};keep(render);
+      db.doc('parabens/'+myId).set({lista}).then(()=>toast('Parabéns publicado')).catch(()=>{parabens[myId]=was;keep(render);toast(failMsg)});break}
+    case 'delParabens': {const lista=((parabens[myId]?.lista)||[]).filter(m=>m.id!==ds.mid);const was=parabens[myId];parabens[myId]={lista};keep(render);
+      db.doc('parabens/'+myId).set({lista}).then(()=>toast('Mensagem apagada')).catch(()=>{parabens[myId]=was;keep(render);toast(failMsg)});break}
+    case 'hideParabens': {const me=profiles[myId]||{};const cur=me.parabensOcultos||[];const next=cur.includes(ds.mid)?cur.filter(x=>x!==ds.mid):[...cur,ds.mid];
+      profiles[myId]={...me,parabensOcultos:next};if(draft)draft.parabensOcultos=next;keep(render);
+      db.doc('profiles/'+myId).update({parabensOcultos:next}).then(()=>toast(cur.includes(ds.mid)?'Mensagem visível de novo':'Mensagem oculta')).catch(()=>{profiles[myId]=me;keep(render);toast(failMsg)});break}
+    case 'novoSorteio': form={type:'novoSorteio',membros:[],nome:'',data:'',valor:'',busca:''};keep(render);break;
+    case 'sMembro': form.membros=form.membros.includes(ds.id)?form.membros.filter(x=>x!==ds.id):[...form.membros,ds.id];keep(render);break;
+    case 'editSorteio': {const s=((sorteios[myId]?.lista)||[]).find(x=>x.id===ds.id);if(!s)break;form={type:'editSorteio',id:s.id,membros:[...(s.membros||[])].filter(x=>x!==myId),busca:'',nome:s.nome};keep(render);break}
+    case 'saveSorteioMembros': {const membros=form.membros.filter(x=>x!==myId);saveSorteios(((sorteios[myId]?.lista)||[]).map(s=>s.id===ds.id&&!s.pares?{...s,membros}:s),'Participantes atualizados');break}
+    case 'criarSorteio': {const nome=(form.nome||'').trim();if(!nome){toast('Dê um nome ao amigo secreto');break}if(form.membros.length<2){toast('Escolha pelo menos mais 2 pessoas');break}
+      const lista=[...((sorteios[myId]?.lista)||[]),{id:uid(),nome:nome.slice(0,50),data:form.data||'',valor:(form.valor||'').slice(0,30),membros:form.membros}];saveSorteios(lista,'Amigo secreto criado');break}
+    case 'sortear': {const lista=((sorteios[myId]?.lista)||[]).map(s=>{if(s.id!==ds.id)return s;const ids=[myId,...s.membros.filter(x=>x!==myId)];return{...s,pares:enc(sortear(ids))}});saveSorteios(lista,'Sorteio feito. Cada um já pode ver quem tirou.');break}
+    case 'delSorteio': saveSorteios(((sorteios[myId]?.lista)||[]).filter(s=>s.id!==ds.id),'Amigo secreto excluído');break;
+    case 'preview': if(dirty){toast('Salve primeiro para ver a versão final');break}viewing=myId;render();window.scrollTo(0,0);break;
+    case 'save': saveMine();break;
+    case 'pick': {const k=ds.key,v=ds.v;draft[k]=draft[k].includes(v)?draft[k].filter(x=>x!==v):[...draft[k],v];
+      if(k==='cores')draft.evitarCores=draft.evitarCores.filter(x=>x!==v);if(k==='evitarCores')draft.cores=draft.cores.filter(x=>x!==v);
+      if(k==='perfume'&&v==='Não uso perfume'&&draft.perfume.includes(v))draft.perfume=[v];else if(k==='perfume'&&v!=='Não uso perfume')draft.perfume=draft.perfume.filter(x=>x!=='Não uso perfume');
+      dirty=true;keep(renderMine);break}
+    case 'up': {const l=draft[ds.key],i=+ds.i;if(i>0){[l[i-1],l[i]]=[l[i],l[i-1]];dirty=true;keep(renderMine)}break}
+    case 'del': {const it=draft[ds.key].splice(+ds.i,1)[0];if(it&&fotoOf(myId,it.id))db.doc(`fotos/${myId}/itens/${it.id}`).delete().catch(()=>{});dirty=true;keep(renderMine);break}
+    case 'recebi': {const it=draft[ds.key].splice(+ds.i,1)[0];draft.recebidos=[...(draft.recebidos||[]),{id:it.id,t:it.t,data:new Date().toISOString()}];dirty=true;keep(renderMine);toast('Movido para Presentes recebidos. Lembre de salvar.');break}
+    case 'editItem': form={type:'editItem',key:ds.key,id:ds.id};keep(renderMine);setTimeout(()=>app.querySelector('#eT')?.focus(),0);break;
+    case 'saveEdit': {const t=val('eT');if(!t){toast('O item precisa de um nome');break}const l=val('eL');if(l&&!safeLink(l)){toast('O link precisa começar com https://');break}
+      const it=draft[ds.key][+ds.i];Object.assign(it,{t:t.slice(0,120),preco:val('eP').slice(0,60),grau:val('eG'),obs:val('eO').slice(0,120),link:l.slice(0,500)});
+      form=null;dirty=true;keep(renderMine);toast('Item alterado. Lembre de salvar a ficha.');break}
+    case 'formThanks': form={type:'thanks',item:ds.item};keep(renderMine);break;
+    case 'sendThanks': {const texto=val('tTexto');if(!texto){toast('Escreva uma mensagem');break}
+      const r=(draft.recebidos||[]).find(x=>x.id===ds.item);const givers=giversOf(ds.item);
+      const cur=(agrad[myId]?.lista)||[];const lista=[...cur,...givers.map(g=>({id:uid(),para:g,item:ds.item,itemNome:r?r.t:'',texto:texto.slice(0,300),data:new Date().toISOString()}))].slice(-200);
+      const was=agrad[myId];agrad[myId]={lista};form=null;keep(renderMine);
+      db.doc('agradecimentos/'+myId).set({lista}).then(()=>toast('Agradecimento enviado')).catch(()=>{agrad[myId]=was;keep(renderMine);toast(failMsg)});break}
+    case 'foto': fotoTarget=ds.item;document.getElementById('fotoInput').click();break;
+    case 'delFoto': {const m={...(fotos[myId]||{})};delete m[ds.item];fotos[myId]=m;keep(renderMine);db.doc(`fotos/${myId}/itens/${ds.item}`).delete().then(()=>toast('Foto retirada')).catch(()=>toast(failMsg));break}
+    case 'addItem': {const k=ds.key,t=val(k+'T');if(!t){toast('Escreva o item');app.querySelector('#'+k+'T').focus();break}
+      const link=val(k+'L');draft[k].push({id:uid(),criado:new Date().toISOString(),t:t.slice(0,120),preco:val(k+'P').slice(0,60),grau:val(k+'G'),link:safeLink(link)?link.slice(0,500):'',obs:val(k+'O').slice(0,120)});
+      dirty=true;keep(renderMine);toast('Adicionado. Lembre de salvar.');break}
+    case 'addData': {const tipo=val('dTipo'),dia=val('dDia'),mes=val('dMes'),ano=val('dAno').replace(/\D/g,'').slice(0,4);
+      if(!dia||!mes){toast('Escolha o dia e o mês');break}
+      if(!RECORRENTE[tipo]&&tipo!=='Outra data'&&!ano){toast('Informe o ano desta data');break}
+      draft.datas.push({id:uid(),tipo,dia,mes,ano,nota:tipo==='Outra data'?val('dNota').slice(0,60):''});dirty=true;keep(renderMine);break}
+    case 'delData': draft.datas.splice(+ds.i,1);dirty=true;keep(renderMine);break;
+    case 'saveCfg': saveConfig({...config,amazonTag:val('cfgAmz').replace(/[^\w-]/g,'').slice(0,40),magaluLoja:val('cfgMg').replace(/[^\w-]/g,'').slice(0,60)},'Códigos de afiliado salvos');break;
+    case 'addAd': {const t=val('adT');let l=val('adL').replace(/\s+/g,'');if(!t){toast('Escreva o título do anúncio');app.querySelector('#adT')?.focus();break}
+      if(l&&!/^https?:\/\//i.test(l))l='https://'+l;if(l&&!/^https?:\/\/[^/.]+\.[^/]+/i.test(l)){toast('Confira o link da oferta. Exemplo: www.sualoja.com.br');break}
+      saveConfig({...config,anuncios:[...(config.anuncios||[]),{id:uid(),titulo:t.slice(0,60),texto:val('adX').slice(0,120),link:l.slice(0,500),ativo:true}]},'Anúncio publicado');break}
+    case 'editAd': form={type:'editAd',i:+ds.i};keep(render);break;
+    case 'saveAd': {const t=val('eaT');let l=val('eaL').replace(/\s+/g,'');if(!t){toast('O anúncio precisa de um título');break}
+      if(l&&!/^https?:\/\//i.test(l))l='https://'+l;if(l&&!/^https?:\/\/[^/.]+\.[^/]+/i.test(l)){toast('Confira o link da oferta. Exemplo: www.sualoja.com.br');break}
+      form=null;saveConfig({...config,anuncios:(config.anuncios||[]).map((x,i)=>i===+ds.i?{...x,titulo:t.slice(0,60),texto:val('eaX').slice(0,120),link:l.slice(0,500)}:x)},'Anúncio atualizado');break}
+    case 'toggleAd': saveConfig({...config,anuncios:(config.anuncios||[]).map((x,i)=>i===+ds.i?{...x,ativo:!x.ativo}:x)},'Anúncio atualizado');break;
+    case 'delAd': saveConfig({...config,anuncios:(config.anuncios||[]).filter((x,i)=>i!==+ds.i)},'Anúncio excluído');break;
+  }
+});
+
+/* ---------- início ---------- */
+async function resolveNames(ids){
+  ids=ids.filter(i=>i&&!names[i]&&!isEx(i));if(!user||!ids.length)return;
+  for(let k=0;k<ids.length;k+=64){try{const ps=await user.profiles(ids.slice(k,k+64));for(const id of ids)if(ps[id])names[id]={name:ps[id].name||'Alguém',avatar:ps[id].avatarUrl}}catch(e){}}
+}
+// não redesenhar enquanto a pessoa digita ou edita a ficha
+function busy(){const a=document.activeElement;return (a&&app.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))}
+function softRender(){updateBadge();if(tab==='perfil'&&!viewing&&dirty)return;if(busy()){pendingRender=true;return}keep(render)}
+app.addEventListener('focusout',()=>setTimeout(()=>{if(pendingRender&&!busy())softRender()},150));
+async function refresh(ids){await resolveNames(ids||[]);softRender()}
+async function start(){
+  db=await claude.use('db');user=await claude.use('user');
+  if(!db){render();return}
+  myId=user?await user.id():null;
+  if(!myId){db=null;render();return}
+  try{isOwner=!!(await user.isOwner())}catch(e){}
+  if(!isOwner)db.doc('metricas/'+myId).get().then(s=>{if(s.exists){const d=s.data();met={ads:JSON.parse(JSON.stringify(d.ads||{})),lojas:{...(d.lojas||{})}}}metReady=true}).catch(()=>{});
+  else db.collection('metricas').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});allMet=n;softRender()},()=>{});
+  try{const m=await user.me();myName=m.name||'';myEmail=m.email||'';names[myId]={name:m.name||'Você',avatar:m.avatarUrl};
+    document.getElementById('meChip').innerHTML=`${isOwner?'<button class="admin-btn" id="adminBtn">Painel</button>':''}<button class="avatar-btn" id="meBtn" aria-label="Abrir minha ficha"><img src="${esc(m.avatarUrl)}" alt=""></button>`;
+    document.getElementById('adminBtn')?.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('admin')});
+    document.getElementById('meBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing)return;if(dirty){toast('Salve sua ficha antes de sair');return}setTab('perfil')})}catch(e){}
+  render();
+  claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
+  const err=()=>toast('Conexão perdida. Recarregue a página.');
+  const coll=(path,setter)=>db.collection(path).onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});setter(n);refresh(Object.keys(n))},err);
+  coll('profiles',n=>{raw.profiles=n;applyRaw()});
+  coll('follows',n=>{raw.follows=n;applyRaw()});
+  coll('acoes',n=>{raw.acoes=n;applyRaw()});
+  coll('agradecimentos',n=>agrad=n);
+  coll('sorteios',n=>{raw.sorteios=n;applyRaw()});
+  coll('parabens',n=>{raw.parabens=n;applyRaw()});
+  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};applyRaw();softRender()},()=>{});
+  db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
+}
+if(window.claude&&claude.use)start();else if(!window.__semConfig)render();
+})();
+</script>
+
+</body>
+</html>

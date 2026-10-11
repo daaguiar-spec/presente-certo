@@ -1,0 +1,37 @@
+rules_version = '2';
+// Regras de segurança do PresenteCerto.
+// Cole este conteúdo em Firebase > Firestore Database > Regras e toque em Publicar.
+// Troque o e-mail abaixo se o administrador for outra pessoa.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function logado() { return request.auth != null; }
+    function admin() {
+      return logado()
+        && request.auth.token.email == 'daaguiar@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+    function dono(uid) { return logado() && request.auth.uid == uid; }
+
+    // Fichas, seguidores, reservas, agradecimentos, amigo secreto, parabéns e nomes:
+    // qualquer pessoa logada lê; cada um só escreve o próprio documento.
+    match /profiles/{uid}       { allow read: if logado(); allow write: if dono(uid) || admin(); }
+    match /follows/{uid}        { allow read: if logado(); allow write: if dono(uid) || admin(); }
+    match /acoes/{uid}          { allow read: if logado(); allow write: if dono(uid) || admin(); }
+    match /agradecimentos/{uid} { allow read: if logado(); allow write: if dono(uid) || admin(); }
+    match /sorteios/{uid}       { allow read: if logado(); allow write: if dono(uid) || admin(); }
+    match /parabens/{uid}       { allow read: if logado(); allow write: if dono(uid) || admin(); }
+    match /usuarios/{uid}       { allow read: if logado(); allow write: if dono(uid); }
+
+    // Fotos dos itens das listas
+    match /fotos/{uid}/itens/{item} { allow read: if logado(); allow write: if dono(uid) || admin(); }
+
+    // Configuração (afiliados, anúncios, avisos, moderação): todos leem, só o administrador muda
+    match /config/{doc} { allow read: if logado(); allow write: if admin(); }
+
+    // Contadores de cliques: cada um grava o seu; só o administrador vê todos
+    match /metricas/{uid} { allow read: if dono(uid) || admin(); allow write: if dono(uid); }
+
+    // Dados privados de cada pessoa (grupos)
+    match /data/users/{uid}/{doc=**} { allow read, write: if dono(uid); }
+  }
+}
