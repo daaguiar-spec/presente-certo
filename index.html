@@ -941,6 +941,45 @@ async function saveHandle(){
   }catch(e){toast(e&&e.code==='em-uso'?'Esse @ já está em uso. Tente outro.':'Não foi possível salvar o @. Tente de novo.')}
 }
 
+async function criarExemplos(){
+  const h=n=>new Date(Date.now()-n*36e5).toISOString();
+  const dia=n=>{const d=new Date(Date.now()+n*864e5);return{dia:String(d.getDate()),mes:String(d.getMonth()+1)}};
+  const base={exemplo:true,vestido:'',anel:'',evitarCores:[],perfume:[],marcas:'',hobbies:'',gosta:'',naoGosta:'',alergias:'',obs:'',datas:[],recebidos:[],fechado:false,aviso:15,aprovados:[],recusados:[],marcasTags:[],alergiasTags:[]};
+  const pessoas={
+    'exemplo-mariana':{...base,nome:'Mariana Souza',...dia(6),ano:'1992',cidade:'Fortaleza',camiseta:'P',calca:'38',calcado:'36',vestido:'P',anel:'14',cama:'Casal',cores:['Rosa','Bege','Branco'],evitarCores:['Laranja'],estilos:['Romântico','Elegante'],perfume:['Floral'],tipoPresente:'Objetos',gostosTags:['Chá','Yoga','Plantas','Leitura'],marcasTags:['Natura','Farm'],alergiasTags:['Níquel'],
+      desejos:[{id:'m1',base:'Kit de skincare',t:'Kit de skincare',preco:'até R$ 200',grau:'Sonho',obs:'',link:'',criado:h(5)},{id:'m2',base:'Vestido',t:'Vestido – tamanho P',preco:'até R$ 200',grau:'Gostaria muito',obs:'cores: rosa, bege',link:'',criado:h(5)},{id:'m3',base:'Livro de romance',t:'Livro de romance',preco:'até R$ 100',grau:'Seria legal',obs:'',link:'',criado:h(30)}],
+      precisa:[{id:'m4',base:'Toalhas de banho',t:'Toalhas de banho',preco:'até R$ 200',obs:'cor bege',link:''}],atualizado:h(5)},
+    'exemplo-carlos':{...base,nome:'Carlos Lima',...dia(17),ano:'1988',cidade:'Fortaleza',camiseta:'G',calca:'44',calcado:'42',cama:'Queen',cores:['Azul-marinho','Cinza','Preto'],estilos:['Esportivo','Casual'],perfume:['Cítrico'],tipoPresente:'Experiências',gostosTags:['Futebol','Corrida','Cerveja'],marcasTags:['Nike','Adidas'],
+      desejos:[{id:'c1',base:'Tênis de corrida',t:'Tênis de corrida – nº 42',preco:'até R$ 500',grau:'Sonho',obs:'cores: azul-marinho, cinza',link:'',criado:h(26)},{id:'c2',base:'Jantar em restaurante',t:'Jantar em restaurante',preco:'até R$ 200',grau:'Gostaria muito',obs:'',link:''}],
+      precisa:[{id:'c3',base:'Garrafa térmica',t:'Garrafa térmica',preco:'até R$ 100',obs:'',link:'',criado:h(26)}],atualizado:h(26)},
+    'exemplo-ana':{...base,nome:'Ana Ribeiro',...dia(39),ano:'1995',cidade:'Eusébio',camiseta:'M',calca:'40',calcado:'37',vestido:'M',cama:'Casal',cores:['Verde','Branco'],estilos:['Básico','Moderno'],tipoPresente:'Tanto faz',gostosTags:['Café','Cozinhar','Fotografia'],alergiasTags:['Lactose'],obs:'Está esperando o primeiro filho.',
+      datas:[{id:'a9',tipo:'Chá de bebê',...dia(55),ano:String(new Date(Date.now()+55*864e5).getFullYear()),nota:''}],
+      desejos:[{id:'a1',base:'Câmera instantânea',t:'Câmera instantânea',preco:'até R$ 500',grau:'Sonho',obs:'',link:''}],
+      precisa:[{id:'a2',base:'Carrinho de bebê',t:'Carrinho de bebê',preco:'acima de R$ 500',obs:'',link:'',criado:h(50)},{id:'a3',base:'Body de bebê',t:'Body de bebê',preco:'até R$ 100',obs:'tamanho RN e P',link:'',criado:h(50)}],
+      recebidos:[{id:'a0',t:'Kit de cafés especiais',data:h(80)}],atualizado:h(50)},
+    'exemplo-rafael':{...base,nome:'Rafael Costa',...dia(18),ano:'1999',cidade:'Fortaleza',camiseta:'G',calca:'42',calcado:'43',cama:'Solteiro',cores:['Preto','Cinza','Verde'],evitarCores:['Rosa'],estilos:['Geek','Casual'],tipoPresente:'Objetos',gostosTags:['Games','Séries e filmes','Tecnologia'],marcasTags:['Samsung'],
+      datas:[{id:'r9',tipo:'Formatura',...dia(64),ano:String(new Date(Date.now()+64*864e5).getFullYear()),nota:''}],
+      desejos:[{id:'r1',base:'Jogo de videogame',t:'Jogo de videogame',preco:'até R$ 500',grau:'Sonho',obs:'',link:'',criado:h(70)},{id:'r2',base:'Headset gamer',t:'Headset gamer',preco:'até R$ 200',grau:'Gostaria muito',obs:'',link:''}],
+      precisa:[{id:'r3',base:'Mochila',t:'Mochila',preco:'até R$ 200',obs:'para notebook 15"',link:''}],atualizado:h(70)},
+    'exemplo-fernanda':{...base,nome:'Fernanda Rocha',...dia(147),ano:'1997',cidade:'Fortaleza',camiseta:'M',calca:'40',calcado:'38',vestido:'M',anel:'15',cama:'Casal',cores:['Rosa','Branco','Dourado'],evitarCores:['Preto'],estilos:['Romântico','Praiano'],perfume:['Floral','Doce'],tipoPresente:'Objetos',gostosTags:['Praia','Maquiagem','Moda'],marcasTags:['Vivara','O Boticário'],obs:'Vai casar em breve; a lista de casa nova está em Precisando com urgência.',
+      datas:[{id:'f9',tipo:'Casamento',...dia(96),ano:String(new Date(Date.now()+96*864e5).getFullYear()),nota:''}],
+      desejos:[{id:'f1',base:'Colar',t:'Colar',preco:'até R$ 500',grau:'Sonho',obs:'dourado',link:''},{id:'f2',base:'Maquiagem',t:'Maquiagem',preco:'até R$ 200',grau:'Gostaria muito',obs:'tons nude',link:''}],
+      precisa:[{id:'f3',base:'Jogo de panelas',t:'Jogo de panelas',preco:'acima de R$ 500',obs:'antiaderente',link:'',criado:h(20)},{id:'f4',base:'Jogo de lençóis',t:'Jogo de lençóis – cama Casal',preco:'até R$ 200',obs:'branco',link:'',criado:h(20)},{id:'f5',base:'Liquidificador',t:'Liquidificador',preco:'até R$ 500',obs:'',link:'',criado:h(20)}],atualizado:h(20)}
+  };
+  const ids=Object.keys(pessoas);
+  try{
+    const b=db.batch();
+    ids.forEach(id=>b.set(db.doc('profiles/'+id),pessoas[id]));
+    b.set(db.doc('acoes/exemplo-carlos'),{reservas:[{owner:'exemplo-mariana',item:'m1'}],vaquinhas:[],cotas:[]});
+    b.set(db.doc('acoes/exemplo-ana'),{reservas:[],vaquinhas:[{id:'vqx',owner:'exemplo-carlos',item:'c1',alvo:500,pix:'',recebedor:'Ana Ribeiro',cidade:'Fortaleza'}],cotas:[{vid:'vqx',org:'exemplo-ana',valor:100}]});
+    b.set(db.doc('acoes/exemplo-mariana'),{reservas:[],vaquinhas:[],cotas:[{vid:'vqx',org:'exemplo-ana',valor:80}]});
+    b.set(db.doc('parabens/exemplo-carlos'),{lista:[{id:'pbx1',para:'exemplo-mariana',texto:'Mari, feliz aniversário adiantado! Que venha um ano incrível.',data:h(3)}]});
+    b.set(db.doc('parabens/exemplo-fernanda'),{lista:[{id:'pbx2',para:'exemplo-mariana',texto:'Parabéns adiantado, linda! Tudo de bom pra você.',data:h(1)}]});
+    b.set(db.doc('follows/exemplo-ana'),{ids:[myId,'exemplo-carlos','exemplo-mariana']});
+    b.set(db.doc('follows/'+myId),{ids:[...new Set([...following(),...ids])]});
+    await b.commit();toast('5 pessoas de exemplo criadas. Veja o Mural!');
+  }catch(e){toast('Não foi possível criar os exemplos. Confira se entrou com a conta de administrador.')}
+}
 async function apagarExemplos(){
   const isEx=id=>String(id||'').startsWith('exemplo-');
   toast('Apagando exemplos…');
@@ -1066,7 +1105,7 @@ function renderAdmin(){
   // 7 exemplos
   h+=ex.length?`<section class="panel"><h2>Pessoas de exemplo</h2><p class="lede" style="margin:0">${ex.length} pessoas fictícias para testes. Ocultar esconde elas para todos, sem apagar. Apagar remove de vez as pessoas e tudo ligado a elas: reservas, vaquinha, parabéns, amigo secreto e quem as segue.</p>
    <div class="row"><b>${config.ocultarExemplos?'Ocultas para todos':'Visíveis para todos'}</b><button class="btn small ${config.ocultarExemplos?'':'ghost'}" data-act="toggleExemplos">${config.ocultarExemplos?'Mostrar de novo':'Ocultar exemplos'}</button></div>
-   ${form&&form.type==='apagarEx'?`<div class="notice">Isso apaga as ${ex.length} pessoas de exemplo e não dá para desfazer. Sua ficha e as de usuários reais não são mexidas.</div><div class="row"><button class="btn small" data-act="apagarExOk">Apagar de vez</button><button class="link" data-act="cancel">Cancelar</button></div>`:`<div class="row"><button class="btn small ghost" data-act="apagarEx">Apagar exemplos de vez</button></div>`}</section>`:`<section class="panel"><h2>Pessoas de exemplo</h2><span class="muted">Não há pessoas de exemplo. Todo mundo no PresenteCerto é usuário real.</span></section>`;
+   ${form&&form.type==='apagarEx'?`<div class="notice">Isso apaga as ${ex.length} pessoas de exemplo e não dá para desfazer. Sua ficha e as de usuários reais não são mexidas.</div><div class="row"><button class="btn small" data-act="apagarExOk">Apagar de vez</button><button class="link" data-act="cancel">Cancelar</button></div>`:`<div class="row"><button class="btn small ghost" data-act="apagarEx">Apagar exemplos de vez</button></div>`}</section>`:`<section class="panel"><h2>Pessoas de exemplo</h2><span class="muted">Não há pessoas de exemplo agora. Crie 5 pessoas fictícias, com fichas completas, listas, datas e parabéns, para testar e demonstrar o PresenteCerto. Você passa a segui-las automaticamente.</span><div class="row"><button class="btn small" data-act="criarExemplos">Criar 5 pessoas de exemplo</button></div></section>`;
   // importação
   h+=`<section class="panel"><h2>Importar dados da versão de teste</h2><p class="lede" style="margin:0">Traz a sua ficha, seus grupos, os códigos de afiliado, os anúncios e os avisos que você montou na versão de teste.</p>
    ${form&&form.type==='importar'?`<div class="notice">Isso substitui a sua ficha atual, se você já tiver criado uma aqui. Os dados de outros usuários reais não são mexidos.</div><div class="row"><button class="btn small" data-act="importSeedOk">Confirmar importação</button><button class="link" data-act="cancel">Cancelar</button></div>`:`<div class="row"><button class="btn small ghost" data-act="importSeed">Importar dados</button></div>`}</section>`;
@@ -1397,6 +1436,7 @@ app.addEventListener('click',e=>{
     case 'qItem': quickItem(ds.key,ds.v);break;
     case 'outro': form={type:'outro',key:ds.key};keep(renderMine);setTimeout(()=>app.querySelector('#'+ds.key+'T')?.focus(),0);break;
     case 'pickOne': draft[ds.key]=draft[ds.key]===ds.v?'':ds.v;dirty=true;keep(renderMine);break;
+    case 'criarExemplos': criarExemplos();break;
     case 'apagarEx': form={type:'apagarEx'};keep(render);break;
     case 'apagarExOk': form=null;apagarExemplos();break;
     case 'shareNative': if(navigator.share){navigator.share({title:'Minha ficha no PresenteCerto',text:ds.text,url:ds.url}).catch(()=>{})}else copyText(ds.url);break;
