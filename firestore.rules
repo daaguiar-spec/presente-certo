@@ -22,6 +22,13 @@ service cloud.firestore {
     match /parabens/{uid}       { allow read: if logado(); allow write: if dono(uid) || admin(); }
     match /usuarios/{uid}       { allow read: if logado(); allow write: if dono(uid); }
 
+    // Nomes de usuário (@): cada @ pertence a uma só pessoa; ninguém toma o @ de outro
+    match /usernames/{h} {
+      allow read: if logado();
+      allow create: if logado() && request.resource.data.uid == request.auth.uid && h.matches('^[a-z0-9._]{3,20}$');
+      allow delete: if logado() && resource.data.uid == request.auth.uid;
+    }
+
     // Fotos dos itens das listas
     match /fotos/{uid}/itens/{item} { allow read: if logado(); allow write: if dono(uid) || admin(); }
 
