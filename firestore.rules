@@ -29,6 +29,27 @@ service cloud.firestore {
       allow delete: if logado() && resource.data.uid == request.auth.uid;
     }
 
+    // Códigos de ativação do Plus: só o administrador cria e lista; quem tem o código consegue usá-lo uma vez
+    match /codigos/{c} {
+      allow get: if logado();
+      allow list, create, delete: if admin();
+      allow update: if admin() || (logado()
+        && resource.data.usadoPor == null
+        && request.resource.data.usadoPor == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usadoPor','usadoEm']));
+    }
+
+    // Planos Plus: o administrador liga e desliga; a pessoa só ativa com um código válido usado por ela
+    match /planos/{uid} {
+      allow read: if logado();
+      allow write: if admin() || (dono(uid)
+        && request.resource.data.keys().hasOnly(['plus','ate','codigo'])
+        && request.resource.data.plus == true
+        && getAfter(/databases/$(database)/documents/codigos/$(request.resource.data.codigo)).data.usadoPor == request.auth.uid
+        && request.resource.data.ate <= request.time + duration.value(getAfter(/databases/$(database)/documents/codigos/$(request.resource.data.codigo)).data.dias, 'd')
+        && (resource == null || resource.data.codigo != request.resource.data.codigo));
+    }
+
     // Fotos dos itens das listas
     match /fotos/{uid}/itens/{item} { allow read: if logado(); allow write: if dono(uid) || admin(); }
 
