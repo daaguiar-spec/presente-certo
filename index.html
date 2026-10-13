@@ -289,6 +289,22 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .inst-benef span{font-size:20px;line-height:1}
 .inst-ico{width:18px;height:18px;vertical-align:-3px;color:var(--accent);display:inline-block}
 .inst-os ol li{line-height:1.45}
+.of-wrap{position:relative}
+.of-wrap .ofertas{scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.of-wrap .ofertas::-webkit-scrollbar{display:none}
+.of-wrap .oferta{scroll-snap-align:start}
+.of-wrap.tem-mais::after{content:"";position:absolute;top:0;right:0;bottom:4px;width:36px;background:linear-gradient(90deg,transparent,var(--bg));pointer-events:none;border-radius:0 12px 12px 0}
+.of-seta{position:absolute;top:50%;transform:translateY(-60%);z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--accent);font-size:26px;line-height:1;font-weight:700;display:grid;place-items:center;padding:0 0 3px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.16)}
+.of-seta.esq{left:-6px}.of-seta.dir{right:-6px}
+.of-seta[hidden]{display:none}
+.of-todas{font-weight:700;font-size:14px}
+.of-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.of-grade .oferta{width:auto}
+.marca-grupo{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-top:6px}
+.marca-grupo summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.marca-grupo summary::before{content:'▸ ';color:var(--accent)}
+.marca-grupo[open] summary::before{content:'▾ '}
+.marca-grupo .chips{margin-top:8px}
 </style>
 
 </head>
@@ -437,33 +453,58 @@ const RECORRENTE={'Aniversário de casamento':true};
 const GRAUS={'Sonho':'g1','Gostaria muito':'g2','Seria legal':'g3'};
 // Catálogo para adicionar presentes com toques. [nome, campo de tamanho da ficha]
 const CAT_DESEJOS={
-  'Roupas':[['Camiseta','camiseta'],['Camisa','camiseta'],['Blusa','camiseta'],['Moletom','camiseta'],['Jaqueta','camiseta'],['Calça jeans','calca'],['Bermuda','calca'],['Vestido','vestido'],['Pijama','camiseta'],['Roupa de academia','camiseta']],
-  'Calçados':[['Tênis','calcado'],['Sandália','calcado'],['Chinelo','calcado'],['Sapato social','calcado'],['Bota','calcado'],['Tênis de corrida','calcado']],
-  'Beleza e perfume':['Perfume','Kit de skincare','Maquiagem','Hidratante','Kit de barba','Secador de cabelo','Chapinha','Vale-spa'],
-  'Eletrônicos':['Fone sem fio','Smartwatch','Caixa de som bluetooth','Carregador portátil','Kindle','Tablet','Celular','Câmera instantânea'],
-  'Casa e decoração':['Vela aromática','Quadro decorativo','Planta','Manta','Luminária','Difusor de aromas','Porta-retrato'],
-  'Cozinha':['Cafeteira','Air fryer','Jogo de facas','Panela de ferro','Liquidificador','Kit de taças','Garrafa térmica'],
-  'Livros':['Livro de romance','Livro de suspense','Livro de autoajuda','Livro de culinária','Biografia','HQ ou mangá','Vale-livraria'],
-  'Games':['Jogo de videogame','Controle extra','Headset gamer','Mouse gamer','Teclado gamer','Cartão-presente de jogos'],
-  'Esporte':['Garrafa esportiva','Tapete de yoga','Mochila esportiva','Bola','Relógio esportivo','Bicicleta'],
-  'Joias e acessórios':[['Anel','anel'],'Colar','Brinco','Pulseira','Relógio','Óculos de sol','Bolsa','Carteira','Boné'],
-  'Bebidas':['Vinho','Cerveja artesanal','Kit de cafés especiais','Kit de chás','Whisky','Espumante'],
-  'Experiências':['Jantar em restaurante','Dia de spa','Show ou teatro','Viagem de fim de semana','Curso','Aula experimental','Ingresso de cinema'],
-  'Bebê':['Roupinhas de bebê','Brinquedo educativo','Kit de banho do bebê','Mordedor','Livro infantil'],
-  'Pet':['Caminha para pet','Brinquedo para pet','Coleira','Petiscos','Comedouro']
+  'Roupas':[['Camiseta','camiseta'],['Camisa','camiseta'],['Blusa','camiseta'],['Moletom','camiseta'],['Jaqueta','camiseta'],['Calça jeans','calca'],['Bermuda','calca'],['Shorts','calca'],['Saia','calca'],['Vestido','vestido'],['Macacão','vestido'],['Pijama','camiseta'],['Roupa de academia','camiseta'],['Biquíni ou maiô','camiseta'],['Sunga','calca'],['Lingerie','camiseta']],
+  'Calçados':[['Tênis','calcado'],['Tênis de corrida','calcado'],['Sandália','calcado'],['Rasteirinha','calcado'],['Chinelo','calcado'],['Sapato social','calcado'],['Mocassim','calcado'],['Scarpin','calcado'],['Bota','calcado'],['Pantufa','calcado']],
+  'Beleza e perfume':['Perfume','Kit de skincare','Maquiagem','Paleta de sombras','Batom','Hidratante','Kit de banho','Kit de barba','Secador de cabelo','Chapinha','Escova rotativa','Kit de unhas','Vale-spa'],
+  'Eletrônicos':['Fone sem fio','Smartwatch','Caixa de som bluetooth','Carregador portátil','Kindle','Tablet','Celular','Notebook','Câmera instantânea','Assistente virtual (Alexa)','Videogame','Projetor','Smart TV'],
+  'Casa e decoração':['Vela aromática','Quadro decorativo','Planta','Manta','Almofada','Luminária','Difusor de aromas','Porta-retrato','Jogo americano','Tapete','Relógio de parede','Espelho decorativo'],
+  'Cozinha':['Cafeteira','Máquina de café expresso','Air fryer','Jogo de facas','Panela de ferro','Liquidificador','Batedeira','Mixer','Panela elétrica de arroz','Kit de taças','Garrafa térmica','Kit de churrasco'],
+  'Livros':['Livro de romance','Livro de suspense','Livro de fantasia','Livro de autoajuda','Livro de negócios','Livro de culinária','Biografia','HQ ou mangá','Livro infantil','Vale-livraria'],
+  'Games':['Jogo de videogame','Controle extra','Headset gamer','Mouse gamer','Teclado gamer','Cadeira gamer','Cartão-presente de jogos','Jogo de tabuleiro'],
+  'Esporte':['Garrafa esportiva','Tapete de yoga','Mochila esportiva','Bola','Relógio esportivo','Bicicleta','Halteres','Raquete de beach tennis','Patins','Prancha','Óculos de natação','Kit de camping'],
+  'Joias e acessórios':[['Anel','anel'],'Colar','Brinco','Pulseira','Pingente','Relógio','Óculos de sol','Bolsa','Mochila','Carteira','Cinto','Boné','Lenço'],
+  'Bebidas':['Vinho','Espumante','Cerveja artesanal','Whisky','Gin','Licor','Cachaça artesanal','Kit de drinks','Kit de cafés especiais','Kit de chás'],
+  'Experiências':['Jantar em restaurante','Dia de spa','Massagem','Show ou teatro','Viagem de fim de semana','Day use em hotel','Passeio turístico','Curso','Aula de culinária','Aula experimental','Ingresso de cinema','Ingresso de jogo'],
+  'Música':['Instrumento musical','Vitrola','Disco de vinil','Microfone','Aula de música','Ingresso de show'],
+  'Viagem':['Mala de viagem','Mochila de viagem','Necessaire','Travesseiro de pescoço','Organizador de mala','Adaptador de tomada','Guia de viagem'],
+  'Saúde e bem-estar':['Massageador','Kit de aromaterapia','Óleos essenciais','Smartband','Balança inteligente','Escova de dente elétrica','Kit de autocuidado'],
+  'Arte e papelaria':['Caderno','Planner','Agenda','Kit de canetas','Kit de pintura','Livro de colorir','Kit de lettering','Material de artesanato'],
+  'Fotografia':['Câmera','Tripé','Ring light','Álbum de fotos','Porta-retrato digital','Impressora de fotos'],
+  'Jardinagem e plantas':['Vaso decorativo','Kit de jardinagem','Terrário','Suculentas','Regador','Horta em casa'],
+  'Ferramentas e carro':['Kit de ferramentas','Furadeira','Parafusadeira','Aspirador automotivo','Suporte de celular para carro','Kit de limpeza automotiva'],
+  'Infantil e brinquedos':['Brinquedo educativo','Lego','Boneca','Carrinho de controle remoto','Quebra-cabeça','Pelúcia','Jogo de tabuleiro infantil','Fantasia','Patinete'],
+  'Bebê':['Roupinhas de bebê','Brinquedo educativo','Kit de banho do bebê','Mordedor','Livro infantil','Móbile','Naninha'],
+  'Pet':['Caminha para pet','Brinquedo para pet','Coleira','Petiscos','Comedouro','Arranhador','Roupinha para pet','Fonte de água para pet'],
+  'Assinaturas e vales':['Vale-presente','Assinatura de streaming','Clube do vinho','Clube do livro','Assinatura de café','Assinatura de música']
 };
 const CAT_PRECISA={
-  'Casa':['Jogo de toalhas','Tapete','Cortina','Organizadores','Kit de ferramentas','Ventilador','Aspirador de pó'],
-  'Cozinha':['Jogo de panelas','Jogo de pratos','Jogo de copos','Talheres','Liquidificador','Sanduicheira','Potes herméticos','Panela de pressão'],
-  'Cama e banho':[['Jogo de lençóis','cama'],['Edredom','cama'],'Travesseiro','Toalhas de banho','Roupão'],
-  'Roupas do dia a dia':[['Meias','calcado'],['Roupa íntima','camiseta'],['Tênis para o dia a dia','calcado'],['Camisetas básicas','camiseta'],['Calça básica','calca']],
-  'Escritório e estudo':['Mochila','Mouse sem fio','Fone com microfone','Agenda','Garrafa térmica','Suporte para notebook'],
-  'Saúde e cuidado':['Kit de primeiros socorros','Massageador','Balança','Medidor de pressão','Protetor solar'],
-  'Bebê':['Fraldas','Lenços umedecidos','Carrinho de bebê','Body de bebê','Mamadeira','Banheira de bebê']
+  'Casa':['Jogo de toalhas','Tapete','Cortina','Organizadores','Cabides','Varal','Lixeira','Escada','Luminária','Ventilador','Aspirador de pó'],
+  'Cozinha':['Jogo de panelas','Jogo de pratos','Jogo de copos','Talheres','Liquidificador','Sanduicheira','Micro-ondas','Air fryer','Potes herméticos','Panela de pressão','Escorredor de louça','Tábua de corte','Assadeiras','Garrafa térmica'],
+  'Eletrodomésticos':['Geladeira','Fogão','Máquina de lavar','Micro-ondas','Ar-condicionado','Ferro de passar','Aspirador robô','Purificador de água','Cafeteira'],
+  'Cama e banho':[['Jogo de lençóis','cama'],['Edredom','cama'],['Protetor de colchão','cama'],['Colchão','cama'],'Travesseiro','Cobertor','Toalhas de banho','Tapete de banheiro','Roupão'],
+  'Roupas do dia a dia':[['Meias','calcado'],['Roupa íntima','camiseta'],['Tênis para o dia a dia','calcado'],['Chinelo','calcado'],['Camisetas básicas','camiseta'],['Calça básica','calca'],['Pijama','camiseta'],['Casaco','camiseta']],
+  'Limpeza':['Kit de limpeza','Mop','Vassoura e rodo','Balde','Produtos de limpeza','Panos de microfibra'],
+  'Casa nova e mudança':['Caixas organizadoras','Kit de ferramentas','Lâmpadas','Extensão elétrica','Cortinas','Fechadura digital','Kit de primeiros socorros'],
+  'Escritório e estudo':['Mochila','Cadeira de escritório','Mesa de escritório','Luminária de mesa','Mouse sem fio','Teclado','Webcam','Fone com microfone','HD externo','Agenda','Suporte para notebook','Material escolar','Calculadora','Curso online'],
+  'Saúde e cuidado':['Kit de primeiros socorros','Termômetro','Medidor de pressão','Nebulizador','Massageador','Balança','Escova de dente elétrica','Organizador de remédios','Protetor solar'],
+  'Carro':['Suporte de celular','Carregador veicular','Kit de emergência','Tapetes do carro','Capa para banco','Aspirador automotivo'],
+  'Bebê':['Fraldas','Lenços umedecidos','Carrinho de bebê','Berço','Cadeirinha para carro','Babá eletrônica','Bolsa maternidade','Trocador','Body de bebê','Mamadeira','Banheira de bebê'],
+  'Pet':['Ração','Areia higiênica','Tapete higiênico','Caminha para pet','Coleira','Caixa de transporte','Comedouro']
 };
 const FAIXAS=['até R$ 50','até R$ 100','até R$ 200','até R$ 500','acima de R$ 500'];
-const TAG_GOSTOS=['Café','Chá','Vinho','Cerveja','Chocolate','Leitura','Viagem','Praia','Futebol','Academia','Corrida','Yoga','Cozinhar','Séries e filmes','Música','Games','Plantas','Pets','Tecnologia','Moda','Maquiagem','Artesanato','Fotografia','Pescaria'];
-const TAG_MARCAS=['Natura','O Boticário','Nike','Adidas','Apple','Samsung','Zara','Renner','Farm','Arezzo','Havaianas','Tramontina','Granado','Vivara','Lacoste','Melissa'];
+const TAG_GOSTOS=['Café','Chá','Vinho','Cerveja','Chocolate','Doces','Comida japonesa','Churrasco','Cozinhar','Confeitaria','Leitura','Escrever','Viagem','Praia','Campo e natureza','Trilha','Camping','Futebol','Academia','Corrida','Ciclismo','Natação','Yoga','Pilates','Dança','Beach tennis','Lutas','Séries e filmes','Anime','Música','Shows e festivais','Teatro','Podcasts','Games','Jogos de tabuleiro','Tecnologia','Fotografia','Desenho e pintura','Artesanato','Crochê e tricô','Plantas','Jardinagem','Decoração','Pets','Moda','Maquiagem','Skincare','Perfumes','Autocuidado','Meditação','Carros','Motos','Pescaria','Futebol na TV','Astrologia','Espiritualidade','Voluntariado','Idiomas'];
+const MARCAS_GRUPOS={
+  'Beleza e perfume':['Natura','O Boticário','Eudora','Granado','Sephora','MAC','Avon','Quem disse, Berenice?','L\'Oréal','Dior','Chanel','Carolina Herrera','Jequiti','Vult'],
+  'Moda':['Zara','Renner','C&A','Riachuelo','Farm','Animale','Arezzo','Schutz','Melissa','Havaianas','Hering','Reserva','Osklen','Lacoste','Levi\'s','Tommy Hilfiger','Calvin Klein'],
+  'Esporte':['Nike','Adidas','Puma','Mizuno','Asics','Olympikus','Fila','Under Armour','Decathlon','Track&Field'],
+  'Tecnologia':['Apple','Samsung','Xiaomi','Motorola','JBL','Sony','LG','Dell','Lenovo','Logitech','Amazon (Kindle e Alexa)'],
+  'Casa e cozinha':['Tramontina','Tok&Stok','Camicado','Le Creuset','Oster','Mondial','Electrolux','Brastemp','Nespresso','Dolce Gusto','Philips Walita','Arno'],
+  'Joias e relógios':['Vivara','Pandora','Life by Vivara','Rommanel','Swarovski','Casio','Orient','Technos','Fossil'],
+  'Comidas e bebidas':['Cacau Show','Kopenhagen','Lindt','Nestlé','Starbucks','3 Corações','Wine','Evino','Heineken']
+};
+const TAG_MARCAS=Object.values(MARCAS_GRUPOS).flat();
+const BEBE_OPC=['Não bebo','Socialmente','Sim, gosto'];
+const TAG_BEBIDAS=['Vinho tinto','Vinho branco','Vinho rosé','Espumante','Cerveja','Cerveja artesanal','Chope','Whisky','Gin','Vodka','Cachaça','Rum','Tequila','Licor','Saquê','Drinks e coquetéis','Caipirinha','Bebidas sem álcool'];
 const TAG_ALERGIAS=['Lactose','Glúten','Amendoim','Frutos do mar','Níquel','Lã','Perfume forte','Pelo de animal'];
 const TAM_TXT={camiseta:v=>'tamanho '+v,calca:v=>'nº '+v,calcado:v=>'nº '+v,vestido:v=>'tamanho '+v,anel:v=>'aro '+v,cama:v=>'cama '+v};
 const CAT_COR=new Set(['Roupas','Calçados','Joias e acessórios','Roupas do dia a dia']);
@@ -480,7 +521,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const uid=()=>Math.random().toString(36).slice(2,10);
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 const failMsg='Não foi possível salvar. Confira sua internet e tente de novo.';
-function blank(){return{gostosTags:[],marcasTags:[],alergiasTags:[],dia:'',mes:'',ano:'',camiseta:'',calca:'',calcado:'',vestido:'',anel:'',cama:'',cores:[],evitarCores:[],estilos:[],perfume:[],tipoPresente:'',marcas:'',hobbies:'',gosta:'',naoGosta:'',alergias:'',obs:'',desejos:[],precisa:[],recebidos:[],datas:[],fechado:false,aviso:15,atualizado:''}}
+function blank(){return{gostosTags:[],marcasTags:[],alergiasTags:[],bebidas:[],bebe:'',dia:'',mes:'',ano:'',camiseta:'',calca:'',calcado:'',vestido:'',anel:'',cama:'',cores:[],evitarCores:[],estilos:[],perfume:[],tipoPresente:'',marcas:'',hobbies:'',gosta:'',naoGosta:'',alergias:'',obs:'',desejos:[],precisa:[],recebidos:[],datas:[],fechado:false,aviso:15,atualizado:''}}
 const isEx=id=>!!profiles[id]?.exemplo;
 const nm=id=>id===myId?'Você':isEx(id)?(profiles[id].nome+' (exemplo)'):(names[id]?.name||'Alguém');
 const firstName=id=>id===myId?(myName||'Você'):isEx(id)?profiles[id].nome:(names[id]?.name||'Alguém');
@@ -645,7 +686,7 @@ function pixBox(v,valor){
 function setTab(t){tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
 document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
-function keep(fn){const y=window.scrollY;fn();window.scrollTo(0,y)}
+function keep(fn){const y=window.scrollY;const xs=[...document.querySelectorAll('.ofertas')].map(l=>l.scrollLeft);fn();window.scrollTo(0,y);if(xs.some(Boolean))document.querySelectorAll('.ofertas').forEach((l,i)=>{if(xs[i]){l.style.scrollBehavior='auto';l.scrollLeft=xs[i];l.style.scrollBehavior=''}});if(xs.length)ofSetas()}
 function updateBadge(){try{atualizarSino()}catch(e){}const pr=pendingRequests().length,bd=document.getElementById('badge');bd.hidden=!pr;bd.textContent=pr}
 function render(){
   if(window.__loggedOut)return;
@@ -661,6 +702,7 @@ function render(){
   else if(tab==='admin'&&isOwner)renderAdmin();
   else if(tab==='conta')renderConta();
   else if(tab==='sugestao')renderSugestao();
+  else if(tab==='ofertas')renderOfertas();
   else if(tab==='aparencia')renderAparencia();
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
@@ -823,10 +865,23 @@ document.addEventListener('click',e=>{
 /* ---------- Mural ---------- */
 // "66,49" -> "R$ 66,49"; "199" -> "R$ 199,00"; texto livre fica como está
 function precoBR(p){p=String(p||'').trim();if(!p)return '';const t=p.replace(/^R\$\s*/i,'');if(/^\d{1,3}(\.\d{3})*(,\d{1,2})?$|^\d+([.,]\d{1,2})?$/.test(t)){let n=t;if(/,\d{1,2}$/.test(n))n=n.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(n))n=n.replace(/\./g,'');const v=parseFloat(n);if(isFinite(v))return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}return p}
+const ofCard=o=>`<a class="oferta" href="${esc(affiliate(o.link))}" target="_blank" rel="noopener sponsored" data-track="ad:of:${esc(o.id)}">${/^https:\/\//i.test(o.imagem||'')?`<span class="of-img"><img src="${esc(o.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>`:''}<b class="of-tit">${esc(o.titulo)}</b>${precoBR(o.preco)?`<span class="preco">${esc(precoBR(o.preco))}</span>`:''}<span class="of-btn">Ver ${o.loja?'na '+esc(o.loja):'na loja'}</span></a>`;
+const ofertasAtivas=()=>(config.ofertas||[]).filter(o=>o.titulo&&safeLink(o.link)).slice(0,12);
 function ofertasSemana(){
-  const of=(config.ofertas||[]).filter(o=>o.titulo&&safeLink(o.link)).slice(0,6);if(!of.length)return '';
+  const of=ofertasAtivas();if(!of.length)return '';
   of.forEach(o=>trackView('of:'+o.id));
-  return `<section class="sec"><div class="row between"><div class="eyebrow">Ofertas da semana</div><span class="small" style="color:var(--muted)">Links de parceiros</span></div><div class="ofertas">${of.map(o=>`<a class="oferta" href="${esc(affiliate(o.link))}" target="_blank" rel="noopener sponsored" data-track="ad:of:${esc(o.id)}">${/^https:\/\//i.test(o.imagem||'')?`<span class="of-img"><img src="${esc(o.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>`:''}<b class="of-tit">${esc(o.titulo)}</b>${precoBR(o.preco)?`<span class="preco">${esc(precoBR(o.preco))}</span>`:''}<span class="of-btn">Ver ${o.loja?'na '+esc(o.loja):'na loja'}</span></a>`).join('')}</div></section>`;
+  setTimeout(ofSetas,0);
+  return `<section class="sec"><div class="row between"><div class="eyebrow">Ofertas da semana</div>${of.length>1?`<button class="link of-todas" data-act="verOfertas">Ver todas (${of.length}) →</button>`:'<span class="small" style="color:var(--muted)">Links de parceiros</span>'}</div>
+   <div class="of-wrap"><button class="of-seta esq" data-act="ofRolar" data-dir="-1" aria-label="Ofertas anteriores" hidden>‹</button><div class="ofertas">${of.map(ofCard).join('')}</div><button class="of-seta dir" data-act="ofRolar" data-dir="1" aria-label="Mais ofertas" hidden>›</button></div></section>`;
+}
+function ofSetas(){document.querySelectorAll('.of-wrap').forEach(w=>{const l=w.querySelector('.ofertas');if(!l)return;const max=l.scrollWidth-l.clientWidth-4;
+  w.querySelector('.of-seta.esq').hidden=l.scrollLeft<=4;w.querySelector('.of-seta.dir').hidden=l.scrollLeft>=max;w.classList.toggle('tem-mais',l.scrollLeft<max)})}
+document.addEventListener('scroll',e=>{if(e.target.classList&&e.target.classList.contains('ofertas'))ofSetas()},true);
+addEventListener('resize',()=>ofSetas());
+function renderOfertas(){
+  const of=ofertasAtivas();of.forEach(o=>trackView('of:'+o.id));
+  app.innerHTML=`<div class="view"><button class="back" data-act="ofVoltar">← Voltar</button><div><h1>Ofertas da semana</h1><p class="lede">Produtos selecionados de lojas parceiras. Ao comprar por estes links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais.</p></div>
+   ${of.length?`<div class="of-grade">${of.map(ofCard).join('')}</div>`:'<div class="empty">Nenhuma oferta no momento. Volte em breve!</div>'}</div>`;
 }
 function ago(t){const d=Math.floor((Date.now()-t)/864e5);if(d<=0){const h=Math.floor((Date.now()-t)/36e5);return h<=0?'agora há pouco':h===1?'há 1 hora':'há '+h+' horas'}return d===1?'ontem':'há '+d+' dias'}
 const hiddenMsg=m=>(profiles[m.para]?.parabensOcultos||[]).includes(m.id)||(config.moderados||[]).includes(m.id);
@@ -1041,7 +1096,7 @@ async function runAI(id){
   const ficha={
     tamanhos:{camiseta:p.camiseta,calca:p.calca,calcado:p.calcado,vestido:p.vestido,anel:p.anel,cama:p.cama},
     coresQueGosta:p.cores,coresParaEvitar:p.evitarCores,estilo:p.estilos,perfume:p.perfume,prefereGanhar:p.tipoPresente,
-    marcasFavoritas:juntar(p.marcasTags,p.marcas),hobbies:p.hobbies,gostaDe:juntar(p.gostosTags,p.gosta),naoGosta:p.naoGosta,alergias:juntar(p.alergiasTags,p.alergias),observacoes:p.obs,
+    marcasFavoritas:juntar(p.marcasTags,p.marcas),bebidaAlcoolica:p.bebe==='Não bebo'?'não bebe (não sugerir bebidas alcoólicas)':p.bebe?(p.bebe+': '+(p.bebidas||[]).join(', ')):'',hobbies:p.hobbies,gostaDe:juntar(p.gostosTags,p.gosta),naoGosta:p.naoGosta,alergias:juntar(p.alergiasTags,p.alergias),observacoes:p.obs,
     jaPediu:[...(p.desejos||[]),...(p.precisa||[])].map(x=>x.t),idade:p.ano&&+p.ano>1900?new Date().getFullYear()-(+p.ano):undefined
   };
   const prompt=`Você ajuda pessoas no Brasil a escolher presentes. Sugira 5 presentes para a pessoa descrita na ficha abaixo, com orçamento ${valor}.
@@ -1063,7 +1118,7 @@ function renderPerson(id){
   }
   const sz=[['Camiseta',p.camiseta],['Calça',p.calca],['Calçado',p.calcado],['Vestido',p.vestido],['Anel',p.anel],['Cama',p.cama]].filter(x=>x[1]);
   const ev=eventsFor(id).filter(e=>e.label!=='Aniversário');
-  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],['Gosta de',juntar(p.gostosTags,p.gosta)],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Não gosta',p.naoGosta],['Alergias',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
+  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],['Gosta de',juntar(p.gostosTags,p.gosta)],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
   h+=`<div class="tag-card"><div class="tag-head ${capaEsc?'escura':''}" ${capa}><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 style="font-size:24px">${esc(nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="small" style="color:var(--accent);font-weight:600">@${esc(handleOf(id))}</div>`:''}${p.frase?`<div style="font-size:14px;margin-top:2px">${esc(p.frase)}</div>`:''}<div class="muted">${esc(bdayText(p))}</div><div style="margin-top:6px">${pill(bdayDays(p))}</div></div></div><div class="tag-body">`;
@@ -1868,15 +1923,15 @@ function adminBlock(){
    <div class="row"><button class="btn small" data-act="saveCfg">Salvar afiliados</button></div></section>`;
   // ofertas da semana
   const ofs=config.ofertas||[];
-  h+=`<section class="panel ad"><h2>Ofertas da semana</h2><p class="lede" style="margin:0">Até 6 produtos com link de afiliado, mostrados no Mural.</p>
+  h+=`<section class="panel ad"><h2>Ofertas da semana</h2><p class="lede" style="margin:0">Até 12 produtos com link de afiliado, mostrados no Mural e na página Ofertas da semana.</p>
    ${ofs.map((o,i)=>`<div class="date-row"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:36px;height:36px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}<b>${esc(o.titulo)}</b>${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.loja?' · '+esc(o.loja):''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><button class="link" data-act="delOferta" data-i="${i}">Excluir</button></div>`).join('')||'<div class="muted">Nenhuma oferta.</div>'}
-   ${ofs.length<6?`<div class="inline-form"><b>Nova oferta</b><span class="small" style="color:var(--muted)">Cole o link do produto e toque em Buscar dados: o nome, a foto e a loja vêm sozinhos.</span>
+   ${ofs.length<12?`<div class="inline-form"><b>Nova oferta</b><span class="small" style="color:var(--muted)">Cole o link do produto e toque em Buscar dados: o nome, a foto e a loja vêm sozinhos.</span>
    <label class="f">Link do produto<div class="row" style="flex-wrap:nowrap"><input id="ofL" inputmode="url" autocapitalize="off" placeholder="Cole aqui o link do produto" value="${esc(ofDraft.link||'')}"><button class="btn small" data-act="buscarProduto">Buscar dados</button></div></label>
    ${ofDraft.imagem?`<div class="of-prev"><img src="${esc(ofDraft.imagem)}" alt="" referrerpolicy="no-referrer"><div class="small" style="min-width:0">Foto da oferta.<br><button class="link" data-act="ofSemFoto">Tirar a foto</button></div></div>`:''}
    <label class="f">Foto (opcional)<input id="ofImg" inputmode="url" autocapitalize="off" placeholder="Se não vier sozinha: na loja, clique com o botão direito na foto > Copiar endereço da imagem, e cole aqui" value="${esc(ofDraft.imagem||'')}"></label>
    <label class="f">Nome do produto<input id="ofT" maxlength="80" placeholder="Ex.: Fone JBL Tune 520BT" value="${esc(ofDraft.titulo||'')}"></label>
    <div class="grid2"><label class="f">Loja<input id="ofLoja" maxlength="30" placeholder="Ex.: Amazon" value="${esc(ofDraft.loja||'')}"></label><label class="f">Preço (opcional)<input id="ofP" maxlength="30" placeholder="Em branco, não aparece" value="${esc(ofDraft.preco||'')}"></label></div>
-   <div class="row"><button class="btn small" data-act="addOferta">Publicar oferta</button>${ofDraft.link||ofDraft.titulo?'<button class="link" data-act="ofLimpar">Limpar</button>':''}</div></div>`:'<span class="small" style="color:var(--muted)">Limite de 6 ofertas. Exclua uma para adicionar outra.</span>'}</section>`;
+   <div class="row"><button class="btn small" data-act="addOferta">Publicar oferta</button>${ofDraft.link||ofDraft.titulo?'<button class="link" data-act="ofLimpar">Limpar</button>':''}</div></div>`:'<span class="small" style="color:var(--muted)">Limite de 12 ofertas. Exclua uma para adicionar outra.</span>'}</section>`;
   return h;
 }
 function lojaForm(l,i){
@@ -1899,7 +1954,7 @@ const ufSelect=(id,v)=>`<select id="${id}"><option value="">Escolha o estado</op
 const CIDADES=['Fortaleza','São Paulo','Rio de Janeiro','Brasília','Salvador','Belo Horizonte','Recife','Curitiba','Porto Alegre','Manaus','Belém','Goiânia'];
 const PASSOS=['Datas','Tamanhos','Cores e estilo','Gostos','Pretendo ganhar','Precisando','Mais opções'];
 function renderMine(){
-  if(!draft){draft={...blank(),...JSON.parse(JSON.stringify(profiles[myId]||{}))};['desejos','precisa'].forEach(k=>(draft[k]||[]).forEach((w,i)=>{if(!w.id)w.id='i'+i}));['recebidos','gostosTags','marcasTags','alergiasTags','datas','cores','evitarCores','estilos','perfume','desejos','precisa','listasAtivas',...Object.keys(LISTAS_EXTRA)].forEach(k=>{draft[k]=draft[k]||[]});Object.keys(LISTAS_EXTRA).forEach(k=>draft[k].forEach((w,i)=>{if(!w.id)w.id=k+i}));dirty=false}
+  if(!draft){draft={...blank(),...JSON.parse(JSON.stringify(profiles[myId]||{}))};['desejos','precisa'].forEach(k=>(draft[k]||[]).forEach((w,i)=>{if(!w.id)w.id='i'+i}));['recebidos','gostosTags','marcasTags','alergiasTags','bebidas','datas','cores','evitarCores','estilos','perfume','desejos','precisa','listasAtivas',...Object.keys(LISTAS_EXTRA)].forEach(k=>{draft[k]=draft[k]||[]});Object.keys(LISTAS_EXTRA).forEach(k=>draft[k].forEach((w,i)=>{if(!w.id)w.id=k+i}));dirty=false}
   if(fichaStep===null)fichaStep=profiles[myId]&&completude(profiles[myId]).pct>=80?4:0;
   ensureFotos(myId);
   const d=draft,st=fichaStep,ult=PASSOS.length-1;
@@ -1936,7 +1991,10 @@ function renderMine(){
    <div class="flabel">Prefere ganhar</div><div class="chips">${TIPOS_PRESENTE.map(v=>`<button class="chip style" data-act="pickOne" data-key="tipoPresente" data-v="${esc(v)}" aria-pressed="${d.tipoPresente===v}">${esc(v)}</button>`).join('')}</div></section>`;
   if(st===3)h+=`<section class="panel"><h2>Do que você gosta</h2><p class="lede" style="margin:0">Toque em tudo o que combina com você.</p>
    ${chipsPick('gostosTags',TAG_GOSTOS,'style')}
-   <div class="flabel">Marcas favoritas</div>${chipsPick('marcasTags',TAG_MARCAS,'style')}
+   <div class="flabel">Marcas favoritas</div><span class="small" style="color:var(--muted)">Toque nas marcas de que você gosta. Faltou alguma? Escreva em "Quer contar mais?", lá embaixo.</span>
+   ${Object.entries(MARCAS_GRUPOS).map(([g,l])=>`<details class="marca-grupo" ${l.some(m=>(d.marcasTags||[]).includes(m))?'open':''}><summary>${esc(g)}${(()=>{const n=l.filter(m=>(d.marcasTags||[]).includes(m)).length;return n?` <span class="when soon">${n}</span>`:''})()}</summary>${chipsPick('marcasTags',l,'style')}</details>`).join('')}
+   <div class="flabel">Bebida alcoólica</div><div class="chips">${BEBE_OPC.map(v=>`<button class="chip style" data-act="pickOne" data-key="bebe" data-v="${esc(v)}" aria-pressed="${d.bebe===v}">${esc(v)}</button>`).join('')}</div>
+   ${d.bebe&&d.bebe!=='Não bebo'?`<div class="flabel">Quais bebidas você gosta?</div>${chipsPick('bebidas',TAG_BEBIDAS,'style')}`:''}
    <div class="flabel">Alergias ou restrições</div>${chipsPick('alergiasTags',TAG_ALERGIAS,'avoid')}
    <details ${d.gosta||d.naoGosta||d.obs||d.marcas||d.hobbies||d.alergias?'open':''}><summary class="link" style="cursor:pointer">Quer contar mais? (opcional)</summary>
    <div class="sec" style="margin-top:10px">
@@ -2093,6 +2151,9 @@ app.addEventListener('click',e=>{
     case 'fbExcluir': if(confirm('Excluir esta sugestão?'))db.doc('feedback/'+ds.id).delete().then(()=>toast('Sugestão excluída')).catch(()=>toast('Não foi possível excluir.'));break;
     case 'previaInstalar': abrirInstalar(true);break;
     case 'toggleInstalar': saveConfig({...config,popupInstalar:config.popupInstalar===false},config.popupInstalar===false?'Pop-up de instalar ligado':'Pop-up de instalar desligado');break;
+    case 'verOfertas': setTab('ofertas');break;
+    case 'ofVoltar': setTab('mural');break;
+    case 'ofRolar': {const l=el.parentNode.querySelector('.ofertas');if(l){const c=l.querySelector('.oferta');const passo=c?(c.offsetWidth+8)*Math.max(1,Math.floor(l.clientWidth/(c.offsetWidth+8))):l.clientWidth*.8;l.scrollBy({left:passo*(+ds.dir),behavior:'smooth'})}break}
     case 'novoDq': form={type:'novoDq'};keep(render);break;
     case 'editDq': {const x=destaquesList().find(v=>v.id===ds.id);form={type:'editDq',id:ds.id};if(x&&x.temImagem&&dqImgs[x.id]===undefined)dqImagem(x).then(()=>keep(render));keep(render);break}
     case 'dqImg': {const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{const f=inp.files[0];if(!f)return;try{const d=await lerImagemDestaque(f);dqGuardarCampos();form.img=d;keep(render)}catch(e){toast('Não foi possível ler essa imagem.')}};inp.click();break}
@@ -2177,7 +2238,7 @@ app.addEventListener('click',e=>{
     case 'addOferta': {const t=val('ofT');let l=val('ofL').replace(/\s+/g,'');if(!t||!l){toast('Preencha o link e o nome do produto');break}if(!/^https?:\/\//i.test(l))l='https://'+l;
       const im=val('ofImg').replace(/\s+/g,'');const img=/^https:\/\//i.test(im)?im:'';
       const preco=precoBR(val('ofP')).slice(0,30);ofDraft={};
-      saveConfig({...config,ofertas:[...(config.ofertas||[]),{id:uid(),titulo:t.slice(0,80),preco,link:l.slice(0,500),loja:val('ofLoja').slice(0,30),imagem:img.slice(0,1000)}].slice(0,6)},'Oferta publicada no Mural');break}
+      saveConfig({...config,ofertas:[...(config.ofertas||[]),{id:uid(),titulo:t.slice(0,80),preco,link:l.slice(0,500),loja:val('ofLoja').slice(0,30),imagem:img.slice(0,1000)}].slice(0,12)},'Oferta publicada no Mural');break}
     case 'buscarProduto': buscarProduto();break;
     case 'ofSemFoto': ofGuardar();ofDraft.imagem='';keep(render);break;
     case 'ofLimpar': ofDraft={};keep(render);break;
