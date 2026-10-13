@@ -2,7 +2,7 @@
 // "Ofertas da semana" mais rápido no Painel. Não busca preço (o preço é opcional e digitado à mão).
 // Só o administrador pode usar.
 // Variáveis de ambiente na Vercel (as mesmas que já existem):
-//   FIREBASE_API_KEY -> o mesmo apiKey do firebase-config.js
+//   FIREBASE_API_KEY -> opcional; se não existir, usa o apiKey do firebase-config.js
 //   ADMIN_EMAIL      -> opcional; padrão daaguiar@gmail.com
 
 const ADMIN = (process.env.ADMIN_EMAIL || 'daaguiar@gmail.com').toLowerCase();
@@ -135,8 +135,8 @@ async function baixar(url) {
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ erro: 'Use POST' });
-  const fbKey = process.env.FIREBASE_API_KEY;
-  if (!fbKey) return res.status(500).json({ erro: 'Falta FIREBASE_API_KEY na Vercel.' });
+  // A chave do Firebase não é secreta (ela já está no firebase-config.js do site); a variável da Vercel é opcional.
+  const fbKey = process.env.FIREBASE_API_KEY || 'AIzaSyDqb-am7CUgvOIIRnR8wFN6cKVrKc1ZUzs';
 
   // 1. Só o administrador
   const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
