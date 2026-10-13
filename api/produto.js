@@ -84,6 +84,16 @@ function primeiraImagem(img) {
   return img.url || img.contentUrl || '';
 }
 
+function nomeDoLink(u) {
+  try {
+    const partes = u.pathname.split('/').filter(Boolean).map(p => decodeURIComponent(p));
+    let seg = partes.sort((a, b) => b.length - a.length)[0] || '';
+    seg = seg.replace(/-i\.\d+\.\d+$/i, '').replace(/\.html?$/i, '').replace(/[-_]+/g, ' ').replace(/\b(MLB|p)\s?\d+\b/gi, '').replace(/\s+/g, ' ').trim();
+    if (seg.length < 6 || !/[a-zà-ú]{3}/i.test(seg) || /^\d+$/.test(seg)) return '';
+    return seg.length > 120 ? seg.slice(0, 117) + '…' : seg;
+  } catch (e) { return ''; }
+}
+
 function extrair(html, urlFinal) {
   const u = new URL(urlFinal);
   let titulo = '', imagem = '';
@@ -103,6 +113,9 @@ function extrair(html, urlFinal) {
   if (!titulo) titulo = meta(html, ['og:title', 'twitter:title', 'name']);
   if (!imagem) imagem = meta(html, ['og:image:secure_url', 'og:image', 'twitter:image', 'twitter:image:src', 'image']);
   if (!titulo) titulo = limpa((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]);
+  // Lojas que montam a página só no navegador (ex.: Shopee): usa o nome que vem no próprio link
+  const generico = /^(shopee|shopee brasil|mercado livre|amazon\.com\.br|magalu)$/i.test(titulo) || /ofertas incríveis|melhores preços/i.test(titulo);
+  if (!titulo || generico) { const n = nomeDoLink(u); if (n) titulo = n; else if (generico) titulo = ''; }
   // tira o nome da loja do fim do título ("Produto | Loja", "Produto - Amazon.com.br")
   titulo = titulo.replace(/\s*[|\-–—:]\s*(Amazon\.com\.br|Amazon|Mercado Livre|Magalu|Magazine Luiza|Netshoes|Centauro|Shopee|Americanas|Casas Bahia|KaBuM!?)[^|]*$/i, '').trim();
   if (imagem) { try { imagem = new URL(imagem, urlFinal).toString(); } catch (e) { imagem = ''; } }
@@ -162,6 +175,8 @@ module.exports = async (req, res) => {
     if (!d.titulo && !d.imagem) return res.status(200).json({ ok: false, loja: d.loja, erro: 'Não encontramos o nome nem a foto nesta página. Preencha à mão.' });
     return res.status(200).json({ ok: true, ...d });
   } catch (e) {
+    const n = nomeDoLink(alvo);
+    if (n) return res.status(200).json({ ok: true, titulo: n, imagem: '', loja: nomeLoja(alvo.hostname) });
     return res.status(200).json({ ok: false, loja: nomeLoja(alvo.hostname), erro: 'A loja não deixou ler a página agora. Preencha à mão.' });
   }
 };
