@@ -1223,12 +1223,14 @@ function plusAdmin(){
 }
 
 /* ---------- Personalizar (aparência) ---------- */
-let aparencia={},aparDraft=null,aparInicioFeito=false;
+let aparencia={},aparDraft=null,aparInicioFeito=false,aparOk=false,planosOk=false;
+function tentarInicio(){if(aparInicioFeito||!aparOk||!planosOk)return;aparInicioFeito=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());const ini=prefsEfetivas().inicio;if(ini&&ini!=='mural'&&tab==='mural'&&!viewing&&!pendingOpen)setTab(ini)}
 const AP_CORES={rosa:'#d9467e',azul:'#2f6fd6',verde:'#1f8a5b',roxo:'#7b4fd1',laranja:'#d9631e',grafite:'#3d3a45'};
 const AP_ESCURO={claro:'Claro',escuro:'Escuro',auto:'Igual ao celular'};
 const AP_FUNDO={liso:'Liso',pontos:'Pontinhos',confetes:'Confetes',lacos:'Laços de presente'};
 const AP_INICIO={mural:'Mural',datas:'Datas',perfil:'Minha ficha'};
-function prefsEfetivas(){const a=aparencia||{};if(isPlus(myId))return a;return {letra:a.letra}}
+const podeVisual=()=>isOwner||isPlus(myId);
+function prefsEfetivas(){const a=aparencia||{};if(podeVisual())return a;return {letra:a.letra}}
 function aplicarTema(a){
   a=a||{};const r=document.documentElement;
   if(a.cor&&a.cor!=='rosa')r.setAttribute('data-cor',a.cor);else r.removeAttribute('data-cor');
@@ -1239,10 +1241,10 @@ function aplicarTema(a){
 }
 function renderAparencia(){
   if(!aparDraft)aparDraft={cor:'rosa',escuro:'claro',fundo:'liso',inicio:'mural',compacto:false,letra:'normal',...aparencia};
-  const d=aparDraft,plus=isPlus(myId);aplicarTema(d);
+  const d=aparDraft,plus=podeVisual();aplicarTema(d);
   const op=(campo,mapa,extra)=>`<div class="chips">${Object.entries(mapa).map(([k,v])=>`<button class="chip style" data-act="apSet" data-k="${campo}" data-v="${k}" aria-pressed="${(d[campo]||'')===k}">${extra?extra(k):''}${esc(v)}</button>`).join('')}</div>`;
   const cad=plus?'':' <span class="lock">Plus</span>';
-  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>
+  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>${plus?'':`<div class="notice"><b>Você ainda não tem o Plus.</b> Cor, modo escuro, fundo, tela inicial e visual compacto só ficam valendo para assinantes. Suas escolhas ficam guardadas e passam a valer assim que o Plus for ativado. O tamanho da letra vale para todos.${safeLink(config.plusLink)?` <a href="${esc(config.plusLink)}" target="_blank" rel="noopener" style="color:inherit;font-weight:700">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:''}</div>`}
   <section class="panel"><h2>Cor do aplicativo${cad}</h2>${op('cor',{rosa:'Rosa',azul:'Azul',verde:'Verde',roxo:'Roxo',laranja:'Laranja',grafite:'Grafite'},k=>`<span class="swatch" style="background:${AP_CORES[k]}"></span>`)}</section>
   <section class="panel"><h2>Modo da tela${cad}</h2>${op('escuro',AP_ESCURO)}</section>
   <section class="panel"><h2>Fundo${cad}</h2>${op('fundo',AP_FUNDO)}</section>
@@ -1250,14 +1252,13 @@ function renderAparencia(){
   <section class="panel"><h2>Visual compacto${cad}</h2><label class="check"><input type="checkbox" data-apcheck="compacto" ${d.compacto?'checked':''}><span>Cartões mais próximos, para ver mais coisas sem rolar.</span></label></section>
   <section class="panel"><h2>Tamanho da letra</h2><span class="muted">Grátis para todos.</span>${op('letra',{normal:'Normal',grande:'Grande'})}</section>
   <section class="prev-mini"><div class="eyebrow">Prévia</div><div class="row between"><b>Aniversário da Ana</b><span class="when soon">em 3 dias</span></div><div class="row"><button class="btn small">Vou dar este</button><button class="btn small ghost">Fazer vaquinha</button></div></section>
-  ${plus?'':`<div class="notice">As opções marcadas com Plus voltam ao padrão quando você sair desta tela. O tamanho da letra fica salvo.${safeLink(config.plusLink)?` <a href="${esc(config.plusLink)}" target="_blank" rel="noopener" style="color:inherit;font-weight:700">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:' Veja como assinar em Minha ficha → Mais opções.'}</div>`}
   <div class="row savebar between"><button class="btn ghost" data-act="apPadrao">Voltar ao padrão</button><button class="btn" data-act="apSalvar">Salvar</button></div></div>`;
   app.innerHTML=h;
 }
 async function salvarAparencia(){
-  const d=aparDraft||{};const plus=isPlus(myId);
-  const novo=plus?{cor:d.cor,escuro:d.escuro,fundo:d.fundo,inicio:d.inicio,compacto:!!d.compacto,letra:d.letra}:{...aparencia,letra:d.letra};
-  try{await db.doc(`data/users/${myId}/aparencia`).set(novo);aparencia=novo;aparDraft=null;toast(plus?'Visual salvo':'Tamanho da letra salvo. As outras opções são do Plus.');setTab('mural')}catch(e){toast(failMsg)}
+  const d=aparDraft||{};const plus=podeVisual();
+  const novo={cor:d.cor,escuro:d.escuro,fundo:d.fundo,inicio:d.inicio,compacto:!!d.compacto,letra:d.letra};
+  try{await db.doc(`data/users/${myId}/aparencia`).set(novo);aparencia=novo;aparDraft=null;toast(plus?'Visual salvo':'Salvo. O tamanho da letra já vale; o resto passa a valer quando o Plus for ativado.');setTab('mural')}catch(e){toast(failMsg)}
 }
 
 /* ---------- Editar perfil ---------- */
@@ -1863,7 +1864,7 @@ async function start(){
     document.getElementById('meChip').innerHTML=`<button class="sino-btn" id="sinoBtn" aria-label="Avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="sino-badge" id="sinoBadge" hidden></span></button><button class="avatar-btn" id="meBtn" aria-label="Abrir menu da conta"><img src="${esc(m.avatarUrl)}" alt=""></button><div class="pop" id="sinoBox" hidden></div><div class="pop pop-menu" id="menuBox" hidden></div>`;}catch(e){}
   db.doc(`data/users/${myId}/aparencia`).onSnapshot(s=>{aparencia=s.exists?{...s.data()}:{};
     if(tab!=='aparencia')aplicarTema(prefsEfetivas());
-    if(!aparInicioFeito){aparInicioFeito=true;const ini=prefsEfetivas().inicio;if(ini&&ini!=='mural'&&tab==='mural'&&!viewing&&!pendingOpen)setTab(ini)}},()=>{});
+    aparOk=true;tentarInicio()},()=>{aparOk=true;tentarInicio()});
   db.doc(`data/users/${myId}/notificacoes`).onSnapshot(s=>{if(s.exists){const d=s.data();notifEstado={lidoAte:d.lidoAte||0,lidos:[...(d.lidos||[])],desligados:[...(d.desligados||[])]}}else if(!notifEstado.lidoAte){notifEstado={...notifEstado,lidoAte:Date.now()-7*864e5};salvarNotif()}atualizarSino();if(notifAberto)renderSino()},()=>{});
   render();
   claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
@@ -1876,7 +1877,7 @@ async function start(){
   coll('sorteios',n=>{raw.sorteios=n;applyRaw()});
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n});
-  coll('planos',n=>{planos=n});
+  coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n})}
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};applyRaw();softRender()},()=>{});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
