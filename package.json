@@ -1,0 +1,8 @@
+{
+  "name": "presentecerto",
+  "private": true,
+  "description": "PresenteCerto: a rede social dos presentes",
+  "dependencies": {
+    "firebase-admin": "12.7.0"
+  }
+}

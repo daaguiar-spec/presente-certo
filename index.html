@@ -293,6 +293,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
     document.body.classList.remove('logged-out');window.__loggedOut=false;
     app.innerHTML='<div class="view"><h1>Carregando sua conta…</h1></div>';
     await salvarUsuario(u);
+    if(u.emailVerified)u.getIdToken().then(t=>fetch('/api/sincronizar-plano',{method:'POST',headers:{Authorization:'Bearer '+t}})).catch(()=>{});
     fs.collection('usuarios').onSnapshot(s=>{s.docs.forEach(d=>{usuarios[d.id]=d.data()});resolveUsuarios()},()=>resolveUsuarios());
     resolveUser(u);
   });
@@ -440,7 +441,6 @@ function adCard(seed,ctx){
   return `<section class="panel ad"><div class="eyebrow">Oferta de parceiro</div><h3>${esc(a.titulo)}</h3>${a.texto?`<div class="muted">${esc(a.texto)}</div>`:''}${safeLink(a.link)?`<div><a class="btn small" href="${esc(affiliate(a.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(a.id)}">Ver oferta</a></div>`:''}</section>`;
 }
 function patrocinioCategoria(cat){
-  if(isPlus(myId))return '';
   const ad=(config.anuncios||[]).find(a=>adElegivel(a,{cat}));
   const lj=(config.lojas||[]).filter(l=>l.ativo&&l.categoria===cat);
   if(!ad&&!lj.length)return '';
@@ -551,7 +551,7 @@ function render(){
 }
 function drawQrs(){app.querySelectorAll('[data-qr]').forEach(el=>{if(el.dataset.done)return;el.dataset.done=1;try{if(window.QRCode)new QRCode(el,{text:el.dataset.qr,width:360,height:360,correctLevel:QRCode.CorrectLevel.M});else el.remove()}catch(e){el.remove()}})}
 
-let usernames={},pendingOpen=null,planos={},codigos={};
+let usernames={},pendingOpen=null,planos={},codigos={},assinaturas={};
 function isPlus(id){const pl=planos[id];if(!pl||!pl.plus)return false;const ate=pl.ate&&pl.ate.toDate?pl.ate.toDate():new Date(pl.ate||0);return ate>new Date()}
 function plusAte(id){const pl=planos[id];if(!pl||!pl.ate)return '';const d=pl.ate.toDate?pl.ate.toDate():new Date(pl.ate);return d.toLocaleDateString('pt-BR')}
 const CAPAS={rosa:'linear-gradient(135deg,#fdeef4,#f9d3e2)',menta:'linear-gradient(135deg,#e8f7f4,#c9ece4)',ceu:'linear-gradient(135deg,#e7f0fd,#cddffa)',sol:'linear-gradient(135deg,#fdf5e6,#f8e2b8)',lavanda:'linear-gradient(135deg,#f1ecfb,#ddd1f5)',noite:'linear-gradient(135deg,#2e2536,#4a3a58)'};
@@ -601,7 +601,7 @@ function followBtn(id){
 
 /* ---------- Mural ---------- */
 function ofertasSemana(){
-  if(isPlus(myId))return '';const of=(config.ofertas||[]).filter(o=>o.titulo&&safeLink(o.link)).slice(0,6);if(!of.length)return '';
+  const of=(config.ofertas||[]).filter(o=>o.titulo&&safeLink(o.link)).slice(0,6);if(!of.length)return '';
   of.forEach(o=>trackView('of:'+o.id));
   return `<section class="sec"><div class="row between"><div class="eyebrow">Ofertas da semana</div><span class="small" style="color:var(--muted)">Links de parceiros</span></div><div class="ofertas">${of.map(o=>`<a class="oferta" href="${esc(affiliate(o.link))}" target="_blank" rel="noopener sponsored" data-track="ad:of:${esc(o.id)}"><b>${esc(o.titulo)}</b>${o.preco?`<span class="preco">${esc(o.preco)}</span>`:''}${o.loja?`<span class="small" style="color:var(--muted)">${esc(o.loja)}</span>`:''}</a>`).join('')}</div></section>`;
 }
@@ -1022,10 +1022,10 @@ function plusPanel(){
   if(isPlus(myId))return `<section class="panel hl"><h2>PresenteCerto Plus <span class="plus-badge">Ativo</span></h2><span class="muted">Seu Plus vale até <b>${esc(plusAte(myId))}</b>.</span>
    <div class="flabel">Capa da sua ficha</div><div class="chips">${Object.keys(CAPAS).map(c=>`<button class="chip" data-act="pickOne" data-key="capa" data-v="${c}" aria-pressed="${d.capa===c}"><span class="dot" style="background:${CAPAS[c]}"></span>${c[0].toUpperCase()+c.slice(1)}</button>`).join('')}</div>
    <div class="flabel">Listas extras por ocasião (aparecem na etapa Pretendo ganhar)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
-   <span class="small" style="color:var(--muted)">Você também está sem anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
+   <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
-   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Sem anúncios</li><li>Capa colorida e selo Plus no seu perfil</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li></ul>
-   ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Depois de assinar, você recebe um código de ativação por e-mail.</span>`:''}
+   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li></ul>
+   ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:''}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
 }
 async function resgatarCodigo(){
@@ -1055,6 +1055,8 @@ function plusAdmin(){
    <div class="stat"><div><b>${assinantes.length}</b><span>Assinantes ativos</span></div><div><b>${livres.length}</b><span>Códigos livres</span></div><div><b>${usados.length}</b><span>Códigos usados</span></div></div>
    <div class="grid2"><label class="f">Link da página de assinatura<input id="plusLink" autocapitalize="off" value="${esc(config.plusLink||'')}" placeholder="Ex.: pay.kiwify.com.br/..."></label><label class="f">Preço exibido<input id="plusPreco" value="${esc(config.plusPreco||'')}" placeholder="Ex.: R$ 9,90/mês"></label></div>
    <div class="row"><button class="btn small ghost" data-act="savePlusCfg">Salvar</button></div>
+   <div class="flabel">Assinaturas da Kiwify (automáticas)</div>
+   ${Object.keys(assinaturas).length?Object.values(assinaturas).sort((a,b)=>String(b.atualizado&&b.atualizado.toDate?b.atualizado.toDate().toISOString():'').localeCompare(String(a.atualizado&&a.atualizado.toDate?a.atualizado.toDate().toISOString():''))).slice(0,40).map(a=>`<div class="date-row"><span><b>${esc(a.nome||a.email)}</b> · ${esc(a.email)}<br><span class="small" style="color:var(--muted)">${esc(a.plano||'')} · ${esc(a.status||'')}${a.ate&&a.ate.toDate?' · até '+a.ate.toDate().toLocaleDateString('pt-BR'):''} · ${a.uid?'conta vinculada':'aguardando a pessoa entrar com este e-mail'}</span></span><span class="when ${a.status==='ativa'?'soon':''}">${esc(a.status||'')}</span></div>`).join(''):'<div class="muted">Nenhuma assinatura recebida ainda. Quando a Kiwify avisar uma venda, ela aparece aqui.</div>'}
    <div class="flabel">Criar códigos de ativação</div>
    <div class="grid2"><label class="f">Validade<select id="cgDias"><option value="30">30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select></label><label class="f">Quantidade<select id="cgQtd"><option>1</option><option>5</option><option>10</option><option>20</option></select></label></div>
    <div class="row"><button class="btn small" data-act="gerarCodigos">Criar códigos</button></div>
@@ -1222,7 +1224,7 @@ function adminBlock(){
    <div class="stat">${Object.keys(LA).map(k=>`<div><b>${sumLoja(k)}</b><span>Cliques ${esc(LA[k].nome)}</span></div>`).join('')}<div><b>${sumLoja('link')}</b><span>Links das listas</span></div><div><b>${totalCliques}</b><span>Cliques em anúncios</span></div><div><b>${docs.length}</b><span>Pessoas contadas</span></div></div>
    <span class="small" style="color:var(--muted)">Seus próprios cliques não entram na conta. Visualização conta uma vez por pessoa por dia.</span></section>`;
   // anúncios
-  h+=`<section class="panel ad"><h2>Anúncios</h2><p class="lede" style="margin:0">Escolha onde cada anúncio aparece e para quem. Quem tem o Plus não vê anúncios.</p>
+  h+=`<section class="panel ad"><h2>Anúncios</h2><p class="lede" style="margin:0">Escolha onde cada anúncio aparece e para quem. Quem tem o Plus não vê os anúncios do Mural, das Datas e das fichas, mas continua vendo o patrocínio de categoria, as Ofertas da semana e as lojas parceiras.</p>
    ${ads.map((a,i)=>form&&form.type==='editAd'&&form.i===i?`<div class="inline-form">${adForm('ea',a)}<div class="row"><button class="btn small" data-act="saveAd" data-i="${i}">Salvar alterações</button><button class="link" data-act="cancel">Cancelar</button></div></div>`
      :`<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(a.titulo)}</b><span class="when ${a.ativo?'soon':''}">${a.ativo?'no ar':'pausado'}</span></div><span class="small" style="color:var(--muted)">${esc(descr(a))}</span><span class="small"><b>${sumAd(a.id,'v')}</b> visualizações · <b>${sumAd(a.id,'c')}</b> cliques</span>
        <div class="item-actions"><button class="link" data-act="editAd" data-i="${i}">Editar</button><button class="link alt" data-act="toggleAd" data-i="${i}">${a.ativo?'Pausar':'Ativar'}</button><button class="link alt" data-act="copy" data-text="${esc(relatorioAd(a,sumAd(a.id,'v'),sumAd(a.id,'c')))}">Copiar relatório</button><button class="link" data-act="delAd" data-i="${i}">Excluir</button></div></div>`).join('')||'<div class="muted">Nenhum anúncio ainda.</div>'}
@@ -1562,7 +1564,7 @@ async function start(){
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n});
   coll('planos',n=>{planos=n});
-  if(isOwner)coll('codigos',n=>{codigos=n});
+  if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n})}
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};applyRaw();softRender()},()=>{});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
 }

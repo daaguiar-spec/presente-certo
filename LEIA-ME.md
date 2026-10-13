@@ -123,3 +123,27 @@ Sem este passo, o botão "Entrar com Google" mostra o erro de endereço não aut
 - Publique **Termos de uso** e **Política de privacidade** (exigência da LGPD), porque o site guarda aniversários, tamanhos e alergias.
 - Confira se o nome **PresenteCerto** está livre no **INPI** antes de investir na marca.
 - Confira as regras dos programas de afiliados (Amazon e Magalu) para o site com domínio próprio.
+
+---
+
+## Plus automático com a Kiwify
+
+Quando alguém paga o PresenteCerto Plus na Kiwify, o Plus liga sozinho. Quando há reembolso ou chargeback, desliga. Se a assinatura for cancelada, o Plus vale até o fim do período já pago.
+
+**Arquivos envolvidos:** `api/kiwify.js`, `api/sincronizar-plano.js`, `api/_firebase.js` e `package.json`.
+
+1. **Chave do servidor (Firebase):** Configurações do projeto → Contas de serviço → **Gerar nova chave privada**. Baixa um arquivo `.json`. Guarde com cuidado e nunca coloque no GitHub.
+2. **Vercel → Settings → Environment Variables:**
+   - `FIREBASE_SERVICE_ACCOUNT`: abra o arquivo `.json` no Bloco de Notas, copie **todo** o conteúdo e cole aqui.
+   - `WEBHOOK_CHAVE`: invente uma senha longa, só com letras e números (ex.: `pc7Hq2Lm9Xa4Rt8Zw3`).
+   - `KIWIFY_TOKEN` (opcional): o token que a Kiwify mostra ao criar o webhook.
+   - Depois, em **Deployments**, faça **Redeploy**.
+3. **Kiwify → Apps → Webhooks → Criar webhook:**
+   - URL: `https://presente-certo-zeta.vercel.app/api/kiwify?chave=SUA_WEBHOOK_CHAVE`
+   - Produto: o PresenteCerto Plus.
+   - Eventos: compra aprovada, compra reembolsada, chargeback, assinatura renovada, assinatura cancelada e assinatura atrasada.
+4. **Teste:** use o botão de teste da Kiwify ou faça uma compra de teste. A venda aparece em **Painel → PresenteCerto Plus → Assinaturas da Kiwify**.
+
+**O e-mail precisa ser o mesmo.** O comprador é reconhecido pelo e-mail da compra. Se ainda não tiver conta, o Plus liga sozinho no primeiro acesso com aquele e-mail (pelo Google). Se o e-mail for diferente, ligue manualmente em **Painel → Usuários → Plus**.
+
+**Planos:** a compra mensal dá 33 dias de Plus, e cada renovação soma mais 33. A anual dá 368 dias. Para ser reconhecido como anual, o nome do produto na Kiwify precisa ter a palavra "Anual".

@@ -50,6 +50,9 @@ service cloud.firestore {
         && (resource == null || resource.data.codigo != request.resource.data.codigo));
     }
 
+    // Assinaturas recebidas da Kiwify: gravadas só pelo servidor; só o administrador lê
+    match /assinaturas/{e} { allow read: if admin(); allow write: if false; }
+
     // Fotos dos itens das listas
     match /fotos/{uid}/itens/{item} { allow read: if logado(); allow write: if dono(uid) || admin(); }
 
