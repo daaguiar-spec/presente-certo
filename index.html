@@ -516,11 +516,18 @@ function adElegivel(a,ctx){
   return !ctx.cat;
 }
 const normCid=c=>String(c||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
-function adCard(seed,ctx){
-  ctx=ctx||{};if(isPlus(myId))return '';
-  let ads=(config.anuncios||[]).filter(a=>adElegivel(a,ctx));if(!ads.length)return '';
-  const alvo=ads.filter(a=>(a.gostos||[]).length||(a.cidades||[]).length||a.local==='aniversario');if(alvo.length)ads=alvo;
-  const d=new Date();const a=ads[(d.getDate()+(seed||0))%ads.length];
+// Todos os anúncios que valem para esta pessoa e este lugar: os segmentados (gosto, cidade, aniversário) vêm primeiro,
+// e a ordem gira a cada dia para que todos apareçam.
+function adsElegiveis(ctx){
+  ctx=ctx||{};if(isPlus(myId))return [];
+  const ads=(config.anuncios||[]).filter(a=>adElegivel(a,ctx));if(!ads.length)return [];
+  const alvo=ads.filter(a=>(a.gostos||[]).length||(a.cidades||[]).length||a.local==='aniversario'),geral=ads.filter(a=>!alvo.includes(a));
+  const d=new Date().getDate();const gira=l=>l.length?[...l.slice(d%l.length),...l.slice(0,d%l.length)]:l;
+  return [...gira(alvo),...gira(geral)];
+}
+function adCard(seed,ctx,n){
+  const ads=adsElegiveis(ctx);if(!ads.length)return '';
+  const a=ads[((seed||0)+(n||0))%ads.length];
   trackView(a.id);
   return `<section class="panel ad"><div class="eyebrow">Oferta de parceiro</div><h3>${esc(a.titulo)}</h3>${a.texto?`<div class="muted">${esc(a.texto)}</div>`:''}${safeLink(a.link)?`<div><a class="btn small" href="${esc(affiliate(a.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(a.id)}">Ver oferta</a></div>`:''}</section>`;
 }
@@ -849,11 +856,13 @@ function renderMural(){
   else{
     const post=e=>`<div class="post tap ${e.hot?'hot':''}" data-act="open" data-id="${esc(e.id)}" tabindex="0" role="button"><img class="av" src="${esc(av(e.av||e.id))}" alt=""><div style="min-width:0"><div class="txt">${e.html}</div>${e.quote?`<blockquote>${esc(e.quote)}</blockquote>`:''}<div class="when2">${e.hot?esc(e.quando):ago(e.t)}</div></div></div>`;
     h+='<div class="feed">'+hotShown.map(post).join('');
-    restShown.forEach((e,i)=>{h+=post(e);if(i===2)h+=adCard(2)});
+    const nAds=adsElegiveis().length;let posto=0;
+    restShown.forEach((e,i)=>{h+=post(e);if(i%3===2&&posto<nAds){h+=adCard(0,null,posto);posto++}});
     h+='</div>';
-    if(restShown.length<3)h+=adCard(2);
+    if(!posto)h+=adCard(0);
     if(restAll.length>restShown.length)h+=`<div class="row" style="justify-content:center"><button class="btn ghost" data-act="feedMais">Ver mais novidades (${restAll.length-restShown.length})</button></div>`;
   }
+  if(!h.includes('class="panel ad"'))h+=adCard(0);
   app.innerHTML=h+'</div>';
 }
 function muralParabens(id){
@@ -899,7 +908,7 @@ function renderDatas(){
   else if(!ev.length&&!waiting.length)h+=`<div class="empty">${g?'Ninguém deste grupo tem datas informadas.':'Quem você segue ainda não informou datas.'}</div>`;
   else h+=`<div class="list">${ev.map(e=>personRow(e.id,pill(e.dias),`${e.label} · ${e.txt}`)).join('')}</div>`;
   if(waiting.length)h+=`<section class="sec"><div class="eyebrow">Aguardando aprovação</div><div class="list">${waiting.map(id=>personRow(id,'<span class="when">pendente</span>','Perfil fechado. Você verá a ficha quando aceitarem.')).join('')}</div></section>`;
-  h+=adCard(0);
+  h+=adCard(1);
   app.innerHTML=h+'</div>';
 }
 function gruposEditor(){
