@@ -166,7 +166,35 @@ button.chip{cursor:pointer}
 details summary{list-style:none}
 details summary::-webkit-details-marker{display:none}
 .chip:disabled{opacity:.6;cursor:default}
+:root[data-cor="azul"]{--accent:#2f6fd6;--accent-soft:#e8f0fd;--accent-ink:#ffffff}
+:root[data-cor="verde"]{--accent:#1f8a5b;--accent-soft:#e3f5ec;--accent-ink:#ffffff}
+:root[data-cor="roxo"]{--accent:#7b4fd1;--accent-soft:#f0eafb;--accent-ink:#ffffff}
+:root[data-cor="laranja"]{--accent:#d9631e;--accent-soft:#fdeee3;--accent-ink:#ffffff}
+:root[data-cor="grafite"]{--accent:#3d3a45;--accent-soft:#ecebef;--accent-ink:#ffffff}
+:root[data-escuro="1"]{--bg:#17121b;--surface:#211a27;--sunk:#2a2231;--line:#3a3042;--fg:#f1eaf5;--muted:#b2a5bb;--ribbon:#5fcfbd;--ribbon-soft:#183430;--warn:#f2b45a;--warn-soft:#3a2b14;--gold:#e3c46a;--gold-soft:#2f2914;color-scheme:dark}
+:root[data-escuro="1"][data-cor="rosa"],:root[data-escuro="1"]:not([data-cor]){--accent:#f06a9b;--accent-soft:#3b1e2c;--accent-ink:#17121b}
+:root[data-escuro="1"][data-cor="azul"]{--accent:#6ea0f0;--accent-soft:#1b2840;--accent-ink:#10141c}
+:root[data-escuro="1"][data-cor="verde"]{--accent:#4cc58c;--accent-soft:#15301f;--accent-ink:#0f1a14}
+:root[data-escuro="1"][data-cor="roxo"]{--accent:#a888f0;--accent-soft:#2a1f40;--accent-ink:#151020}
+:root[data-escuro="1"][data-cor="laranja"]{--accent:#f39a5b;--accent-soft:#3a2414;--accent-ink:#1a120c}
+:root[data-escuro="1"][data-cor="grafite"]{--accent:#d2cfda;--accent-soft:#2c2a31;--accent-ink:#17121b}
+@media (prefers-color-scheme:dark){:root[data-escuro="auto"]{--bg:#17121b;--surface:#211a27;--sunk:#2a2231;--line:#3a3042;--fg:#f1eaf5;--muted:#b2a5bb;--ribbon:#5fcfbd;--ribbon-soft:#183430;--warn:#f2b45a;--warn-soft:#3a2b14;--gold:#e3c46a;--gold-soft:#2f2914;color-scheme:dark}:root[data-escuro="auto"][data-cor="rosa"],:root[data-escuro="auto"]:not([data-cor]){--accent:#f06a9b;--accent-soft:#3b1e2c;--accent-ink:#17121b}:root[data-escuro="auto"][data-cor="azul"]{--accent:#6ea0f0;--accent-soft:#1b2840;--accent-ink:#10141c}:root[data-escuro="auto"][data-cor="verde"]{--accent:#4cc58c;--accent-soft:#15301f;--accent-ink:#0f1a14}:root[data-escuro="auto"][data-cor="roxo"]{--accent:#a888f0;--accent-soft:#2a1f40;--accent-ink:#151020}:root[data-escuro="auto"][data-cor="laranja"]{--accent:#f39a5b;--accent-soft:#3a2414;--accent-ink:#1a120c}:root[data-escuro="auto"][data-cor="grafite"]{--accent:#d2cfda;--accent-soft:#2c2a31;--accent-ink:#17121b}}
+:root[data-fundo="pontos"] body{background-image:radial-gradient(var(--line) 1.2px,transparent 1.6px);background-size:18px 18px;background-attachment:fixed}
+:root[data-fundo="confetes"] body{background-image:radial-gradient(circle at 12% 18%,color-mix(in srgb,var(--accent) 22%,transparent) 0 3px,transparent 4px),radial-gradient(circle at 68% 42%,color-mix(in srgb,var(--ribbon) 22%,transparent) 0 3px,transparent 4px),radial-gradient(circle at 38% 78%,color-mix(in srgb,var(--warn) 25%,transparent) 0 2.5px,transparent 3.5px),radial-gradient(circle at 88% 88%,color-mix(in srgb,var(--accent) 18%,transparent) 0 2px,transparent 3px);background-size:140px 140px;background-attachment:fixed}
+:root[data-fundo="lacos"] body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23d9467e' stroke-opacity='.13' stroke-width='2'%3E%3Cpath d='M48 48c-8-12-22-12-18-2 2 5 12 4 18 2zm0 0c8-12 22-12 18-2-2 5-12 4-18 2z'/%3E%3Cpath d='M48 48l-6 14M48 48l6 14'/%3E%3C/g%3E%3C/svg%3E");background-attachment:fixed}
+:root[data-fundo] header.top{background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px)}
+:root.compacto .view{gap:10px;padding-top:12px}:root.compacto .panel{padding:12px;gap:10px}:root.compacto .post,:root.compacto .person{padding:8px}:root.compacto .feed,:root.compacto .list{gap:6px}:root.compacto .tag-body{gap:14px}
+:root.letra-grande .wrap,:root.letra-grande .pop,:root.letra-grande .crop-box{zoom:1.14}
+.swatch{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--line)}
+.prev-mini{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.lock{font-size:12px;font-weight:700;color:var(--muted)}
 .me-chip{position:relative}
+.crop-ov{position:fixed;inset:0;background:rgba(20,14,26,.6);z-index:50;display:grid;place-items:center;padding:16px}
+.crop-box{background:var(--surface);border-radius:18px;padding:16px;width:min(340px,100%);display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.crop-stage{display:grid;place-items:center}
+.crop-box input[type=range]{accent-color:var(--accent);background:none;border:0}
+.crop-stage canvas{max-width:100%;height:auto!important;aspect-ratio:1;touch-action:none;cursor:grab;border-radius:12px;background:#fff}
+.crop-stage canvas:active{cursor:grabbing}
 .sino-btn{position:relative;border:0;background:var(--sunk);color:var(--fg);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
 .sino-btn svg{width:20px;height:20px}
 .sino-badge{position:absolute;top:-3px;right:-3px;background:#e0245e;color:#fff;font:700 11px var(--body);min-width:19px;height:19px;border-radius:999px;display:grid;place-items:center;padding:0 5px;border:2px solid var(--bg)}
@@ -563,6 +591,7 @@ function keep(fn){const y=window.scrollY;fn();window.scrollTo(0,y)}
 function updateBadge(){try{atualizarSino()}catch(e){}const pr=pendingRequests().length,bd=document.getElementById('badge');bd.hidden=!pr;bd.textContent=pr}
 function render(){
   if(window.__loggedOut)return;
+  if(tab!=='aparencia'){aparDraft=null;try{aplicarTema(prefsEfetivas())}catch(e){}}
   pendingRender=false;updateBadge();
   if(!db){app.innerHTML=`<div class="view"><h1>Entre para usar o PresenteCerto</h1><p class="lede">Faça login na sua conta para criar sua ficha, seguir pessoas e ver as listas delas.</p></div>`;return}
   if(viewing&&String(viewing).startsWith('loja:'))renderLoja(viewing.slice(5));
@@ -573,6 +602,7 @@ function render(){
   else if(tab==='sorteio')renderSorteio();
   else if(tab==='admin'&&isOwner)renderAdmin();
   else if(tab==='conta')renderConta();
+  else if(tab==='aparencia')renderAparencia();
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
   drawQrs();
@@ -692,7 +722,7 @@ document.addEventListener('click',e=>{
   if(notifAberto&&!e.target.closest('#sinoBox')){notifAberto=false;renderSino()}
   if(menuAberto&&!e.target.closest('#menuBox')&&!e.target.closest('#meBtn')){menuAberto=false;menuSair=false;renderMenu()}
 },true);
-document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
+document.addEventListener('change',e=>{const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(notifAberto||menuAberto)){notifAberto=false;menuAberto=false;menuSair=false;renderSino();renderMenu()}});
 /* ---------- Menu da foto ---------- */
@@ -704,6 +734,7 @@ function renderMenu(){
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="ficha">Minha ficha</button>
+   <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
@@ -718,6 +749,7 @@ document.addEventListener('click',e=>{
   if(a==='sairOk'){if(user&&user.logout)user.logout().then(()=>location.reload());return}
   if(!sairDaFicha())return;
   if(a==='ficha')setTab('perfil');
+  if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil')}
@@ -1150,7 +1182,7 @@ function plusPanel(){
    <div class="flabel">Listas extras por ocasião (aparecem na etapa Pretendo ganhar)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
    <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
-   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li></ul>
+   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li></ul>
    ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:''}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
 }
@@ -1190,6 +1222,44 @@ function plusAdmin(){
    ${usados.length?`<div class="flabel">Usados</div>${usados.slice(0,20).map(([c,k])=>`<div class="date-row"><span><b style="font-family:ui-monospace,monospace">${esc(c)}</b> · ${esc(nm(k.usadoPor))}</span></div>`).join('')}`:''}</section>`;
 }
 
+/* ---------- Personalizar (aparência) ---------- */
+let aparencia={},aparDraft=null,aparInicioFeito=false;
+const AP_CORES={rosa:'#d9467e',azul:'#2f6fd6',verde:'#1f8a5b',roxo:'#7b4fd1',laranja:'#d9631e',grafite:'#3d3a45'};
+const AP_ESCURO={claro:'Claro',escuro:'Escuro',auto:'Igual ao celular'};
+const AP_FUNDO={liso:'Liso',pontos:'Pontinhos',confetes:'Confetes',lacos:'Laços de presente'};
+const AP_INICIO={mural:'Mural',datas:'Datas',perfil:'Minha ficha'};
+function prefsEfetivas(){const a=aparencia||{};if(isPlus(myId))return a;return {letra:a.letra}}
+function aplicarTema(a){
+  a=a||{};const r=document.documentElement;
+  if(a.cor&&a.cor!=='rosa')r.setAttribute('data-cor',a.cor);else r.removeAttribute('data-cor');
+  if(a.escuro==='escuro')r.setAttribute('data-escuro','1');else if(a.escuro==='auto')r.setAttribute('data-escuro','auto');else r.removeAttribute('data-escuro');
+  if(a.fundo&&a.fundo!=='liso')r.setAttribute('data-fundo',a.fundo);else r.removeAttribute('data-fundo');
+  r.classList.toggle('compacto',!!a.compacto);r.classList.toggle('letra-grande',a.letra==='grande');
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=getComputedStyle(r).getPropertyValue('--accent').trim()||'#d9467e';
+}
+function renderAparencia(){
+  if(!aparDraft)aparDraft={cor:'rosa',escuro:'claro',fundo:'liso',inicio:'mural',compacto:false,letra:'normal',...aparencia};
+  const d=aparDraft,plus=isPlus(myId);aplicarTema(d);
+  const op=(campo,mapa,extra)=>`<div class="chips">${Object.entries(mapa).map(([k,v])=>`<button class="chip style" data-act="apSet" data-k="${campo}" data-v="${k}" aria-pressed="${(d[campo]||'')===k}">${extra?extra(k):''}${esc(v)}</button>`).join('')}</div>`;
+  const cad=plus?'':' <span class="lock">Plus</span>';
+  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>
+  <section class="panel"><h2>Cor do aplicativo${cad}</h2>${op('cor',{rosa:'Rosa',azul:'Azul',verde:'Verde',roxo:'Roxo',laranja:'Laranja',grafite:'Grafite'},k=>`<span class="swatch" style="background:${AP_CORES[k]}"></span>`)}</section>
+  <section class="panel"><h2>Modo da tela${cad}</h2>${op('escuro',AP_ESCURO)}</section>
+  <section class="panel"><h2>Fundo${cad}</h2>${op('fundo',AP_FUNDO)}</section>
+  <section class="panel"><h2>Tela inicial${cad}</h2><span class="muted">Qual aba abre quando você entra no PresenteCerto.</span>${op('inicio',AP_INICIO)}</section>
+  <section class="panel"><h2>Visual compacto${cad}</h2><label class="check"><input type="checkbox" data-apcheck="compacto" ${d.compacto?'checked':''}><span>Cartões mais próximos, para ver mais coisas sem rolar.</span></label></section>
+  <section class="panel"><h2>Tamanho da letra</h2><span class="muted">Grátis para todos.</span>${op('letra',{normal:'Normal',grande:'Grande'})}</section>
+  <section class="prev-mini"><div class="eyebrow">Prévia</div><div class="row between"><b>Aniversário da Ana</b><span class="when soon">em 3 dias</span></div><div class="row"><button class="btn small">Vou dar este</button><button class="btn small ghost">Fazer vaquinha</button></div></section>
+  ${plus?'':`<div class="notice">As opções marcadas com Plus voltam ao padrão quando você sair desta tela. O tamanho da letra fica salvo.${safeLink(config.plusLink)?` <a href="${esc(config.plusLink)}" target="_blank" rel="noopener" style="color:inherit;font-weight:700">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:' Veja como assinar em Minha ficha → Mais opções.'}</div>`}
+  <div class="row savebar between"><button class="btn ghost" data-act="apPadrao">Voltar ao padrão</button><button class="btn" data-act="apSalvar">Salvar</button></div></div>`;
+  app.innerHTML=h;
+}
+async function salvarAparencia(){
+  const d=aparDraft||{};const plus=isPlus(myId);
+  const novo=plus?{cor:d.cor,escuro:d.escuro,fundo:d.fundo,inicio:d.inicio,compacto:!!d.compacto,letra:d.letra}:{...aparencia,letra:d.letra};
+  try{await db.doc(`data/users/${myId}/aparencia`).set(novo);aparencia=novo;aparDraft=null;toast(plus?'Visual salvo':'Tamanho da letra salvo. As outras opções são do Plus.');setTab('mural')}catch(e){toast(failMsg)}
+}
+
 /* ---------- Editar perfil ---------- */
 let contaDraft=null;
 function renderConta(){
@@ -1203,7 +1273,7 @@ function renderConta(){
    <div class="sec" style="gap:8px"><button class="btn small" data-act="contaFoto">Trocar foto</button>
    ${user&&user.fotoGoogle&&user.fotoGoogle()&&c.foto!==user.fotoGoogle()?`<button class="link alt" data-act="contaFotoGoogle">Usar a foto do Google</button>`:''}
    ${c.foto?`<button class="link" data-act="contaSemFoto">Tirar a foto (usar iniciais)</button>`:''}</div></div>
-   <span class="small" style="color:var(--muted)">Escolha uma foto do celular ou do computador. Ela é ajustada automaticamente.</span></section>
+   <span class="small" style="color:var(--muted)">Escolha uma foto do celular ou do computador. Antes de usar, você pode arrastar, aproximar e girar.</span></section>
   <section class="panel"><h2>Seus dados</h2>
    <label class="f">Nome que aparece para os amigos<input id="cNome" maxlength="40" value="${esc(c.nome)}" autocomplete="name"></label>
    <label class="f">Uma frase sobre você (opcional)<input id="cFrase" maxlength="120" value="${esc(c.frase)}" placeholder="Ex.: Apaixonada por plantas e café"></label>
@@ -1223,8 +1293,47 @@ function renderConta(){
   app.querySelector('#cCidade')?.addEventListener('input',e=>{c.cidade=e.target.value.trim();c.mudou=true;app.querySelectorAll('[data-act="contaCidade"]').forEach(b=>b.setAttribute('aria-pressed','false'))});
 }
 function fotoQuadrada(file,lado){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const m=Math.min(img.width,img.height);const c=document.createElement('canvas');c.width=lado;c.height=lado;c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,lado,lado);URL.revokeObjectURL(url);let q=.8,out=c.toDataURL('image/jpeg',q);while(out.length>40000&&q>.4){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
-document.getElementById('fotoPerfilInput').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f||!contaDraft)return;
-  try{contaDraft.foto=await fotoQuadrada(f,256);contaDraft.mudou=true;keep(renderConta);toast('Foto escolhida. Toque em Salvar alterações.')}catch(err){toast('Não foi possível usar esta imagem. Tente outra.')}});
+/* ---------- Ajustar foto (arrastar, zoom e girar) ---------- */
+function abrirAjusteFoto(file,onOk){
+  const url=URL.createObjectURL(file);const img=new Image();
+  img.onerror=()=>{URL.revokeObjectURL(url);toast('Não foi possível abrir esta imagem. Tente outra.')};
+  img.onload=()=>{
+    const V=280;const st={rot:0,zoom:1,x:0,y:0};
+    const ov=document.createElement('div');ov.className='crop-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-label','Ajustar foto');
+    ov.innerHTML=`<div class="crop-box"><b style="font-family:var(--display);font-size:18px">Ajuste sua foto</b><span class="small" style="color:var(--muted)">Arraste para posicionar e use o controle para aproximar.</span>
+      <div class="crop-stage"><canvas width="${V*2}" height="${V*2}" style="width:${V}px;height:${V}px"></canvas></div>
+      <div class="row" style="flex-wrap:nowrap;gap:10px"><span class="small" aria-hidden="true">−</span><input type="range" min="1" max="4" step="0.01" value="1" aria-label="Zoom" style="flex:1;padding:0"><span class="small" aria-hidden="true">+</span><button class="btn small ghost" data-c="girar" aria-label="Girar a foto">Girar</button></div>
+      <div class="row between"><button class="btn ghost" data-c="cancelar">Cancelar</button><button class="btn" data-c="ok">Usar esta foto</button></div></div>`;
+    document.body.appendChild(ov);
+    const cv=ov.querySelector('canvas'),ctx=cv.getContext('2d'),rg=ov.querySelector('input[type=range]');
+    const dims=()=>{const r=st.rot%180!==0;const w=r?img.height:img.width,h=r?img.width:img.height;const base=V/Math.min(w,h);return{w:w*base*st.zoom,h:h*base*st.zoom,base}};
+    const prender=()=>{const d=dims();const mx=Math.max(0,(d.w-V)/2),my=Math.max(0,(d.h-V)/2);st.x=Math.min(mx,Math.max(-mx,st.x));st.y=Math.min(my,Math.max(-my,st.y))};
+    function pintar(c,tam,mascara){
+      const k=tam/V;const d=dims();c.save();c.clearRect(0,0,tam,tam);c.fillStyle='#fff';c.fillRect(0,0,tam,tam);
+      c.translate(tam/2+st.x*k,tam/2+st.y*k);c.rotate(st.rot*Math.PI/180);const sc=d.base*st.zoom*k;c.scale(sc,sc);c.drawImage(img,-img.width/2,-img.height/2);c.restore();
+      if(mascara){c.save();c.fillStyle='rgba(20,14,26,.55)';c.beginPath();c.rect(0,0,tam,tam);c.arc(tam/2,tam/2,tam/2-2*k,0,Math.PI*2,true);c.fill('evenodd');c.strokeStyle='#fff';c.lineWidth=2*k;c.beginPath();c.arc(tam/2,tam/2,tam/2-2*k,0,Math.PI*2);c.stroke();c.restore()}
+    }
+    const draw=()=>{prender();pintar(ctx,V*2,true)};draw();
+    const pts=new Map();let pinch0=null;
+    cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const [a,b]=[...pts.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:st.zoom}}});
+    cv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size===2&&pinch0){const [a,b]=[...pts.values()];st.zoom=Math.min(4,Math.max(1,pinch0.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch0.d));rg.value=st.zoom}
+      else if(pts.size===1){st.x+=e.clientX-prev.x;st.y+=e.clientY-prev.y}draw()});
+    const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch0=null};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    cv.addEventListener('wheel',e=>{e.preventDefault();st.zoom=Math.min(4,Math.max(1,st.zoom*(e.deltaY<0?1.08:1/1.08)));rg.value=st.zoom;draw()},{passive:false});
+    rg.addEventListener('input',()=>{st.zoom=+rg.value;draw()});
+    const fechar=()=>{ov.remove();URL.revokeObjectURL(url);document.removeEventListener('keydown',esc_)};
+    const esc_=e=>{if(e.key==='Escape')fechar()};document.addEventListener('keydown',esc_);
+    ov.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;const a=b.dataset.c;
+      if(a==='girar'){st.rot=(st.rot+90)%360;draw();return}
+      if(a==='cancelar'){fechar();return}
+      if(a==='ok'){const out=document.createElement('canvas');out.width=out.height=256;pintar(out.getContext('2d'),256,false);
+        let q=.85,data=out.toDataURL('image/jpeg',q);while(data.length>40000&&q>.4){q-=.1;data=out.toDataURL('image/jpeg',q)}fechar();onOk(data)}});
+  };
+  img.src=url;
+}
+document.getElementById('fotoPerfilInput').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f||!contaDraft)return;
+  abrirAjusteFoto(f,data=>{contaDraft.foto=data;contaDraft.mudou=true;keep(renderConta);toast('Foto ajustada. Toque em Salvar alterações.')})});
 async function salvarConta(){
   const c=contaDraft;const nome=(c.nome||'').trim().slice(0,40);if(nome.length<2){toast('Escreva seu nome');return}
   const b=app.querySelector('[data-act="contaSalvar"]');if(b){b.disabled=true;b.textContent='Salvando…'}
@@ -1614,6 +1723,10 @@ app.addEventListener('click',e=>{
     case 'endVaq': A.vaquinhas=A.vaquinhas.filter(v=>v.id!==ds.vid);A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Vaquinha encerrada');break;
     case 'ai': runAI(ds.id);break;
     case 'saveHandle': saveHandle();break;
+    case 'apSet': aparDraft[ds.k]=ds.v;keep(renderAparencia);break;
+    case 'apSalvar': salvarAparencia();break;
+    case 'apPadrao': aparDraft={cor:'rosa',escuro:'claro',fundo:'liso',inicio:'mural',compacto:false,letra:'normal'};keep(renderAparencia);break;
+    case 'apVoltar': setTab('mural');break;
     case 'contaFoto': document.getElementById('fotoPerfilInput').click();break;
     case 'contaFotoGoogle': contaDraft.foto=user.fotoGoogle();contaDraft.mudou=true;keep(renderConta);break;
     case 'contaSemFoto': contaDraft.foto='';contaDraft.mudou=true;keep(renderConta);break;
@@ -1748,6 +1861,9 @@ async function start(){
   else db.collection('metricas').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});allMet=n;softRender()},()=>{});
   try{const m=await user.me();myName=m.name||'';myEmail=m.email||'';names[myId]={name:m.name||'Você',avatar:m.avatarUrl};
     document.getElementById('meChip').innerHTML=`<button class="sino-btn" id="sinoBtn" aria-label="Avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="sino-badge" id="sinoBadge" hidden></span></button><button class="avatar-btn" id="meBtn" aria-label="Abrir menu da conta"><img src="${esc(m.avatarUrl)}" alt=""></button><div class="pop" id="sinoBox" hidden></div><div class="pop pop-menu" id="menuBox" hidden></div>`;}catch(e){}
+  db.doc(`data/users/${myId}/aparencia`).onSnapshot(s=>{aparencia=s.exists?{...s.data()}:{};
+    if(tab!=='aparencia')aplicarTema(prefsEfetivas());
+    if(!aparInicioFeito){aparInicioFeito=true;const ini=prefsEfetivas().inicio;if(ini&&ini!=='mural'&&tab==='mural'&&!viewing&&!pendingOpen)setTab(ini)}},()=>{});
   db.doc(`data/users/${myId}/notificacoes`).onSnapshot(s=>{if(s.exists){const d=s.data();notifEstado={lidoAte:d.lidoAte||0,lidos:[...(d.lidos||[])],desligados:[...(d.desligados||[])]}}else if(!notifEstado.lidoAte){notifEstado={...notifEstado,lidoAte:Date.now()-7*864e5};salvarNotif()}atualizarSino();if(notifAberto)renderSino()},()=>{});
   render();
   claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
