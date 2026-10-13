@@ -226,6 +226,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   </div>
 </main>
 <input type="file" id="fotoInput" accept="image/*" hidden>
+<input type="file" id="fotoPerfilInput" accept="image/*" hidden>
 
 <nav class="tabs" aria-label="Seções"><div class="tabs-in" role="tablist">
   <button class="tab" role="tab" data-tab="mural" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Mural</button>
@@ -301,7 +302,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
     if(rs)rs.onclick=async()=>{const email=v('lgEmail');if(!email){erro='Digite seu e-mail acima e toque de novo em Esqueci minha senha.';return showLogin()}
       try{await auth.sendPasswordResetEmail(email);erro='';app.querySelector('.err').textContent='Enviamos um link para redefinir a senha. Confira seu e-mail.'}catch(e){erro=msgDe(e);showLogin()}};
   }
-  async function salvarUsuario(u){try{await fs.doc('usuarios/'+u.uid).set({nome:nomeDe(u),foto:u.photoURL||'',atualizado:new Date().toISOString()},{merge:true})}catch(e){}}
+  async function salvarUsuario(u){try{const ref=fs.doc('usuarios/'+u.uid);const s=await ref.get();const x=s.exists?s.data():{};
+    const d={atualizado:new Date().toISOString()};if(!x.nomeProprio)d.nome=nomeDe(u);if(!x.fotoPropria)d.foto=u.photoURL||'';await ref.set(d,{merge:true})}catch(e){}}
 
   auth.getRedirectResult().catch(e=>{erro=msgDe(e)});
   let started=false;
@@ -318,7 +320,14 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 
   const userApi=u=>({
     id:async()=>u.uid,
-    me:async()=>({id:u.uid,name:nomeDe(u),avatarUrl:u.photoURL||initials(nomeDe(u)),email:u.email||''}),
+    me:async()=>{await usuariosOk;const x=usuarios[u.uid]||{};const n=x.nome||nomeDe(u);return {id:u.uid,name:n,avatarUrl:x.foto||u.photoURL||initials(n),email:u.email||''}},
+    provedores:()=>(u.providerData||[]).map(p=>p.providerId),
+    fotoGoogle:()=>u.photoURL||'',
+    atualizarConta:async({nome,foto})=>{const d={atualizado:new Date().toISOString()};
+      if(nome!==undefined){d.nome=nome;d.nomeProprio=true;try{await u.updateProfile({displayName:nome})}catch(e){}}
+      if(foto!==undefined){d.foto=foto;d.fotoPropria=foto!==(u.photoURL||'');}
+      await fs.doc('usuarios/'+u.uid).set(d,{merge:true});usuarios[u.uid]={...(usuarios[u.uid]||{}),...d}},
+    redefinirSenha:()=>auth.sendPasswordResetEmail(u.email),
     isOwner:async()=>!!ADMIN&&String(u.email||'').toLowerCase()===ADMIN&&!!u.emailVerified,
     profiles:async ids=>{await usuariosOk;const out={};ids.forEach(id=>{const x=usuarios[id];if(x)out[id]={id,name:x.nome||'',avatarUrl:x.foto||initials(x.nome)}});return out},
     logout:()=>auth.signOut()
@@ -563,6 +572,7 @@ function render(){
   else if(tab==='pessoas')renderSearch();
   else if(tab==='sorteio')renderSorteio();
   else if(tab==='admin'&&isOwner)renderAdmin();
+  else if(tab==='conta')renderConta();
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
   drawQrs();
@@ -692,6 +702,7 @@ function renderMenu(){
   box.hidden=false;
   box.innerHTML=menuSair?`<div class="pop-body"><b>Quer mesmo sair da conta?</b><span class="small" style="color:var(--muted)">Para voltar, é só entrar de novo com o Google ou com seu e-mail.</span><div class="row"><button class="btn small" data-menu="sairOk">Sair da conta</button><button class="link" data-menu="cancelar">Cancelar</button></div></div>`
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
+   <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="ficha">Minha ficha</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
@@ -707,6 +718,7 @@ document.addEventListener('click',e=>{
   if(a==='sairOk'){if(user&&user.logout)user.logout().then(()=>location.reload());return}
   if(!sairDaFicha())return;
   if(a==='ficha')setTab('perfil');
+  if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil')}
 });
@@ -953,7 +965,7 @@ function renderPerson(id){
   const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],['Gosta de',juntar(p.gostosTags,p.gosta)],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Não gosta',p.naoGosta],['Alergias',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
-  h+=`<div class="tag-card"><div class="tag-head ${capaEsc?'escura':''}" ${capa}><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 style="font-size:24px">${esc(nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="small" style="color:var(--accent);font-weight:600">@${esc(handleOf(id))}</div>`:''}<div class="muted">${esc(bdayText(p))}</div><div style="margin-top:6px">${pill(bdayDays(p))}</div></div></div><div class="tag-body">`;
+  h+=`<div class="tag-card"><div class="tag-head ${capaEsc?'escura':''}" ${capa}><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 style="font-size:24px">${esc(nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="small" style="color:var(--accent);font-weight:600">@${esc(handleOf(id))}</div>`:''}${p.frase?`<div style="font-size:14px;margin-top:2px">${esc(p.frase)}</div>`:''}<div class="muted">${esc(bdayText(p))}</div><div style="margin-top:6px">${pill(bdayDays(p))}</div></div></div><div class="tag-body">`;
   if(self)h+=`<div class="notice">Assim os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
   else{
     h+=`<div class="row">${followBtn(id)}</div>`;
@@ -1176,6 +1188,55 @@ function plusAdmin(){
    <div class="row"><button class="btn small" data-act="gerarCodigos">Criar códigos</button></div>
    ${livres.length?`<div class="flabel">Códigos livres</div>${livres.slice(0,30).map(([c,k])=>`<div class="date-row"><span><b style="font-family:ui-monospace,monospace">${esc(c)}</b> · ${k.dias} dias</span><button class="link" data-act="copy" data-text="${esc(c)}">Copiar</button></div>`).join('')}`:''}
    ${usados.length?`<div class="flabel">Usados</div>${usados.slice(0,20).map(([c,k])=>`<div class="date-row"><span><b style="font-family:ui-monospace,monospace">${esc(c)}</b> · ${esc(nm(k.usadoPor))}</span></div>`).join('')}`:''}</section>`;
+}
+
+/* ---------- Editar perfil ---------- */
+let contaDraft=null;
+function renderConta(){
+  const p=profiles[myId]||{};
+  if(!contaDraft)contaDraft={nome:myName||'',foto:names[myId]?.avatar||'',frase:p.frase||'',cidade:p.cidade||'',mudou:false};
+  const c=contaDraft;const temSenha=user&&user.provedores&&user.provedores().includes('password');
+  const fotoAtual=c.foto||initialsAvatar(c.nome||'?');
+  let h=`<div class="view"><button class="back" data-act="contaVoltar">← Voltar</button><div><h1>Editar perfil</h1><p class="lede">Como você aparece para os seus amigos no PresenteCerto.</p></div>
+  <section class="panel"><h2>Foto do perfil</h2>
+   <div class="row" style="gap:16px;flex-wrap:nowrap"><img src="${esc(fotoAtual)}" alt="Sua foto" style="width:88px;height:88px;border-radius:50%;object-fit:cover;flex:none;border:3px solid var(--accent-soft)">
+   <div class="sec" style="gap:8px"><button class="btn small" data-act="contaFoto">Trocar foto</button>
+   ${user&&user.fotoGoogle&&user.fotoGoogle()&&c.foto!==user.fotoGoogle()?`<button class="link alt" data-act="contaFotoGoogle">Usar a foto do Google</button>`:''}
+   ${c.foto?`<button class="link" data-act="contaSemFoto">Tirar a foto (usar iniciais)</button>`:''}</div></div>
+   <span class="small" style="color:var(--muted)">Escolha uma foto do celular ou do computador. Ela é ajustada automaticamente.</span></section>
+  <section class="panel"><h2>Seus dados</h2>
+   <label class="f">Nome que aparece para os amigos<input id="cNome" maxlength="40" value="${esc(c.nome)}" autocomplete="name"></label>
+   <label class="f">Uma frase sobre você (opcional)<input id="cFrase" maxlength="120" value="${esc(c.frase)}" placeholder="Ex.: Apaixonada por plantas e café"></label>
+   <div class="flabel">Sua cidade</div>
+   <div class="chips">${CIDADES.map(x=>`<button class="chip style" data-act="contaCidade" data-v="${esc(x)}" aria-pressed="${c.cidade===x}">${esc(x)}</button>`).join('')}</div>
+   <label class="f">Outra cidade<input id="cCidade" maxlength="40" value="${esc(CIDADES.includes(c.cidade)?'':c.cidade)}" placeholder="Digite o nome da cidade"></label>
+   <label class="f">E-mail da conta<input value="${esc(myEmail||'')}" disabled></label>
+   <span class="small" style="color:var(--muted)">O e-mail é o da sua conta Google ou o que você usou no cadastro, e não pode ser trocado aqui.</span></section>
+  <section class="panel"><h2>Nome de usuário</h2>
+   <div class="row" style="flex-wrap:nowrap"><span style="font-weight:700;color:var(--accent)">@</span><input id="uHandle" maxlength="20" autocapitalize="off" autocomplete="off" value="${esc(handleOf(myId)||'')}" placeholder="${esc(sugereHandle())}"><button class="btn small ghost" data-act="saveHandle">${handleOf(myId)?'Trocar':'Salvar'}</button></div>
+   <span class="small" style="color:var(--muted)">De 3 a 20 caracteres: letras minúsculas, números, ponto e sublinhado.</span></section>
+  ${temSenha?`<section class="panel"><h2>Senha</h2><span class="muted">Enviamos um link para o seu e-mail para você criar uma senha nova.</span><div class="row"><button class="btn small ghost" data-act="contaSenha">Trocar minha senha</button></div></section>`:''}
+  <div class="row savebar between"><button class="btn ghost" data-act="contaVoltar">Cancelar</button><button class="btn" data-act="contaSalvar">Salvar alterações</button></div></div>`;
+  app.innerHTML=h;
+  const bind=(id,k)=>app.querySelector('#'+id)?.addEventListener('input',e=>{c[k]=e.target.value;c.mudou=true});
+  bind('cNome','nome');bind('cFrase','frase');
+  app.querySelector('#cCidade')?.addEventListener('input',e=>{c.cidade=e.target.value.trim();c.mudou=true;app.querySelectorAll('[data-act="contaCidade"]').forEach(b=>b.setAttribute('aria-pressed','false'))});
+}
+function fotoQuadrada(file,lado){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const m=Math.min(img.width,img.height);const c=document.createElement('canvas');c.width=lado;c.height=lado;c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,lado,lado);URL.revokeObjectURL(url);let q=.8,out=c.toDataURL('image/jpeg',q);while(out.length>40000&&q>.4){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
+document.getElementById('fotoPerfilInput').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f||!contaDraft)return;
+  try{contaDraft.foto=await fotoQuadrada(f,256);contaDraft.mudou=true;keep(renderConta);toast('Foto escolhida. Toque em Salvar alterações.')}catch(err){toast('Não foi possível usar esta imagem. Tente outra.')}});
+async function salvarConta(){
+  const c=contaDraft;const nome=(c.nome||'').trim().slice(0,40);if(nome.length<2){toast('Escreva seu nome');return}
+  const b=app.querySelector('[data-act="contaSalvar"]');if(b){b.disabled=true;b.textContent='Salvando…'}
+  try{
+    if(user&&user.atualizarConta)await user.atualizarConta({nome,foto:c.foto||''});
+    const dados={frase:(c.frase||'').trim().slice(0,120),cidade:(c.cidade||'').trim().slice(0,40)};
+    await db.doc('profiles/'+myId).set(dados,{merge:true});
+    profiles[myId]={...(profiles[myId]||{}),...dados};if(draft)Object.assign(draft,dados);
+    myName=nome;names[myId]={name:nome,avatar:c.foto||initialsAvatar(nome)};
+    const img=document.querySelector('#meBtn img');if(img)img.src=names[myId].avatar;
+    contaDraft=null;toast('Perfil atualizado');setTab('mural');
+  }catch(e){if(b){b.disabled=false;b.textContent='Salvar alterações'}toast(failMsg)}
 }
 
 /* ---------- Painel do administrador ---------- */
@@ -1486,7 +1547,7 @@ async function irPasso(n){
 async function saveMine(){
   if(!dirty)return;const b=app.querySelector('#save');if(b){b.disabled=true;b.textContent='Salvando…'}
   const cur=profiles[myId]||{};
-  const data={...draft,ano:String(draft.ano||'').replace(/\D/g,'').slice(0,4),aviso:+draft.aviso||15,aprovados:cur.aprovados||[],recusados:cur.recusados||[],parabensOcultos:cur.parabensOcultos||[],usuario:cur.usuario||'',atualizado:new Date().toISOString()};
+  const data={...draft,ano:String(draft.ano||'').replace(/\D/g,'').slice(0,4),aviso:+draft.aviso||15,aprovados:cur.aprovados||[],recusados:cur.recusados||[],parabensOcultos:cur.parabensOcultos||[],usuario:cur.usuario||'',frase:cur.frase||draft.frase||'',atualizado:new Date().toISOString()};
   delete data.jaTem;
   try{await db.doc('profiles/'+myId).set(data);profiles[myId]=data;draft=null;dirty=false;toast('Ficha salva');keep(render)}
   catch(e){if(b){b.disabled=false;b.textContent='Salvar ficha'}toast(failMsg)}
@@ -1553,6 +1614,13 @@ app.addEventListener('click',e=>{
     case 'endVaq': A.vaquinhas=A.vaquinhas.filter(v=>v.id!==ds.vid);A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Vaquinha encerrada');break;
     case 'ai': runAI(ds.id);break;
     case 'saveHandle': saveHandle();break;
+    case 'contaFoto': document.getElementById('fotoPerfilInput').click();break;
+    case 'contaFotoGoogle': contaDraft.foto=user.fotoGoogle();contaDraft.mudou=true;keep(renderConta);break;
+    case 'contaSemFoto': contaDraft.foto='';contaDraft.mudou=true;keep(renderConta);break;
+    case 'contaCidade': contaDraft.cidade=contaDraft.cidade===ds.v?'':ds.v;contaDraft.mudou=true;keep(renderConta);break;
+    case 'contaSalvar': salvarConta();break;
+    case 'contaVoltar': contaDraft=null;setTab('mural');break;
+    case 'contaSenha': if(user&&user.redefinirSenha)user.redefinirSenha().then(()=>toast('Enviamos o link para '+myEmail)).catch(()=>toast('Não foi possível enviar agora. Tente de novo.'));break;
     case 'fStep': irPasso(+ds.i);break;
     case 'fPrev': irPasso(fichaStep-1);break;
     case 'fNext': if(fichaStep<PASSOS.length-1)irPasso(fichaStep+1);else if(dirty)saveMine();else{toast('Ficha pronta! Compartilhe seu perfil com os amigos.');setTab('mural')}break;
