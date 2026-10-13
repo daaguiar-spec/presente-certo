@@ -267,6 +267,17 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .cid-pop b{font-weight:700}.cid-pop .uf{color:var(--muted);font-size:12px;font-weight:600}
 .cid-pop .vazio{padding:9px 12px;color:var(--muted);font-size:14px}
 .cid-hint{display:block;font-size:12.5px;color:var(--warn);font-weight:500;margin-top:2px}
+.fb-card{display:flex;flex-direction:column;gap:6px;background:var(--sunk);border-radius:12px;padding:12px 14px}
+.fb-card.nova{border-left:4px solid var(--accent)}
+.fb-tipo{font:700 11px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.fb-img{max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--line);cursor:zoom-in;align-self:flex-start}
+.fb-img.grande{max-height:none;cursor:zoom-out}
+.fb-resp{background:var(--accent-soft);border-radius:10px;padding:8px 12px;font-size:14px}
+.inst-os{background:var(--sunk);border-radius:14px;padding:12px 14px}
+.inst-os.seu{background:var(--accent-soft);outline:2px solid var(--accent)}
+.inst-os b{display:block;margin-bottom:4px}
+.inst-os ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px;font-size:14.5px}
+.inst-icone{width:56px;height:56px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
 </style>
 
 </head>
@@ -638,6 +649,7 @@ function render(){
   else if(tab==='sorteio')renderSorteio();
   else if(tab==='admin'&&isOwner)renderAdmin();
   else if(tab==='conta')renderConta();
+  else if(tab==='sugestao')renderSugestao();
   else if(tab==='aparencia')renderAparencia();
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
@@ -724,6 +736,10 @@ function buildNotifs(){
     Object.entries(por).forEach(([k,its])=>{its.sort((a,b)=>b.t-a.t);out.push({id:'li:'+id+':'+k,t:its[0].t,tipo:'listas',av:id,html:its.length===1?`${N(id)} adicionou <b>${esc(its[0].n)}</b> à lista.`:`${N(id)} adicionou ${its.length} itens à lista.`,go:{open:id}})})});
   // avisos do PresenteCerto
   avisosList().filter(x=>avisoPraMim(x)&&x.sino!==false).forEach(x=>out.push({id:'av:'+x.id,t:Date.parse(x.data||'')||0,tipo:'avisos',av:null,html:esc(x.texto),link:safeLink(x.link)?x.link:'',botao:x.botao||'Saiba mais',go:{tab:'mural'}}));
+  // respostas às sugestões que a pessoa mandou
+  minhasRespostas.forEach(r=>out.push({id:'rs:'+r.id,t:Date.parse(r.data||'')||0,tipo:'avisos',av:null,html:`A equipe do PresenteCerto respondeu sua sugestão: “${esc(String(r.texto||'').slice(0,90))}${String(r.texto||'').length>90?'…':''}”`,go:{tab:'sugestao'}}));
+  // administrador: sugestões novas
+  if(isOwner)feedbackLista().filter(f=>f.status==='nova').forEach(f=>out.push({id:'fb:'+f.id,t:Date.parse(f.data||'')||0,tipo:'avisos',av:f.uid&&profiles[f.uid]?f.uid:null,html:`Nova sugestão de <b>${esc(f.nome||'alguém')}</b>: “${esc(String(f.texto||'').slice(0,80))}${String(f.texto||'').length>80?'…':''}”`,go:{tab:'admin'}}));
   // plus perto de vencer
   if(isPlus(myId)){const pl=planos[myId];const ate=pl.ate&&pl.ate.toDate?pl.ate.toDate():new Date(pl.ate);const d=Math.ceil((ate-Date.now())/864e5);if(d<=7)out.push({id:'px:'+ate.toDateString(),t:t0,tipo:'plus',av:null,html:`Seu Plus vence em ${d<=1?'1 dia':d+' dias'}. Renove para continuar com os benefícios.`,go:{tab:'perfil'}})}
   return out.filter(n=>!(notifEstado.desligados||[]).includes(n.tipo)).sort((a,b)=>b.t-a.t).slice(0,60);
@@ -758,7 +774,7 @@ document.addEventListener('click',e=>{
   if(notifAberto&&!e.target.closest('#sinoBox')){notifAberto=false;renderSino()}
   if(menuAberto&&!e.target.closest('#menuBox')&&!e.target.closest('#meBtn')){menuAberto=false;menuSair=false;renderMenu()}
 },true);
-document.addEventListener('change',e=>{const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
+document.addEventListener('change',e=>{const fs=e.target.dataset&&e.target.dataset.fbstatus;if(fs&&isOwner){db.doc('feedback/'+fs).update({status:e.target.value}).then(()=>toast('Situação: '+FB_STATUS[e.target.value])).catch(()=>toast('Não foi possível mudar a situação.'));return}const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(notifAberto||menuAberto)){notifAberto=false;menuAberto=false;menuSair=false;renderSino();renderMenu()}});
 /* ---------- Menu da foto ---------- */
@@ -772,6 +788,7 @@ function renderMenu(){
    <button class="menu-item" data-menu="ficha">Minha ficha</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
+   <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
 }
@@ -788,6 +805,7 @@ document.addEventListener('click',e=>{
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
+  if(a==='sugestao'){fbDraft=null;setTab('sugestao')}
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil')}
 });
 
@@ -1419,6 +1437,7 @@ function renderAdmin(){
   let h=`<div class="view"><div><h1>Painel</h1><p class="lede">Área do administrador. Só você vê esta página.</p></div>`;
   // 1 visão geral
   h+=`<section class="panel"><h2>Visão geral</h2><div class="stat">${tile(reais.length,'Usuários reais')}${tile(config.ocultarExemplos?'0':ex.length,'Pessoas de exemplo')}${tile(completas,'Fichas completas')}${tile(itens,'Itens nas listas')}${tile(reservas,'Reservas')}${tile(vaqs,'Vaquinhas')}${tile(sorts,'Amigos secretos')}${tile(msgs.length,'Parabéns')}</div></section>`;
+  h+=adminSugestoes();
   // 2-4 dinheiro
   h+=adminBlock();
   // 5 usuários
@@ -1452,6 +1471,9 @@ function renderAdmin(){
    ${dqs.length?dqs.map((x,i)=>form&&form.type==='editDq'&&form.id===x.id?dqForm({...x,...(form.rascunho||{})},i):`<div class="inline-form" style="gap:4px"><div class="row between"><span style="overflow-wrap:anywhere;min-width:0"><b>${esc(x.titulo||x.texto)}</b></span><span class="when ${x.ativo&&!(x.fim&&hoje()>x.fim)?'soon':''}">${!x.ativo?'pausado':x.fim&&hoje()>x.fim?'encerrado':x.inicio&&hoje()<x.inicio?'agendado':'no ar'}</span></div>
      <span class="small" style="color:var(--muted)">${esc([PUB2[x.publico||'todos'],FREQ[x.frequencia||'uma'],x.ir?'botão "'+(x.botao||(x.ir==='link'?'Saiba mais':'Ver agora'))+'" → '+DQ_IR[x.ir]:'sem botão',x.temImagem?'com imagem':'',x.inicio?'de '+new Date(x.inicio+'T12:00').toLocaleDateString('pt-BR'):'',x.fim?'até '+new Date(x.fim+'T12:00').toLocaleDateString('pt-BR'):'',(x.cidades||[]).join(', ')].filter(Boolean).join(' · '))} · ${sumAd('pop:'+x.id,'v')} visualizações · ${sumAd('pop:'+x.id,'c')} cliques</span>
      <div class="item-actions"><button class="link" data-act="previaDq" data-id="${esc(x.id)}">Ver prévia</button><button class="link" data-act="editDq" data-id="${esc(x.id)}">Editar</button><button class="link alt" data-act="pausarDq" data-id="${esc(x.id)}">${x.ativo?'Pausar':'Reativar'}</button>${i>0?`<button class="link" data-act="subirDq" data-id="${esc(x.id)}">Subir na lista</button>`:''}<button class="link" data-act="excluirDq" data-id="${esc(x.id)}">Excluir</button></div></div>`).join(''):'<span class="muted">Nenhum destaque criado.</span>'}
+   <div class="inline-form" style="gap:4px"><div class="row between"><b>Instalar no celular (fixo)</b><span class="when ${config.popupInstalar===false?'':'soon'}">${config.popupInstalar===false?'desligado':'no ar'}</span></div>
+     <span class="small" style="color:var(--muted)">Aparece para quem usa pelo navegador e ainda não instalou. Vem antes dos outros destaques. "Agora não" esconde até o dia seguinte; "Já instalei" esconde de vez naquele celular.</span>
+     <div class="item-actions"><button class="link" data-act="previaInstalar">Ver prévia</button><button class="link alt" data-act="toggleInstalar">${config.popupInstalar===false?'Ligar':'Desligar'}</button></div></div>
    ${form&&form.type==='novoDq'?dqForm(form.rascunho||{},-1):`<div class="row"><button class="btn small ghost" data-act="novoDq">Criar destaque</button></div>`}</section>`;
   // 8 avisos
   const avs=avisosList();const PUB={todos:'Todos',plus:'Só assinantes Plus',free:'Só quem não é Plus'};
@@ -1471,8 +1493,43 @@ function renderAdmin(){
 }
 
 
+
+/* ---------- Pop-up fixo: instalar no celular ---------- */
+let instalarEvento=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();instalarEvento=e});
+const appInstalado=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+const sistema=()=>{const u=navigator.userAgent||'';if(/iPhone|iPad|iPod/i.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1))return 'ios';if(/Android/i.test(u))return 'android';return ''};
+function instalarPraMostrar(){
+  if(config.popupInstalar===false||appInstalado())return false;
+  try{const v=localStorage.getItem('instalarPop');if(v==='nunca'||v===hoje())return false}catch(e){}
+  return true;
+}
+function abrirInstalar(previa){
+  if(document.querySelector('.dq-ov'))return;
+  const so=sistema();
+  const ios=`<div class="inst-os ${so==='ios'?'seu':''}"><b>iPhone (Safari)</b><ol><li>Abra o link do PresenteCerto no Safari.</li><li>Toque no botão Compartilhar.</li><li>Escolha “Adicionar à Tela de Início”.</li></ol></div>`;
+  const and=`<div class="inst-os ${so==='android'?'seu':''}"><b>Android (Chrome)</b><ol><li>Abra o link do PresenteCerto no Chrome.</li><li>Toque nos três pontinhos.</li><li>Escolha “Adicionar à tela inicial”.</li></ol></div>`;
+  const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Instalar no celular');
+  ov.innerHTML=`<div class="dq-box"><button class="dq-x" aria-label="Fechar">×</button><div class="dq-in" style="padding-top:26px">
+    ${previa?'<div class="dq-eyebrow">Prévia · só você está vendo</div>':''}
+    <img class="inst-icone" src="icon.svg" alt="">
+    <h2>Instalar no celular</h2><p>Coloque o PresenteCerto na tela inicial e abra como um aplicativo.</p>
+    ${so==='android'?and+ios:ios+and}
+    <div class="dq-btns">${instalarEvento?'<button class="btn dq-instalar">Instalar agora</button>':''}<button class="btn ghost dq-ja">Já instalei</button><button class="link dq-fechar" style="align-self:center">Agora não</button></div></div></div>`;
+  const marcar=v=>{if(previa)return;try{localStorage.setItem('instalarPop',v)}catch(e){}};
+  const fechar=()=>{ov.remove();document.removeEventListener('keydown',tecla)};
+  const tecla=e=>{if(e.key==='Escape'){marcar(hoje());fechar()}};document.addEventListener('keydown',tecla);
+  ov.addEventListener('click',e=>{if(e.target===ov){marcar(hoje());fechar()}});
+  ov.querySelector('.dq-x').onclick=()=>{marcar(hoje());fechar()};
+  ov.querySelector('.dq-fechar').onclick=()=>{marcar(hoje());fechar()};
+  ov.querySelector('.dq-ja').onclick=()=>{marcar('nunca');fechar()};
+  const ins=ov.querySelector('.dq-instalar');
+  if(ins)ins.onclick=async()=>{try{instalarEvento.prompt();const r=await instalarEvento.userChoice;instalarEvento=null;if(r&&r.outcome==='accepted'){marcar('nunca');fechar();toast('Pronto! O PresenteCerto está na sua tela inicial.')}}catch(e){}};
+  document.body.appendChild(ov);(ins||ov.querySelector('.dq-ja')).focus({preventScroll:true});
+}
+
 /* ---------- Destaque (tela pop-up) ---------- */
-let dqVistos={},dqVistosOk=false,dqMostrado=false,dqImgs={};
+let dqVistos={},dqVistosOk=false,configOk=false,dqMostrado=false,dqImgs={};
 const DQ_IR={'':'Nenhum (só fechar)',link:'Um link (site, loja, WhatsApp)',perfil:'Minha ficha',datas:'Datas',pessoas:'Encontrar',sorteio:'Amigo secreto',plus:'Assinar o Plus',aparencia:'Personalizar visual'};
 const destaquesList=()=>config.destaques||[];
 function destaquePraMim(x){
@@ -1488,8 +1545,9 @@ function destaquePraMim(x){
 async function dqImagem(x){if(!x.temImagem)return '';if(dqImgs[x.id]!==undefined)return dqImgs[x.id];
   try{const s=await db.doc('config/destaque-'+x.id).get();dqImgs[x.id]=s.exists?(s.data().img||''):''}catch(e){dqImgs[x.id]=''}return dqImgs[x.id]}
 function tentarDestaque(){
-  if(dqMostrado||!dqVistosOk||!planosOk||!myId||!db)return;
+  if(dqMostrado||!dqVistosOk||!planosOk||!configOk||!myId||!db)return;
   if(tab==='aparencia'||document.querySelector('.crop-ov,.dq-ov'))return;
+  if(instalarPraMostrar()){dqMostrado=true;setTimeout(()=>abrirInstalar(false),900);return}
   const x=destaquesList().find(destaquePraMim);if(!x)return;
   dqMostrado=true;
   setTimeout(()=>abrirDestaque(x,false),900);
@@ -1570,6 +1628,65 @@ document.addEventListener('keydown',e=>{if(!cidPop||e.target!==cidAlvo)return;
   else if(e.key==='Enter'&&cidOpcoes.length){e.preventDefault();cidEscolher(cidSel)}
   else if(e.key==='Escape'){cidFechar()}});
 addEventListener('resize',cidPosicionar);addEventListener('scroll',cidPosicionar,true);
+
+
+/* ---------- Sugestões dos usuários (só o administrador lê) ---------- */
+const FB_TIPOS={ideia:'💡 Ideia de melhoria',problema:'🐞 Algo não funciona',elogio:'❤️ Elogio'};
+const FB_STATUS={nova:'Nova',analise:'Em análise',feito:'Feito',nao:'Não vamos fazer'};
+const FB_LIMITE=5;
+let feedbacks={},minhasRespostas=[],fbDraft=null,fbFiltro='abertas';
+function renderSugestao(){
+  if(!fbDraft)fbDraft={tipo:'ideia',texto:'',img:''};const d=fbDraft;
+  let h=`<div class="view"><button class="back" data-act="fbVoltar">← Voltar</button><div><h1>Enviar sugestão</h1><p class="lede">Conte o que podemos melhorar no PresenteCerto. Só a equipe do PresenteCerto lê o que você mandar.</p></div>
+  <section class="panel"><h2>Sobre o quê?</h2><div class="chips">${Object.entries(FB_TIPOS).map(([k,v])=>`<button class="chip style" data-act="fbTipo" data-v="${k}" aria-pressed="${d.tipo===k}">${v}</button>`).join('')}</div>
+   <label class="f">${d.tipo==='problema'?'O que aconteceu? Em qual tela?':d.tipo==='elogio'?'O que você gostou?':'Qual é a sua ideia?'}<textarea id="fbTexto" rows="5" maxlength="1000" placeholder="${d.tipo==='problema'?'Ex.: Na tela Datas, ao tocar em um amigo, a página fica em branco.':d.tipo==='elogio'?'Ex.: Adorei o amigo secreto!':'Ex.: Seria ótimo poder criar uma lista de presentes para o meu pet.'}">${esc(d.texto)}</textarea></label>
+   <div class="f"><span>Imagem (opcional)</span>${d.img?`<img class="fb-img" src="${esc(d.img)}" alt="Imagem anexada">`:''}<div class="row"><button class="btn small ghost" data-act="fbImg">${d.img?'Trocar imagem':'Anexar um print da tela'}</button>${d.img?'<button class="link" data-act="fbImgTirar">Tirar imagem</button>':''}</div></div>
+   <div class="row"><button class="btn" data-act="fbEnviar">Enviar sugestão</button></div></section>`;
+  if(minhasRespostas.length)h+=`<section class="panel"><h2>Respostas da equipe</h2>${[...minhasRespostas].reverse().map(r=>`<div class="fb-card"><span class="small" style="color:var(--muted)">${esc(ago(Date.parse(r.data)||0))}${r.sugestao?' · sobre: “'+esc(String(r.sugestao).slice(0,60))+(String(r.sugestao).length>60?'…':'')+'”':''}</span><div style="overflow-wrap:anywhere;white-space:pre-line">${esc(r.texto)}</div></div>`).join('')}</section>`;
+  app.innerHTML=h+'</div>';
+  app.querySelector('#fbTexto')?.addEventListener('input',e=>{d.texto=e.target.value});
+}
+async function enviarSugestao(){
+  const d=fbDraft||{};const texto=String(d.texto||'').trim();
+  if(texto.length<5){toast('Escreva a sua sugestão');app.querySelector('#fbTexto')?.focus();return}
+  const b=app.querySelector('[data-act="fbEnviar"]');if(b){b.disabled=true;b.textContent='Enviando…'}
+  try{
+    const logRef=db.doc(`data/users/${myId}/sugestoesEnviadas`);const lg=await logRef.get();const l=lg.exists?lg.data():{};
+    const n=l.dia===hoje()?(+l.n||0):0;if(n>=FB_LIMITE){toast('Você já mandou '+FB_LIMITE+' sugestões hoje. Obrigado! Tente de novo amanhã.');if(b){b.disabled=false;b.textContent='Enviar sugestão'}return}
+    const doc={uid:myId,nome:(myName||'').slice(0,60),email:(myEmail||'').slice(0,120),tipo:d.tipo||'ideia',texto:texto.slice(0,1000),data:new Date().toISOString(),status:'nova'};
+    if(d.img)doc.img=d.img;
+    await db.collection('feedback').doc(uid()+uid()).set(doc);
+    await logRef.set({dia:hoje(),n:n+1});
+    fbDraft=null;toast('Obrigado! Sua sugestão foi enviada para a equipe do PresenteCerto.');setTab('mural');
+  }catch(e){toast('Não foi possível enviar agora. Confira sua internet e tente de novo.');if(b){b.disabled=false;b.textContent='Enviar sugestão'}}
+}
+function feedbackLista(){return Object.entries(feedbacks).map(([id,f])=>({id,...f})).sort((a,b)=>String(b.data).localeCompare(String(a.data)))}
+function adminSugestoes(){
+  const todas=feedbackLista();const novas=todas.filter(f=>f.status==='nova').length;
+  const F={abertas:'Abertas',nova:'Novas',feito:'Feitas',todas:'Todas'};
+  const lista=todas.filter(f=>fbFiltro==='todas'?true:fbFiltro==='abertas'?(f.status==='nova'||f.status==='analise'):f.status===fbFiltro);
+  return `<section class="panel" id="secSugestoes"><h2>Sugestões dos usuários${novas?` <span class="when soon">${novas} ${novas===1?'nova':'novas'}</span>`:''}</h2><p class="lede" style="margin:0">Só você vê. Responder manda um aviso para o sino da pessoa.</p>
+   <div class="chips">${Object.entries(F).map(([k,v])=>`<button class="chip" data-act="fbFiltro" data-v="${k}" aria-pressed="${fbFiltro===k}">${v}</button>`).join('')}</div>
+   ${lista.length?lista.slice(0,60).map(f=>`<div class="fb-card ${f.status==='nova'?'nova':''}">
+     <div class="row between" style="gap:8px"><span class="fb-tipo">${esc(FB_TIPOS[f.tipo]||f.tipo)}</span><span class="small" style="color:var(--muted)">${esc(ago(Date.parse(f.data)||0))}</span></div>
+     <div><b>${esc(f.nome||'Sem nome')}</b>${f.email?` <span class="small" style="color:var(--muted)">${esc(f.email)}</span>`:''}</div>
+     <div style="overflow-wrap:anywhere;white-space:pre-line">${esc(f.texto)}</div>
+     ${f.img?`<img class="fb-img" src="${esc(f.img)}" alt="Imagem enviada" data-act="fbZoom">`:''}
+     ${(f.respostas||[]).map(r=>`<div class="fb-resp"><span class="small" style="color:var(--muted)">Sua resposta · ${esc(ago(Date.parse(r.data)||0))}</span><div style="white-space:pre-line">${esc(r.texto)}</div></div>`).join('')}
+     ${form&&form.type==='fbResp'&&form.id===f.id?`<label class="f">Resposta para ${esc(f.nome||'a pessoa')}<textarea id="fbRespTxt" rows="3" maxlength="500" placeholder="Ex.: Obrigado pela ideia! Já colocamos no ar."></textarea></label><div class="row"><button class="btn small" data-act="fbRespEnviar" data-id="${esc(f.id)}">Enviar resposta</button><button class="link" data-act="cancel">Cancelar</button></div>`:''}
+     <div class="row" style="gap:8px;flex-wrap:wrap"><select data-fbstatus="${esc(f.id)}" aria-label="Situação">${Object.entries(FB_STATUS).map(([k,v])=>`<option value="${k}" ${f.status===k?'selected':''}>${v}</option>`).join('')}</select>
+       ${form&&form.type==='fbResp'&&form.id===f.id?'':`<button class="link" data-act="fbResp" data-id="${esc(f.id)}">Responder</button>`}<button class="link" data-act="fbExcluir" data-id="${esc(f.id)}">Excluir</button></div></div>`).join(''):`<span class="muted">${todas.length?'Nenhuma sugestão neste filtro.':'Nenhuma sugestão recebida ainda.'}</span>`}</section>`;
+}
+async function responderSugestao(id){
+  const f=feedbacks[id];const t=val('fbRespTxt');if(!f)return;if(t.length<2){toast('Escreva a resposta');return}
+  const r={id:uid(),texto:t.slice(0,500),data:new Date().toISOString(),sugestao:String(f.texto||'').slice(0,120)};
+  try{
+    const ref=db.doc('respostas/'+f.uid);const s=await ref.get();const lista=(s.exists&&Array.isArray(s.data().lista))?s.data().lista:[];
+    await ref.set({lista:[...lista,r].slice(-30)});
+    await db.doc('feedback/'+id).update({respostas:[...(f.respostas||[]),{texto:r.texto,data:r.data}],status:f.status==='nova'?'analise':f.status});
+    form=null;toast('Resposta enviada. Vai aparecer no sino da pessoa.');keep(render);
+  }catch(e){toast('Não foi possível enviar a resposta.')}
+}
 
 /* ---------- Minha ficha ---------- */
 function listEditor(key,title,hint,ph,cls){
@@ -1913,6 +2030,18 @@ app.addEventListener('click',e=>{
     case 'importSeedOk': form=null;importSeed();break;
     case 'moderar': {const cur=config.moderados||[];saveConfig({...config,moderados:cur.includes(ds.mid)?cur.filter(x=>x!==ds.mid):[...cur,ds.mid]},cur.includes(ds.mid)?'Mensagem visível de novo':'Mensagem oculta para todos');break}
     case 'toggleExemplos': saveConfig({...config,ocultarExemplos:!config.ocultarExemplos},config.ocultarExemplos?'Pessoas de exemplo visíveis':'Pessoas de exemplo ocultas para todos');break;
+    case 'fbVoltar': fbDraft=null;setTab('mural');break;
+    case 'fbTipo': {const t=app.querySelector('#fbTexto');if(t)fbDraft.texto=t.value;fbDraft.tipo=ds.v;keep(renderSugestao);break}
+    case 'fbImg': {const t=app.querySelector('#fbTexto');if(t)fbDraft.texto=t.value;const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{const f=inp.files[0];if(!f)return;try{fbDraft.img=await lerImagemDestaque(f);keep(renderSugestao)}catch(e){toast('Não foi possível ler essa imagem.')}};inp.click();break}
+    case 'fbImgTirar': {const t=app.querySelector('#fbTexto');if(t)fbDraft.texto=t.value;fbDraft.img='';keep(renderSugestao);break}
+    case 'fbEnviar': {const t=app.querySelector('#fbTexto');if(t)fbDraft.texto=t.value;enviarSugestao();break}
+    case 'fbFiltro': fbFiltro=ds.v;keep(render);break;
+    case 'fbZoom': el.classList.toggle('grande');break;
+    case 'fbResp': form={type:'fbResp',id:ds.id};keep(render);setTimeout(()=>app.querySelector('#fbRespTxt')?.focus(),50);break;
+    case 'fbRespEnviar': responderSugestao(ds.id);break;
+    case 'fbExcluir': if(confirm('Excluir esta sugestão?'))db.doc('feedback/'+ds.id).delete().then(()=>toast('Sugestão excluída')).catch(()=>toast('Não foi possível excluir.'));break;
+    case 'previaInstalar': abrirInstalar(true);break;
+    case 'toggleInstalar': saveConfig({...config,popupInstalar:config.popupInstalar===false},config.popupInstalar===false?'Pop-up de instalar ligado':'Pop-up de instalar desligado');break;
     case 'novoDq': form={type:'novoDq'};keep(render);break;
     case 'editDq': {const x=destaquesList().find(v=>v.id===ds.id);form={type:'editDq',id:ds.id};if(x&&x.temImagem&&dqImgs[x.id]===undefined)dqImagem(x).then(()=>keep(render));keep(render);break}
     case 'dqImg': {const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{const f=inp.files[0];if(!f)return;try{const d=await lerImagemDestaque(f);dqGuardarCampos();form.img=d;keep(render)}catch(e){toast('Não foi possível ler essa imagem.')}};inp.click();break}
@@ -2055,8 +2184,9 @@ async function start(){
   coll('usernames',n=>{usernames=n});
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
-  if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n})}
-  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};applyRaw();softRender();tentarDestaque()},()=>{});
+  if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
+  db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
+  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
 }
 if(window.claude&&claude.use)start();else if(!window.__semConfig)render();
