@@ -55,12 +55,26 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 .urow img{width:36px;height:36px;border-radius:50%;object-fit:cover}
 .avatar-btn{border:2px solid var(--accent-soft);background:none;padding:0;border-radius:50%;cursor:pointer;display:flex}
 .avatar-btn img{width:34px;height:34px;border-radius:50%;object-fit:cover}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabs-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
-.tab{background:none;border:0;color:var(--muted);font:600 11px var(--body);padding:10px 2px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;position:relative}
-.tab svg{width:22px;height:22px}
-.tab[aria-selected="true"]{color:var(--accent)}
-.badge{position:absolute;top:6px;left:calc(50% + 8px);background:var(--accent);color:var(--accent-ink);font-size:10px;font-weight:700;border-radius:999px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
+nav.tabs{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:8;padding:0 12px;pointer-events:none}
+.tabs-in{max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:0 10px 30px rgba(40,20,60,.18);pointer-events:auto}
+.tab{background:none;border:0;color:var(--fg);height:58px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;padding:0;-webkit-tap-highlight-color:transparent}
+.tab small{font:600 10.5px var(--body);line-height:1;white-space:nowrap}
+.tab svg{width:24px;height:24px}
+.tab[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+.tab.mais span{width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 45%,transparent);transition:transform .15s}
+.tab.mais svg{width:28px;height:28px}
+.tab.mais.aberto span{transform:rotate(45deg)}
+.tab.eu .eu-foto{width:28px;height:28px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.tab.eu .eu-foto img{width:100%;height:100%;object-fit:cover}
+.tab.eu .eu-foto svg{width:18px;height:18px}
+.tab.eu[aria-selected="true"] .eu-foto{box-shadow:0 0 0 2px var(--accent)}
+.mais-ov{position:fixed;inset:0;z-index:7;background:rgba(20,14,26,.35);display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(92px + env(safe-area-inset-bottom,0px))}
+.mais-ov[hidden]{display:none}
+.mais-sheet{width:min(460px,100%);background:var(--surface);border-radius:22px;padding:8px;box-shadow:0 16px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;animation:dqsobe .2s ease}
+.mais-item{display:flex;align-items:center;gap:14px;background:none;border:0;border-radius:14px;padding:14px;font:600 15.5px var(--body);color:var(--fg);text-align:left;cursor:pointer}
+.mais-item:hover,.mais-item:focus-visible{background:var(--sunk)}
+.mais-item span{font-size:22px;width:28px;text-align:center}
+.badge{position:absolute;top:2px;left:calc(50% + 4px);background:#e0245e;color:#fff;font-size:11px;font-weight:800;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px;border:2px solid var(--surface)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.015em}
 h1{font-size:28px;font-weight:800;line-height:1.15}
@@ -146,10 +160,10 @@ button.chip{cursor:pointer}
 .kv dt:first-of-type,.kv dd:first-of-type{border-top:0;padding-top:0}
 .kv dt{color:var(--muted);font-weight:600}
 .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:9;max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(98px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:9;max-width:calc(100% - 32px);text-align:center}
 .notice{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:14px}
 .back{background:none;border:0;color:var(--accent);font:600 14px var(--body);cursor:pointer;padding:0;align-self:flex-start}
-.savebar{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom,0px));background:var(--bg);padding-block:10px;z-index:3}
+.savebar{position:sticky;bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--bg);padding-block:10px;z-index:3}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:14px}
 .inline-form{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
 .date-row{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--sunk);border-radius:10px;padding:8px 12px;font-size:14px}
@@ -244,7 +258,7 @@ details summary::-webkit-details-marker{display:none}
 .msg-card img{width:32px;height:32px;border-radius:50%;object-fit:cover}
 ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:14px}
 @media (prefers-reduced-motion:no-preference){.btn,.tab,.chip{transition:background .15s,color .15s,border-color .15s}}
-.nova-versao{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:30;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;background:var(--fg);color:var(--bg);padding:10px 10px 10px 16px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-weight:600;font-size:.95rem}
+.nova-versao{position:fixed;left:12px;right:12px;bottom:calc(94px + env(safe-area-inset-bottom,0px));z-index:30;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;background:var(--fg);color:var(--bg);padding:10px 10px 10px 16px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-weight:600;font-size:.95rem}
 .nova-versao span{flex:1;line-height:1.3}
 .nova-versao button{border:0;border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer}
 .nova-versao .nv-ok{background:var(--accent);color:var(--accent-ink)}
@@ -324,12 +338,18 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 <input type="file" id="fotoPerfilInput" accept="image/*" hidden>
 
 <nav class="tabs" aria-label="Seções"><div class="tabs-in" role="tablist">
-  <button class="tab" role="tab" data-tab="mural" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Mural</button>
-  <button class="tab" role="tab" data-tab="datas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Datas<span class="badge" id="badge" hidden></span></button>
-  <button class="tab" role="tab" data-tab="pessoas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Encontrar</button>
-  <button class="tab" role="tab" data-tab="sorteio" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9C10 4 6 5 7 7s5 2 5 2zm0 0c2-5 6-4 5-2s-5 2-5 2z"/></svg>Amigo secreto</button>
-  <button class="tab" role="tab" data-tab="perfil" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Minha ficha</button>
+  <button class="tab" role="tab" data-tab="mural" aria-selected="true" aria-label="Mural"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.6 3.5a2.2 2.2 0 0 1 2.8 0l6.8 5.7c.5.4.8 1 .8 1.7V19a2 2 0 0 1-2 2h-4v-6.5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1V21H5a2 2 0 0 1-2-2v-8.1c0-.7.3-1.3.8-1.7z"/></svg><small>Mural</small></button>
+  <button class="tab" role="tab" data-tab="datas" aria-selected="false" aria-label="Datas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="4"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><small>Datas</small><span class="badge" id="badge" hidden></span></button>
+  <button class="tab mais" id="maisBtn" aria-label="Adicionar" aria-haspopup="true"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></button>
+  <button class="tab" role="tab" data-tab="pessoas" aria-selected="false" aria-label="Encontrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><small>Encontrar</small></button>
+  <button class="tab eu" role="tab" data-tab="perfil" aria-selected="false" aria-label="Perfil"><span class="eu-foto" id="tabFoto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></span><small>Perfil</small></button>
 </div></nav>
+<div class="mais-ov" id="maisOv" hidden><div class="mais-sheet" role="menu" aria-label="Adicionar">
+  <button class="mais-item" data-mais="desejo" role="menuitem"><span>🎁</span>Adicionar presente à minha lista</button>
+  <button class="mais-item" data-mais="precisa" role="menuitem"><span>🆘</span>Adicionar em “Precisando com urgência”</button>
+  <button class="mais-item" data-mais="sorteio" role="menuitem"><span>🎲</span>Amigo secreto</button>
+  <button class="mais-item" data-mais="convidar" role="menuitem"><span>💌</span>Convidar amigos</button>
+</div></div>
 
 <script>
 /* Ponte PresenteCerto ⇄ Firebase: login (Google e e-mail), banco de dados e sugestões por IA */
@@ -684,11 +704,11 @@ function pixBox(v,valor){
 
 /* ---------- render ---------- */
 function setTab(t){tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
+document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
 document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
 function keep(fn){const y=window.scrollY;const xs=[...document.querySelectorAll('.ofertas')].map(l=>l.scrollLeft);fn();window.scrollTo(0,y);if(xs.some(Boolean))document.querySelectorAll('.ofertas').forEach((l,i)=>{if(xs[i]){l.style.scrollBehavior='auto';l.scrollLeft=xs[i];l.style.scrollBehavior=''}});if(xs.length)ofSetas()}
 function updateBadge(){try{atualizarSino()}catch(e){}const pr=pendingRequests().length,bd=document.getElementById('badge');bd.hidden=!pr;bd.textContent=pr}
-function render(){
+function render(){try{atualizarFotoTab()}catch(e){}
   if(window.__loggedOut)return;
   if(tab!=='aparencia'){aparDraft=null;try{aplicarTema(prefsEfetivas())}catch(e){}}
   pendingRender=false;updateBadge();
@@ -1789,6 +1809,25 @@ async function buscarProduto(){
   }catch(e){toast('Não foi possível buscar agora. Preencha à mão.')}
   keep(render);
 }
+
+
+/* ---------- botão + do menu de baixo ---------- */
+(function(){
+  const btn=document.getElementById('maisBtn'),ov=document.getElementById('maisOv');if(!btn||!ov)return;
+  const abrir=v=>{ov.hidden=!v;btn.classList.toggle('aberto',v);btn.setAttribute('aria-expanded',v);if(v)ov.querySelector('.mais-item')?.focus({preventScroll:true})};
+  btn.addEventListener('click',()=>abrir(ov.hidden));
+  ov.addEventListener('click',e=>{if(e.target===ov){abrir(false);return}const it=e.target.closest('[data-mais]');if(!it)return;abrir(false);
+    if(!db||!myId){toast('Entre na sua conta primeiro');return}
+    const k=it.dataset.mais;
+    if(tab==='perfil'&&!viewing&&dirty&&(k==='sorteio'||k==='convidar')){toast('Salve sua ficha antes de sair');return}
+    if(k==='desejo'||k==='precisa'){const n=k==='desejo'?PASSOS.indexOf('Pretendo ganhar'):PASSOS.indexOf('Precisando');if(tab==='perfil'&&!viewing){irPasso(n)}else{fichaStep=n;setTab('perfil')}}
+    else if(k==='sorteio')setTab('sorteio');
+    else if(k==='convidar'){const txt=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e o que pretendo ganhar, e vejo os seus também. Entra e cria a sua ficha: ${location.origin}`;
+      if(navigator.share)navigator.share({title:'PresenteCerto',text:txt}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ov.hidden)abrir(false)});
+})();
+function atualizarFotoTab(){const el=document.getElementById('tabFoto');const f=myId&&names[myId]&&names[myId].avatar;if(el&&f&&!/^data:image\/svg/.test(f))el.innerHTML=`<img src="${esc(f)}" alt="">`}
 
 /* ---------- Minha ficha ---------- */
 function listEditor(key,title,hint,ph,cls){
