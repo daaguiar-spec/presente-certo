@@ -248,6 +248,25 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .ptr.pronto svg{transform:rotate(180deg)}
 .ptr.girando svg{animation:ptrgira .8s linear infinite}
 @keyframes ptrgira{to{transform:rotate(360deg)}}
+.dq-ov{position:fixed;inset:0;background:rgba(20,14,26,.62);z-index:45;display:grid;place-items:center;padding:16px;animation:dqfade .2s ease}
+.dq-box{position:relative;background:var(--surface);color:var(--fg);border-radius:22px;width:min(400px,100%);max-height:calc(100vh - 40px);overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:dqsobe .25s ease}
+.dq-img{display:block;width:100%;max-height:300px;object-fit:cover;border-radius:22px 22px 0 0;background:var(--sunk)}
+.dq-in{padding:22px 22px 20px;display:flex;flex-direction:column;gap:10px}
+.dq-in h2{margin:0;font-family:var(--display);font-size:24px;line-height:1.15;letter-spacing:-.01em}
+.dq-in p{margin:0;color:var(--muted);white-space:pre-line;overflow-wrap:anywhere}
+.dq-btns{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.dq-btns .btn{width:100%;justify-content:center;text-align:center}
+.dq-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#2e2536;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.dq-eyebrow{font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.dq-thumb{width:100%;max-height:160px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+@keyframes dqfade{from{opacity:0}}@keyframes dqsobe{from{transform:translateY(16px) scale(.98);opacity:0}}
+:root.letra-grande .dq-box{zoom:1.14}
+.cid-pop{position:fixed;z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.16);max-height:280px;overflow:auto;padding:4px}
+.cid-pop button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:9px 12px;font:inherit;color:var(--fg);cursor:pointer}
+.cid-pop button.on,.cid-pop button:hover{background:var(--accent-soft)}
+.cid-pop b{font-weight:700}.cid-pop .uf{color:var(--muted);font-size:12px;font-weight:600}
+.cid-pop .vazio{padding:9px 12px;color:var(--muted);font-size:14px}
+.cid-hint{display:block;font-size:12.5px;color:var(--warn);font-weight:500;margin-top:2px}
 </style>
 
 </head>
@@ -1254,7 +1273,7 @@ function renderAparencia(){
   const d=aparDraft,plus=podeVisual();aplicarTema(d);
   const op=(campo,mapa,extra)=>`<div class="chips">${Object.entries(mapa).map(([k,v])=>`<button class="chip style" data-act="apSet" data-k="${campo}" data-v="${k}" aria-pressed="${(d[campo]||'')===k}">${extra?extra(k):''}${esc(v)}</button>`).join('')}</div>`;
   const cad=plus?'':' <span class="lock">Plus</span>';
-  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>${plus?'':`<div class="notice"><b>Você ainda não tem o Plus.</b> Cor, modo escuro, fundo, tela inicial e visual compacto só ficam valendo para assinantes. Suas escolhas ficam guardadas e passam a valer assim que o Plus for ativado. O tamanho da letra vale para todos.${safeLink(config.plusLink)?` <a href="${esc(config.plusLink)}" target="_blank" rel="noopener" style="color:inherit;font-weight:700">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:''}</div>`}
+  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>${plus?'':`<div class="notice"><b>Você ainda não tem o Plus.</b> Cor, modo escuro, fundo, tela inicial e visual compacto só ficam valendo para assinantes. Suas escolhas ficam guardadas e passam a valer assim que o Plus for ativado. O tamanho da letra vale para todos.<div class="row" style="margin-top:10px">${safeLink(config.plusLink)?`<a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener" data-track="loja:plus-personalizar">Assine agora${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:`<button class="btn" data-act="apAssinar">Assine agora</button>`}</div></div>`}
   <section class="panel"><h2>Cor do aplicativo${cad}</h2>${op('cor',{roxo:'Roxo (padrão)',rosa:'Rosa',azul:'Azul',verde:'Verde',laranja:'Laranja',grafite:'Grafite'},k=>`<span class="swatch" style="background:${AP_CORES[k]}"></span>`)}</section>
   <section class="panel"><h2>Modo da tela${cad}</h2>${op('escuro',AP_ESCURO)}</section>
   <section class="panel"><h2>Fundo${cad}</h2>${op('fundo',AP_FUNDO)}</section>
@@ -1275,7 +1294,7 @@ async function salvarAparencia(){
 let contaDraft=null;
 function renderConta(){
   const p=profiles[myId]||{};
-  if(!contaDraft)contaDraft={nome:myName||'',foto:names[myId]?.avatar||'',frase:p.frase||'',cidade:p.cidade||'',mudou:false};
+  if(!contaDraft)contaDraft={nome:myName||'',foto:names[myId]?.avatar||'',frase:p.frase||'',cidade:p.cidade||'',estado:p.estado||'',mudou:false};
   const c=contaDraft;const temSenha=user&&user.provedores&&user.provedores().includes('password');
   const fotoAtual=c.foto||initialsAvatar(c.nome||'?');
   let h=`<div class="view"><button class="back" data-act="contaVoltar">← Voltar</button><div><h1>Editar perfil</h1><p class="lede">Como você aparece para os seus amigos no PresenteCerto.</p></div>
@@ -1289,8 +1308,7 @@ function renderConta(){
    <label class="f">Nome que aparece para os amigos<input id="cNome" maxlength="40" value="${esc(c.nome)}" autocomplete="name"></label>
    <label class="f">Uma frase sobre você (opcional)<input id="cFrase" maxlength="120" value="${esc(c.frase)}" placeholder="Ex.: Apaixonada por plantas e café"></label>
    <div class="flabel">Sua cidade</div>
-   <div class="chips">${CIDADES.map(x=>`<button class="chip style" data-act="contaCidade" data-v="${esc(x)}" aria-pressed="${c.cidade===x}">${esc(x)}</button>`).join('')}</div>
-   <label class="f">Outra cidade<input id="cCidade" maxlength="40" value="${esc(CIDADES.includes(c.cidade)?'':c.cidade)}" placeholder="Digite o nome da cidade"></label>
+   <div class="grid2"><label class="f">Estado${ufSelect('cEstado',c.estado||'')}</label><label class="f">Cidade<input id="cCidade" maxlength="40" autocomplete="off" data-cid="cEstado" value="${esc(c.cidade||'')}" placeholder="Digite o nome da cidade"></label></div>
    <label class="f">E-mail da conta<input value="${esc(myEmail||'')}" disabled></label>
    <span class="small" style="color:var(--muted)">O e-mail é o da sua conta Google ou o que você usou no cadastro, e não pode ser trocado aqui.</span></section>
   <section class="panel"><h2>Nome de usuário</h2>
@@ -1301,7 +1319,8 @@ function renderConta(){
   app.innerHTML=h;
   const bind=(id,k)=>app.querySelector('#'+id)?.addEventListener('input',e=>{c[k]=e.target.value;c.mudou=true});
   bind('cNome','nome');bind('cFrase','frase');
-  app.querySelector('#cCidade')?.addEventListener('input',e=>{c.cidade=e.target.value.trim();c.mudou=true;app.querySelectorAll('[data-act="contaCidade"]').forEach(b=>b.setAttribute('aria-pressed','false'))});
+  app.querySelector('#cCidade')?.addEventListener('input',e=>{c.cidade=e.target.value.trim();c.mudou=true});
+  app.querySelector('#cEstado')?.addEventListener('change',e=>{c.estado=e.target.value;c.mudou=true});
 }
 function fotoQuadrada(file,lado){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const m=Math.min(img.width,img.height);const c=document.createElement('canvas');c.width=lado;c.height=lado;c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,lado,lado);URL.revokeObjectURL(url);let q=.8,out=c.toDataURL('image/jpeg',q);while(out.length>40000&&q>.4){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
 /* ---------- Ajustar foto (arrastar, zoom e girar) ---------- */
@@ -1350,7 +1369,7 @@ async function salvarConta(){
   const b=app.querySelector('[data-act="contaSalvar"]');if(b){b.disabled=true;b.textContent='Salvando…'}
   try{
     if(user&&user.atualizarConta)await user.atualizarConta({nome,foto:c.foto||''});
-    const dados={frase:(c.frase||'').trim().slice(0,120),cidade:(c.cidade||'').trim().slice(0,40)};
+    const dados={frase:(c.frase||'').trim().slice(0,120),cidade:(c.cidade||'').trim().slice(0,40),estado:c.estado||''};
     await db.doc('profiles/'+myId).set(dados,{merge:true});
     profiles[myId]={...(profiles[myId]||{}),...dados};if(draft)Object.assign(draft,dados);
     myName=nome;names[myId]={name:nome,avatar:c.foto||initialsAvatar(nome)};
@@ -1407,13 +1426,31 @@ function renderAdmin(){
   // importação
   h+=`<section class="panel"><h2>Importar dados da versão de teste</h2><p class="lede" style="margin:0">Traz a sua ficha, seus grupos, os códigos de afiliado, os anúncios e os avisos que você montou na versão de teste.</p>
    ${form&&form.type==='importar'?`<div class="notice">Isso substitui a sua ficha atual, se você já tiver criado uma aqui. Os dados de outros usuários reais não são mexidos.</div><div class="row"><button class="btn small" data-act="importSeedOk">Confirmar importação</button><button class="link" data-act="cancel">Cancelar</button></div>`:`<div class="row"><button class="btn small ghost" data-act="importSeed">Importar dados</button></div>`}</section>`;
+
+  // destaque (pop-up)
+  const dqs=destaquesList();const PUB2={todos:'Todos',plus:'Só assinantes Plus',free:'Só quem não é Plus'};const FREQ={uma:'Uma vez para cada pessoa',diaria:'Uma vez por dia',sempre:'Toda vez que abrir o site'};
+  const dqForm=(x,i)=>{const im=form.img!==undefined?form.img:(dqImgs[x.id]||'');return `<div class="inline-form"><b>${i<0?'Novo destaque':'Editar destaque'}</b>
+   <label class="f">Título<input id="dqT" maxlength="70" value="${esc(x.titulo||'')}" placeholder="Ex.: Natal chegando!"></label>
+   <label class="f">Texto<textarea id="dqX" maxlength="400" rows="3" placeholder="Ex.: Atualize sua lista de presentes e mostre aos amigos o que você quer ganhar.">${esc(x.texto||'')}</textarea></label>
+   <div class="f"><span>Imagem (opcional)</span>${im?`<img class="dq-thumb" src="${esc(im)}" alt="">`:''}<div class="row"><button class="btn small ghost" data-act="dqImg">${im?'Trocar imagem':'Escolher imagem'}</button>${im?'<button class="link" data-act="dqImgTirar">Tirar imagem</button>':''}</div></div>
+   <div class="grid2"><label class="f">O botão leva para<select id="dqIr">${Object.entries(DQ_IR).map(([k,v])=>`<option value="${k}" ${(x.ir||'')===k?'selected':''}>${v}</option>`).join('')}</select></label><label class="f">Texto do botão<input id="dqB" maxlength="28" value="${esc(x.botao||'')}" placeholder="Ver agora"></label></div>
+   <label class="f">Link (só se escolheu "Um link")<input id="dqL" autocapitalize="off" value="${esc(x.link||'')}" placeholder="Ex.: www.sualoja.com.br"></label>
+   <div class="grid2"><label class="f">Para quem<select id="dqP">${Object.entries(PUB2).map(([k,v])=>`<option value="${k}" ${(x.publico||'todos')===k?'selected':''}>${v}</option>`).join('')}</select></label><label class="f">Quantas vezes aparece<select id="dqQ">${Object.entries(FREQ).map(([k,v])=>`<option value="${k}" ${(x.frequencia||'uma')===k?'selected':''}>${v}</option>`).join('')}</select></label></div>
+   <div class="grid2"><label class="f">Começa em (opcional)<input id="dqI" type="date" value="${esc(x.inicio||'')}"></label><label class="f">Sai do ar em (opcional)<input id="dqF" type="date" value="${esc(x.fim||'')}"></label></div>
+   <label class="f">Cidades (opcional, separadas por vírgula)<input id="dqC" autocomplete="off" data-cid="*" data-multi value="${esc((x.cidades||[]).join(', '))}" placeholder="Ex.: Fortaleza"></label>
+   <div class="row"><button class="btn small" data-act="salvarDq" data-i="${i}">${i<0?'Publicar destaque':'Salvar alterações'}</button><button class="btn small ghost" data-act="previaDqForm">Ver prévia</button><button class="link" data-act="cancel">Cancelar</button></div></div>`};
+  h+=`<section class="panel"><h2>Destaque (tela pop-up)</h2><p class="lede" style="margin:0">Uma janela que aparece por cima do site quando a pessoa entra. Use para algo importante: uma campanha, uma novidade, uma oferta. Se houver mais de um no ar, aparece só o primeiro da lista que a pessoa ainda não viu.</p>
+   ${dqs.length?dqs.map((x,i)=>form&&form.type==='editDq'&&form.id===x.id?dqForm({...x,...(form.rascunho||{})},i):`<div class="inline-form" style="gap:4px"><div class="row between"><span style="overflow-wrap:anywhere;min-width:0"><b>${esc(x.titulo||x.texto)}</b></span><span class="when ${x.ativo&&!(x.fim&&hoje()>x.fim)?'soon':''}">${!x.ativo?'pausado':x.fim&&hoje()>x.fim?'encerrado':x.inicio&&hoje()<x.inicio?'agendado':'no ar'}</span></div>
+     <span class="small" style="color:var(--muted)">${esc([PUB2[x.publico||'todos'],FREQ[x.frequencia||'uma'],x.ir?'botão "'+(x.botao||(x.ir==='link'?'Saiba mais':'Ver agora'))+'" → '+DQ_IR[x.ir]:'sem botão',x.temImagem?'com imagem':'',x.inicio?'de '+new Date(x.inicio+'T12:00').toLocaleDateString('pt-BR'):'',x.fim?'até '+new Date(x.fim+'T12:00').toLocaleDateString('pt-BR'):'',(x.cidades||[]).join(', ')].filter(Boolean).join(' · '))} · ${sumAd('pop:'+x.id,'v')} visualizações · ${sumAd('pop:'+x.id,'c')} cliques</span>
+     <div class="item-actions"><button class="link" data-act="previaDq" data-id="${esc(x.id)}">Ver prévia</button><button class="link" data-act="editDq" data-id="${esc(x.id)}">Editar</button><button class="link alt" data-act="pausarDq" data-id="${esc(x.id)}">${x.ativo?'Pausar':'Reativar'}</button>${i>0?`<button class="link" data-act="subirDq" data-id="${esc(x.id)}">Subir na lista</button>`:''}<button class="link" data-act="excluirDq" data-id="${esc(x.id)}">Excluir</button></div></div>`).join(''):'<span class="muted">Nenhum destaque criado.</span>'}
+   ${form&&form.type==='novoDq'?dqForm(form.rascunho||{},-1):`<div class="row"><button class="btn small ghost" data-act="novoDq">Criar destaque</button></div>`}</section>`;
   // 8 avisos
   const avs=avisosList();const PUB={todos:'Todos',plus:'Só assinantes Plus',free:'Só quem não é Plus'};
   const avForm=(x,i)=>`<div class="inline-form"><b>${i<0?'Novo aviso':'Editar aviso'}</b>
    <label class="f">Texto do aviso<input id="avT" maxlength="160" value="${esc(x.texto||'')}" placeholder="Ex.: Faltam 30 dias para o Natal. Atualize sua lista!"></label>
    <div class="grid2"><label class="f">Link (opcional)<input id="avL" autocapitalize="off" value="${esc(x.link||'')}" placeholder="Ex.: www.sualoja.com.br"></label><label class="f">Texto do botão<input id="avB" maxlength="24" value="${esc(x.botao||'')}" placeholder="Saiba mais"></label></div>
    <div class="grid2"><label class="f">Para quem<select id="avP">${Object.entries(PUB).map(([k,v])=>`<option value="${k}" ${(x.publico||'todos')===k?'selected':''}>${v}</option>`).join('')}</select></label><label class="f">Sai do ar em (opcional)<input id="avF" type="date" value="${esc(x.fim||'')}"></label></div>
-   <label class="f">Cidades (opcional, separadas por vírgula)<input id="avC" value="${esc((x.cidades||[]).join(', '))}" placeholder="Ex.: Fortaleza"></label>
+   <label class="f">Cidades (opcional, separadas por vírgula)<input id="avC" autocomplete="off" data-cid="*" data-multi value="${esc((x.cidades||[]).join(', '))}" placeholder="Ex.: Fortaleza"></label>
    <label class="check"><input type="checkbox" id="avS" ${x.sino===false?'':'checked'}><span>Mostrar também no sino de avisos</span></label>
    <div class="row"><button class="btn small" data-act="salvarAviso" data-i="${i}">${i<0?'Publicar aviso':'Salvar alterações'}</button>${i<0&&!(form&&form.type==='novoAviso')?'':'<button class="link" data-act="cancel">Cancelar</button>'}</div></div>`;
   h+=`<section class="panel"><h2>Avisos</h2><p class="lede" style="margin:0">Aparecem no topo do Mural e no sino. Cada pessoa pode fechar um aviso no próprio celular.</p>
@@ -1423,6 +1460,107 @@ function renderAdmin(){
    ${form&&form.type==='novoAviso'?avForm({},-1):`<div class="row"><button class="btn small ghost" data-act="novoAviso">Criar aviso</button></div>`}</section>`;
   app.innerHTML=h+'</div>';
 }
+
+
+/* ---------- Destaque (tela pop-up) ---------- */
+let dqVistos={},dqVistosOk=false,dqMostrado=false,dqImgs={};
+const DQ_IR={'':'Nenhum (só fechar)',link:'Um link (site, loja, WhatsApp)',perfil:'Minha ficha',datas:'Datas',pessoas:'Encontrar',sorteio:'Amigo secreto',plus:'Assinar o Plus',aparencia:'Personalizar visual'};
+const destaquesList=()=>config.destaques||[];
+function destaquePraMim(x){
+  if(!x||!x.ativo||!(x.titulo||x.texto))return false;const h=hoje();
+  if(x.inicio&&h<x.inicio)return false;if(x.fim&&h>x.fim)return false;
+  if(x.publico==='plus'&&!isPlus(myId))return false;if(x.publico==='free'&&isPlus(myId))return false;
+  if((x.cidades||[]).length&&!(x.cidades||[]).some(c=>normCid(c)===normCid((profiles[myId]||{}).cidade)))return false;
+  const v=dqVistos[x.id];if(!v)return true;
+  if(x.frequencia==='diaria')return v!==h;
+  if(x.frequencia==='sempre')return true;
+  return false;
+}
+async function dqImagem(x){if(!x.temImagem)return '';if(dqImgs[x.id]!==undefined)return dqImgs[x.id];
+  try{const s=await db.doc('config/destaque-'+x.id).get();dqImgs[x.id]=s.exists?(s.data().img||''):''}catch(e){dqImgs[x.id]=''}return dqImgs[x.id]}
+function tentarDestaque(){
+  if(dqMostrado||!dqVistosOk||!planosOk||!myId||!db)return;
+  if(tab==='aparencia'||document.querySelector('.crop-ov,.dq-ov'))return;
+  const x=destaquesList().find(destaquePraMim);if(!x)return;
+  dqMostrado=true;
+  setTimeout(()=>abrirDestaque(x,false),900);
+}
+async function abrirDestaque(x,previa){
+  if(document.querySelector('.dq-ov'))return;
+  const img=x.imgPrevia||await dqImagem(x);
+  if(!previa){dqVistos={...dqVistos,[x.id]:hoje()};db.doc(`data/users/${myId}/destaques`).set({vistos:dqVistos}).catch(()=>{});trackView('pop:'+x.id)}
+  const temAcao=x.ir&&(x.ir!=='link'||safeLink(x.link));
+  const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',x.titulo||'Destaque');
+  ov.innerHTML=`<div class="dq-box"><button class="dq-x" aria-label="Fechar">×</button>${img?`<img class="dq-img" src="${esc(img)}" alt="">`:''}
+    <div class="dq-in" style="${img?'':'padding-top:30px'}">${previa?'<div class="dq-eyebrow">Prévia · só você está vendo</div>':''}${x.titulo?`<h2>${esc(x.titulo)}</h2>`:''}${x.texto?`<p>${esc(x.texto)}</p>`:''}
+    <div class="dq-btns">${temAcao?(x.ir==='link'?`<a class="btn dq-go" href="${esc(affiliate(x.link))}" target="_blank" rel="noopener sponsored">${esc(x.botao||'Saiba mais')}</a>`:`<button class="btn dq-go">${esc(x.botao||'Ver agora')}</button>`):''}<button class="btn ghost dq-fechar">${temAcao?'Agora não':'Entendi'}</button></div></div></div>`;
+  const fechar=()=>{ov.remove();document.removeEventListener('keydown',tecla)};
+  const tecla=e=>{if(e.key==='Escape')fechar()};document.addEventListener('keydown',tecla);
+  ov.addEventListener('click',e=>{if(e.target===ov)fechar()});
+  ov.querySelector('.dq-x').onclick=fechar;ov.querySelector('.dq-fechar').onclick=fechar;
+  const go=ov.querySelector('.dq-go');
+  if(go)go.addEventListener('click',()=>{if(!previa)trackClick('ad:pop:'+x.id);
+    if(x.ir!=='link'){fechar();if(x.ir==='plus'){if(safeLink(config.plusLink))window.open(config.plusLink,'_blank','noopener');else setTab('perfil')}else{if(x.ir==='aparencia')aparDraft=null;setTab(x.ir)}}else setTimeout(fechar,50)});
+  document.body.appendChild(ov);(go||ov.querySelector('.dq-fechar')).focus({preventScroll:true});
+}
+function lerImagemDestaque(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=900;let w=img.width,h=img.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);let q=.82,d=c.toDataURL('image/jpeg',q);while(d.length>300000&&q>.35){q-=.08;d=c.toDataURL('image/jpeg',q)}res(d)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
+
+
+function dqLerCampos(){const t=val('dqT'),x=val('dqX');if(!t&&!x){toast('Escreva um título ou um texto');app.querySelector('#dqT')?.focus();return null}
+  const ir=val('dqIr')||'';let l=val('dqL').replace(/\s+/g,'');if(l&&!/^https?:\/\//i.test(l))l='https://'+l;
+  if(ir==='link'&&!/^https?:\/\/[^/.]+\.[^/]+/i.test(l)){toast('Confira o link. Exemplo: www.sualoja.com.br');app.querySelector('#dqL')?.focus();return null}
+  const ini=val('dqI'),fim=val('dqF');if(ini&&fim&&fim<ini){toast('A data de saída é antes da data de começo');return null}
+  return {titulo:t.slice(0,70),texto:x.slice(0,400),ir,link:ir==='link'?l.slice(0,500):'',botao:val('dqB').slice(0,28),publico:val('dqP')||'todos',frequencia:val('dqQ')||'uma',inicio:ini,fim,cidades:val('dqC').split(',').map(c=>c.trim()).filter(Boolean).slice(0,20)}}
+// guarda o que já foi digitado antes de redesenhar o formulário (ao escolher imagem)
+function dqGuardarCampos(){const d={titulo:val('dqT'),texto:val('dqX'),ir:val('dqIr'),link:val('dqL'),botao:val('dqB'),publico:val('dqP'),frequencia:val('dqQ'),inicio:val('dqI'),fim:val('dqF'),cidades:val('dqC').split(',').map(c=>c.trim()).filter(Boolean)};
+  form.rascunho=d}
+
+/* ---------- busca de cidades (lista oficial do IBGE, guardada no próprio site) ---------- */
+const cidCache={};
+const semAcento=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+function carregarCidades(uf){const k=uf||'todas';if(!cidCache[k])cidCache[k]=fetch('cidades/'+k+'.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(l=>k==='todas'?l:l.map(n=>[n,uf])).catch(()=>{delete cidCache[k];return []});return cidCache[k]}
+let cidPop=null,cidAlvo=null,cidOpcoes=[],cidSel=0,cidIgnorar=false;
+function cidTermo(inp){return inp.hasAttribute('data-multi')?inp.value.split(',').pop():inp.value}
+function cidUfDe(inp){const s=inp.dataset.cid&&inp.dataset.cid!=='*'?document.getElementById(inp.dataset.cid):null;return s?s.value:''}
+function cidFechar(){if(cidPop){cidPop.remove();cidPop=null}cidOpcoes=[]}
+function cidPosicionar(){if(!cidPop||!cidAlvo)return;if(!document.body.contains(cidAlvo))return cidFechar();const r=cidAlvo.getBoundingClientRect();const embaixo=innerHeight-r.bottom;cidPop.style.left=r.left+'px';cidPop.style.width=r.width+'px';
+  if(embaixo<200&&r.top>embaixo){cidPop.style.top='';cidPop.style.bottom=(innerHeight-r.top+4)+'px'}else{cidPop.style.bottom='';cidPop.style.top=(r.bottom+4)+'px'}}
+async function cidBuscar(inp){
+  const uf=cidUfDe(inp);const termo=semAcento(cidTermo(inp));
+  if(termo.length<1){cidFechar();return}
+  const lista=await carregarCidades(uf);if(cidAlvo!==inp||semAcento(cidTermo(inp))!==termo)return;
+  const a=[],b=[],c=[];for(const it of lista){const n=semAcento(it[0]);if(n.startsWith(termo))a.push(it);else if(n.includes(' '+termo))b.push(it);else if(n.includes(termo))c.push(it);if(a.length>=8)break}
+  cidOpcoes=[...a,...b,...c].slice(0,8);cidSel=0;
+  if(!cidPop){cidPop=document.createElement('div');cidPop.className='cid-pop';cidPop.setAttribute('role','listbox');document.body.appendChild(cidPop);
+    cidPop.addEventListener('mousedown',e=>e.preventDefault());cidPop.addEventListener('click',e=>{const bt=e.target.closest('button[data-i]');if(bt)cidEscolher(+bt.dataset.i)})}
+  const mostrarUf=!uf||inp.dataset.cid==='*';
+  cidPop.innerHTML=cidOpcoes.length?cidOpcoes.map((o,i)=>`<button type="button" role="option" data-i="${i}" class="${i===cidSel?'on':''}"><span>${esc(o[0])}</span>${mostrarUf?`<span class="uf">${esc(o[1])}</span>`:''}</button>`).join(''):`<div class="vazio">${lista.length?'Nenhuma cidade encontrada'+(uf?' neste estado':'')+'. Você pode deixar como digitou.':'Lista de cidades indisponível agora. Pode digitar normalmente.'}</div>`;
+  cidPosicionar();
+}
+function cidEscolher(i){const o=cidOpcoes[i];const inp=cidAlvo;if(!o||!inp)return;
+  if(inp.hasAttribute('data-multi')){const p=inp.value.split(',').map(x=>x.trim());p.pop();p.push(o[0]);inp.value=p.filter(Boolean).join(', ')+', '}else inp.value=o[0];
+  cidIgnorar=true;inp.dispatchEvent(new Event('input',{bubbles:true}));cidIgnorar=false;
+  const s=inp.dataset.cid&&inp.dataset.cid!=='*'?document.getElementById(inp.dataset.cid):null;
+  if(s&&!s.value&&o[1]){s.value=o[1];s.dispatchEvent(new Event('change',{bubbles:true}))}
+  cidFechar();cidConferir(inp);if(inp.hasAttribute('data-multi'))inp.focus()}
+async function cidConferir(inp){
+  if(!inp||!document.body.contains(inp))return;const lab=inp.closest('label')||inp.parentNode;let h=lab.querySelector('.cid-hint');
+  const nomes=inp.hasAttribute('data-multi')?inp.value.split(',').map(x=>x.trim()).filter(Boolean):[inp.value.trim()].filter(Boolean);
+  let msg='';if(nomes.length){const uf=cidUfDe(inp);const l=await carregarCidades(uf);
+    if(l.length){const set=new Set(l.map(x=>semAcento(x[0])));const fora=nomes.filter(n=>!set.has(semAcento(n)));
+      if(fora.length)msg=inp.hasAttribute('data-multi')?'Não encontramos na lista do IBGE: '+fora.join(', ')+'. Confira a grafia.':'Não encontramos essa cidade na lista do IBGE'+(uf?' para este estado':'')+'. Confira a grafia ou deixe como está.'}}
+  if(!msg){if(h)h.remove();return}
+  if(!h){h=document.createElement('span');h.className='cid-hint';lab.appendChild(h)}h.textContent=msg;
+}
+document.addEventListener('input',e=>{const inp=e.target;if(cidIgnorar||!inp.matches||!inp.matches('input[data-cid]'))return;cidAlvo=inp;const h=(inp.closest('label')||inp.parentNode).querySelector('.cid-hint');if(h)h.remove();cidBuscar(inp)});
+document.addEventListener('focusin',e=>{const inp=e.target;if(inp.matches&&inp.matches('input[data-cid]')){cidAlvo=inp}});
+document.addEventListener('focusout',e=>{const inp=e.target;if(inp.matches&&inp.matches('input[data-cid]'))setTimeout(()=>{if(document.activeElement!==inp){if(cidAlvo===inp)cidFechar();cidConferir(inp)}},150)});
+document.addEventListener('change',e=>{const s=e.target;if(!s.id)return;document.querySelectorAll(`input[data-cid="${s.id}"]`).forEach(inp=>{if(inp.value.trim())cidConferir(inp)})});
+document.addEventListener('keydown',e=>{if(!cidPop||e.target!==cidAlvo)return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!cidOpcoes.length)return;cidSel=(cidSel+(e.key==='ArrowDown'?1:-1)+cidOpcoes.length)%cidOpcoes.length;cidPop.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===cidSel))}
+  else if(e.key==='Enter'&&cidOpcoes.length){e.preventDefault();cidEscolher(cidSel)}
+  else if(e.key==='Escape'){cidFechar()}});
+addEventListener('resize',cidPosicionar);addEventListener('scroll',cidPosicionar,true);
 
 /* ---------- Minha ficha ---------- */
 function listEditor(key,title,hint,ph,cls){
@@ -1500,7 +1638,7 @@ function adForm(prefix,a){
    <label class="f">Onde aparece<select id="${prefix}Local">${Object.entries(FORM_AD_LOCAIS).map(([k,v])=>`<option value="${k}" ${(a.local||'todos')===k?'selected':''}>${v}</option>`).join('')}</select></label>
    <label class="f">Categoria patrocinada (só para patrocínio de categoria)<select id="${prefix}Cat"><option value="">—</option>${allCats.map(c=>`<option ${a.categoria===c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>
    <div class="grid2"><label class="f">Começa em (opcional)<input id="${prefix}Ini" type="date" value="${esc(a.inicio||'')}"></label><label class="f">Termina em (opcional)<input id="${prefix}Fim" type="date" value="${esc(a.fim||'')}"></label></div>
-   <label class="f">Cidades (opcional, separadas por vírgula)<input id="${prefix}Cid" value="${esc((a.cidades||[]).join(', '))}" placeholder="Ex.: Fortaleza, Eusébio"></label>
+   <label class="f">Cidades (opcional, separadas por vírgula)<input id="${prefix}Cid" autocomplete="off" data-cid="*" data-multi value="${esc((a.cidades||[]).join(', '))}" placeholder="Ex.: Fortaleza, Eusébio"></label>
    <div class="flabel">Mostrar só para quem gosta de (opcional)</div>
    <div class="chips">${TAG_GOSTOS.map(g=>`<button class="chip style" data-act="adGosto" data-v="${esc(g)}" aria-pressed="${dr.gostos.includes(g)}">${esc(g)}</button>`).join('')}</div>
    <span class="small" style="color:var(--muted)">Sem cidades e sem gostos, o anúncio aparece para todo mundo.</span>`;
@@ -1568,7 +1706,7 @@ function lojaForm(l,i){
   return `<div class="inline-form"><b>${i<0?'Nova loja parceira':'Editar loja'}</b>
    <div class="grid2"><label class="f">Nome da loja<input id="ljNome" maxlength="40" value="${esc(l.nome||'')}"></label><label class="f">Categoria<select id="ljCat"><option value="">—</option>${[...new Set([...Object.keys(CAT_DESEJOS),...Object.keys(CAT_PRECISA)])].map(c=>`<option ${l.categoria===c?'selected':''}>${esc(c)}</option>`).join('')}</select></label></div>
    <label class="f">Descrição<textarea id="ljDesc" maxlength="300">${esc(l.descricao||'')}</textarea></label>
-   <div class="grid2"><label class="f">Cidade<input id="ljCid" maxlength="40" value="${esc(l.cidade||'')}" placeholder="Ex.: Fortaleza"></label><label class="f">WhatsApp (só números, com DDD)<input id="ljWa" inputmode="tel" value="${esc(l.whatsapp||'')}" placeholder="85999999999"></label></div>
+   <div class="grid2"><label class="f">Cidade<input id="ljCid" maxlength="40" autocomplete="off" data-cid="*" value="${esc(l.cidade||'')}" placeholder="Ex.: Fortaleza"></label><label class="f">WhatsApp (só números, com DDD)<input id="ljWa" inputmode="tel" value="${esc(l.whatsapp||'')}" placeholder="85999999999"></label></div>
    <div class="grid2"><label class="f">Site<input id="ljSite" autocapitalize="off" value="${esc(l.site||'')}" placeholder="www.loja.com.br"></label><label class="f">Instagram<input id="ljInsta" autocapitalize="off" value="${esc(l.instagram||'')}" placeholder="@loja"></label></div>
    <label class="f">Cupons (um por linha, no formato CÓDIGO - descrição)<textarea id="ljCup" placeholder="PRESENTE10 - 10% em toda a loja">${esc((l.cupons||[]).map(c=>c.codigo+(c.texto?' - '+c.texto:'')).join('\n'))}</textarea></label>
    <div class="row"><button class="btn small" data-act="saveLoja" data-i="${i}">${i<0?'Cadastrar loja':'Salvar alterações'}</button><button class="link" data-act="cancel">Cancelar</button></div></div>`;
@@ -1579,6 +1717,8 @@ function lerLoja(){
   return {nome:nome.slice(0,40),categoria:val('ljCat'),descricao:val('ljDesc').slice(0,300),cidade:val('ljCid').slice(0,40),whatsapp:val('ljWa').replace(/\D/g,'').slice(0,13),site:fixUrl(val('ljSite')),instagram:val('ljInsta').replace(/^@/,'').replace(/[^\w.]/g,'').slice(0,40),
     cupons:val('ljCup').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,10).map(x=>{const [c,...r]=x.split(' - ');return{codigo:c.trim().slice(0,30),texto:r.join(' - ').trim().slice(0,80)}})};
 }
+const ESTADOS=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
+const ufSelect=(id,v)=>`<select id="${id}"><option value="">Escolha o estado</option>${ESTADOS.map(([s,n])=>`<option value="${s}" ${v===s?'selected':''}>${n}</option>`).join('')}</select>`;
 const CIDADES=['Fortaleza','São Paulo','Rio de Janeiro','Brasília','Salvador','Belo Horizonte','Recife','Curitiba','Porto Alegre','Manaus','Belém','Goiânia'];
 const PASSOS=['Datas','Tamanhos','Cores e estilo','Gostos','Pretendo ganhar','Precisando','Mais opções'];
 function renderMine(){
@@ -1598,8 +1738,7 @@ function renderMine(){
    <label class="f">Mês<select id="mes"><option value="">—</option>${mesOpt(d.mes)}</select></label>
    <label class="f">Ano (opcional)<input id="ano" inputmode="numeric" maxlength="4" value="${esc(d.ano)}" placeholder="Ex.: 1990"></label></div></section>
   <section class="panel"><h2>Sua cidade</h2><p class="lede" style="margin:0">Ajuda a mostrar lojas e ofertas perto de você.</p>
-   <div class="chips">${CIDADES.map(c=>`<button class="chip style" data-act="pickOne" data-key="cidade" data-v="${esc(c)}" aria-pressed="${d.cidade===c}">${esc(c)}</button>`).join('')}</div>
-   <label class="f">Outra cidade<input id="cidade" value="${esc(CIDADES.includes(d.cidade)?'':(d.cidade||''))}" placeholder="Digite o nome da cidade"></label></section>
+   <div class="grid2"><label class="f">Estado${ufSelect('estado',d.estado||'')}</label><label class="f">Cidade<input id="cidade" maxlength="40" autocomplete="off" data-cid="estado" value="${esc(d.cidade||'')}" placeholder="Digite o nome da cidade"></label></div></section>
   <section class="panel"><h2>Outras datas especiais (opcional)</h2><p class="lede" style="margin:0">Casamento, chá de bebê, formatura e outras ocasiões.</p>
    ${d.datas.map((x,i)=>`<div class="date-row"><span><b>${esc(x.tipo==='Outra data'&&x.nota?x.nota:x.tipo)}</b> · ${+x.dia} de ${MESES[+x.mes-1]}${x.ano?' de '+esc(x.ano):''}</span><button class="icon-btn" data-act="delData" data-i="${i}" aria-label="Remover data">×</button></div>`).join('')}
    <div class="grid2"><label class="f">Tipo<select id="dTipo">${opt(TIPOS_DATA,'')}</select></label><label class="f">Nome (para "Outra data")<input id="dNota" placeholder="Ex.: Bodas de prata"></label></div>
@@ -1655,7 +1794,8 @@ function renderMine(){
   const mark=()=>{if(!dirty){dirty=true;const b=app.querySelector('#save');if(b)b.textContent=st<ult?'Salvar e continuar':'Salvar ficha'}};
   ['dia','mes','camiseta','calca','calcado','vestido','anel','cama','aviso'].forEach(k=>app.querySelector('#'+k)?.addEventListener('change',e=>{d[k]=e.target.value;mark()}));
   ['ano','gosta','naoGosta','obs','marcas','hobbies','alergias'].forEach(k=>app.querySelector('#'+k)?.addEventListener('input',e=>{d[k]=e.target.value;mark()}));
-  app.querySelector('#cidade')?.addEventListener('input',e=>{d.cidade=e.target.value.trim().slice(0,40);app.querySelectorAll('[data-key="cidade"]').forEach(b=>b.setAttribute('aria-pressed','false'));mark()});
+  app.querySelector('#cidade')?.addEventListener('input',e=>{d.cidade=e.target.value.trim().slice(0,40);mark()});
+  app.querySelector('#estado')?.addEventListener('change',e=>{d.estado=e.target.value;mark()});
   app.querySelector('#fechado')?.addEventListener('change',e=>{d.fechado=e.target.checked;mark()});
 }
 async function irPasso(n){
@@ -1735,6 +1875,7 @@ app.addEventListener('click',e=>{
     case 'ai': runAI(ds.id);break;
     case 'saveHandle': saveHandle();break;
     case 'apSet': aparDraft[ds.k]=ds.v;keep(renderAparencia);break;
+    case 'apAssinar': aparDraft=null;setTab('perfil');fichaStep=PASSOS.length-1;form=null;keep(renderMine);break;
     case 'apSalvar': salvarAparencia();break;
     case 'apPadrao': aparDraft={cor:'roxo',escuro:'claro',fundo:'liso',inicio:'mural',compacto:false,letra:'normal'};keep(renderAparencia);break;
     case 'apVoltar': setTab('mural');break;
@@ -1763,6 +1904,22 @@ app.addEventListener('click',e=>{
     case 'importSeedOk': form=null;importSeed();break;
     case 'moderar': {const cur=config.moderados||[];saveConfig({...config,moderados:cur.includes(ds.mid)?cur.filter(x=>x!==ds.mid):[...cur,ds.mid]},cur.includes(ds.mid)?'Mensagem visível de novo':'Mensagem oculta para todos');break}
     case 'toggleExemplos': saveConfig({...config,ocultarExemplos:!config.ocultarExemplos},config.ocultarExemplos?'Pessoas de exemplo visíveis':'Pessoas de exemplo ocultas para todos');break;
+    case 'novoDq': form={type:'novoDq'};keep(render);break;
+    case 'editDq': {const x=destaquesList().find(v=>v.id===ds.id);form={type:'editDq',id:ds.id};if(x&&x.temImagem&&dqImgs[x.id]===undefined)dqImagem(x).then(()=>keep(render));keep(render);break}
+    case 'dqImg': {const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{const f=inp.files[0];if(!f)return;try{const d=await lerImagemDestaque(f);dqGuardarCampos();form.img=d;keep(render)}catch(e){toast('Não foi possível ler essa imagem.')}};inp.click();break}
+    case 'dqImgTirar': dqGuardarCampos();form.img='';keep(render);break;
+    case 'previaDqForm': {const d=dqLerCampos();if(!d)break;abrirDestaque({...d,id:'previa',imgPrevia:form.img!==undefined?form.img:(dqImgs[form.id]||'')},true);break}
+    case 'previaDq': {const x=destaquesList().find(v=>v.id===ds.id);if(x)abrirDestaque(x,true);break}
+    case 'salvarDq': {const d=dqLerCampos();if(!d)break;const novo=+ds.i<0;const id=novo?uid():form.id;const l0=destaquesList();const ant=l0.find(v=>v.id===id)||{};
+      const img=form.img!==undefined?form.img:(ant.temImagem?(dqImgs[id]||null):'');
+      (async()=>{try{
+        if(form.img!==undefined){if(form.img)await db.doc('config/destaque-'+id).set({img:form.img});else await db.doc('config/destaque-'+id).delete().catch(()=>{});dqImgs[id]=form.img}
+        const item={...ant,...d,id,temImagem:img===null?!!ant.temImagem:!!img};if(novo){item.ativo=true;item.data=new Date().toISOString()}
+        const lista=novo?[item,...l0]:l0.map(v=>v.id===id?item:v);form=null;saveConfig({...config,destaques:lista},novo?'Destaque publicado':'Destaque atualizado');
+      }catch(e){toast('Não foi possível salvar a imagem. Tente uma imagem menor.')}})();break}
+    case 'pausarDq': {const l=destaquesList();const x=l.find(v=>v.id===ds.id);saveConfig({...config,destaques:l.map(v=>v.id===ds.id?{...v,ativo:!v.ativo}:v)},x&&x.ativo?'Destaque pausado':'Destaque no ar de novo');break}
+    case 'subirDq': {const l=[...destaquesList()];const i=l.findIndex(v=>v.id===ds.id);if(i>0){[l[i-1],l[i]]=[l[i],l[i-1]];saveConfig({...config,destaques:l},'Ordem alterada')}break}
+    case 'excluirDq': {if(!confirm('Excluir este destaque?'))break;const x=destaquesList().find(v=>v.id===ds.id);if(x&&x.temImagem)db.doc('config/destaque-'+ds.id).delete().catch(()=>{});saveConfig({...config,destaques:destaquesList().filter(v=>v.id!==ds.id)},'Destaque excluído');break}
     case 'novoAviso': form={type:'novoAviso'};keep(render);break;
     case 'editAviso': form={type:'editAviso',id:ds.id};keep(render);break;
     case 'salvarAviso': {const t=val('avT');if(!t){toast('Escreva o texto do aviso');app.querySelector('#avT')?.focus();break}
@@ -1887,9 +2044,10 @@ async function start(){
   coll('sorteios',n=>{raw.sorteios=n;applyRaw()});
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n});
-  coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio()});
+  coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
+  db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n})}
-  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};applyRaw();softRender()},()=>{});
+  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};applyRaw();softRender();tentarDestaque()},()=>{});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
 }
 if(window.claude&&claude.use)start();else if(!window.__semConfig)render();
