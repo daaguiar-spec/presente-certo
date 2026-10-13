@@ -278,6 +278,11 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .inst-os b{display:block;margin-bottom:4px}
 .inst-os ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px;font-size:14.5px}
 .inst-icone{width:56px;height:56px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.inst-benef{list-style:none;margin:4px 0 2px;padding:0;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
+.inst-benef li{display:flex;align-items:center;gap:12px;background:var(--sunk);border-radius:12px;padding:10px 12px;font-weight:600;font-size:14.5px}
+.inst-benef span{font-size:20px;line-height:1}
+.inst-ico{width:18px;height:18px;vertical-align:-3px;color:var(--accent);display:inline-block}
+.inst-os ol li{line-height:1.45}
 </style>
 
 </head>
@@ -1507,25 +1512,40 @@ function instalarPraMostrar(){
 function abrirInstalar(previa){
   if(document.querySelector('.dq-ov'))return;
   const so=sistema();
-  const ios=`<div class="inst-os ${so==='ios'?'seu':''}"><b>iPhone (Safari)</b><ol><li>Abra o link do PresenteCerto no Safari.</li><li>Toque no botão Compartilhar.</li><li>Escolha “Adicionar à Tela de Início”.</li></ol></div>`;
-  const and=`<div class="inst-os ${so==='android'?'seu':''}"><b>Android (Chrome)</b><ol><li>Abra o link do PresenteCerto no Chrome.</li><li>Toque nos três pontinhos.</li><li>Escolha “Adicionar à tela inicial”.</li></ol></div>`;
-  const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Instalar no celular');
-  ov.innerHTML=`<div class="dq-box"><button class="dq-x" aria-label="Fechar">×</button><div class="dq-in" style="padding-top:26px">
-    ${previa?'<div class="dq-eyebrow">Prévia · só você está vendo</div>':''}
-    <img class="inst-icone" src="icon.svg" alt="">
-    <h2>Instalar no celular</h2><p>Coloque o PresenteCerto na tela inicial e abra como um aplicativo.</p>
-    ${so==='android'?and+ios:ios+and}
-    <div class="dq-btns">${instalarEvento?'<button class="btn dq-instalar">Instalar agora</button>':''}<button class="btn ghost dq-ja">Já instalei</button><button class="link dq-fechar" style="align-self:center">Agora não</button></div></div></div>`;
+  const icoComp='<svg class="inst-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="botão Compartilhar"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+  const icoPontos='<svg class="inst-ico" viewBox="0 0 24 24" fill="currentColor" aria-label="três pontinhos"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+  const ios=`<div class="inst-os ${so==='ios'?'seu':''}"><b>No iPhone (Safari)</b><ol><li>Toque em ${icoComp} <b style="display:inline">Compartilhar</b>, na barra de baixo.</li><li>Role e toque em <b style="display:inline">“Adicionar à Tela de Início”</b>.</li><li>Toque em <b style="display:inline">Adicionar</b>. Pronto! 🎉</li></ol></div>`;
+  const and=`<div class="inst-os ${so==='android'?'seu':''}"><b>No Android (Chrome)</b><ol><li>Toque nos ${icoPontos} <b style="display:inline">três pontinhos</b>, lá em cima.</li><li>Toque em <b style="display:inline">“Adicionar à tela inicial”</b> ou “Instalar app”.</li><li>Confirme em <b style="display:inline">Adicionar</b>. Pronto! 🎉</li></ol></div>`;
+  const passos=so==='ios'?ios:so==='android'?and:ios+and;
+  const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Instalar o PresenteCerto');
   const marcar=v=>{if(previa)return;try{localStorage.setItem('instalarPop',v)}catch(e){}};
   const fechar=()=>{ov.remove();document.removeEventListener('keydown',tecla)};
-  const tecla=e=>{if(e.key==='Escape'){marcar(hoje());fechar()}};document.addEventListener('keydown',tecla);
-  ov.addEventListener('click',e=>{if(e.target===ov){marcar(hoje());fechar()}});
-  ov.querySelector('.dq-x').onclick=()=>{marcar(hoje());fechar()};
-  ov.querySelector('.dq-fechar').onclick=()=>{marcar(hoje());fechar()};
-  ov.querySelector('.dq-ja').onclick=()=>{marcar('nunca');fechar()};
-  const ins=ov.querySelector('.dq-instalar');
-  if(ins)ins.onclick=async()=>{try{instalarEvento.prompt();const r=await instalarEvento.userChoice;instalarEvento=null;if(r&&r.outcome==='accepted'){marcar('nunca');fechar();toast('Pronto! O PresenteCerto está na sua tela inicial.')}}catch(e){}};
-  document.body.appendChild(ov);(ins||ov.querySelector('.dq-ja')).focus({preventScroll:true});
+  const depois=()=>{marcar(hoje());fechar()};
+  const tecla=e=>{if(e.key==='Escape')depois()};document.addEventListener('keydown',tecla);
+  const topo=`<button class="dq-x" aria-label="Fechar">×</button>${previa?'<div class="dq-eyebrow">Prévia · só você está vendo</div>':''}`;
+  function telaConvite(){
+    ov.innerHTML=`<div class="dq-box"><div class="dq-in" style="padding-top:26px;text-align:center;align-items:center">${topo}
+      <img class="inst-icone" src="icon.svg" alt="" style="width:72px;height:72px">
+      <h2>Nunca mais dê presente errado</h2>
+      <p>Coloque o PresenteCerto na tela do seu celular e veja na hora o que seus amigos querem ganhar.</p>
+      <ul class="inst-benef"><li><span>⚡</span>Abre num toque, direto da tela inicial</li><li><span>🎂</span>Aniversários e listas sempre à mão</li><li><span>📦</span>Grátis e não ocupa memória do celular</li></ul>
+      <div class="dq-btns" style="width:100%"><button class="btn dq-quero">Quero no meu celular</button><button class="link dq-fechar" style="align-self:center">Agora não</button></div></div></div>`;
+    ligar();
+    ov.querySelector('.dq-quero').onclick=async()=>{
+      if(instalarEvento){try{instalarEvento.prompt();const r=await instalarEvento.userChoice;instalarEvento=null;if(r&&r.outcome==='accepted'){marcar('nunca');fechar();toast('Pronto! O PresenteCerto está na sua tela inicial.');return}}catch(e){}}
+      telaPassos()};
+    ov.querySelector('.dq-quero').focus({preventScroll:true});
+  }
+  function telaPassos(){
+    ov.innerHTML=`<div class="dq-box"><div class="dq-in" style="padding-top:26px">${topo}
+      <h2>É rapidinho! 👇</h2><p>${so?'Siga estes 3 passos aqui mesmo, nesta tela:':'Abra o PresenteCerto no celular e siga os passos:'}</p>
+      ${passos}
+      <div class="dq-btns"><button class="btn dq-ja">Pronto, já instalei</button><button class="link dq-fechar" style="align-self:center">Faço depois</button></div></div></div>`;
+    ligar();ov.querySelector('.dq-ja').onclick=()=>{marcar('nunca');fechar();toast('Oba! Agora é só abrir pelo ícone na tela inicial.')};
+  }
+  function ligar(){ov.querySelector('.dq-x').onclick=depois;ov.querySelector('.dq-fechar').onclick=depois}
+  ov.addEventListener('click',e=>{if(e.target===ov)depois()});
+  document.body.appendChild(ov);telaConvite();
 }
 
 /* ---------- Destaque (tela pop-up) ---------- */
