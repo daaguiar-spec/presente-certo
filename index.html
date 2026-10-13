@@ -785,7 +785,7 @@ document.addEventListener('click',e=>{
   if(notifAberto&&!e.target.closest('#sinoBox')){notifAberto=false;renderSino()}
   if(menuAberto&&!e.target.closest('#menuBox')&&!e.target.closest('#meBtn')){menuAberto=false;menuSair=false;renderMenu()}
 },true);
-document.addEventListener('change',e=>{const fs=e.target.dataset&&e.target.dataset.fbstatus;if(fs&&isOwner){db.doc('feedback/'+fs).update({status:e.target.value}).then(()=>toast('Situação: '+FB_STATUS[e.target.value])).catch(()=>toast('Não foi possível mudar a situação.'));return}const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
+document.addEventListener('change',e=>{if(e.target.id==='ofImg'&&typeof ofGuardar==='function'){ofGuardar();keep(render);return}const fs=e.target.dataset&&e.target.dataset.fbstatus;if(fs&&isOwner){db.doc('feedback/'+fs).update({status:e.target.value}).then(()=>toast('Situação: '+FB_STATUS[e.target.value])).catch(()=>toast('Não foi possível mudar a situação.'));return}const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(notifAberto||menuAberto)){notifAberto=false;menuAberto=false;menuSair=false;renderSino();renderMenu()}});
 /* ---------- Menu da foto ---------- */
@@ -1719,7 +1719,7 @@ async function responderSugestao(id){
 
 /* ---------- Ofertas: buscar nome e foto pelo link ---------- */
 let ofDraft={};
-function ofGuardar(){ofDraft={...ofDraft,link:val('ofL'),titulo:val('ofT'),loja:val('ofLoja'),preco:val('ofP')}}
+function ofGuardar(){const im=val('ofImg');ofDraft={...ofDraft,link:val('ofL'),titulo:val('ofT'),loja:val('ofLoja'),preco:val('ofP'),imagem:/^https:\/\//i.test(im)?im:''}}
 async function buscarProduto(){
   ofGuardar();let l=String(ofDraft.link||'').replace(/\s+/g,'');if(!l){toast('Cole o link do produto');app.querySelector('#ofL')?.focus();return}
   if(!/^https?:\/\//i.test(l))l='https://'+l;ofDraft.link=l;
@@ -1729,7 +1729,7 @@ async function buscarProduto(){
     const r=await fetch('/api/produto',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({url:l})});
     const d=await r.json().catch(()=>({}));
     if(d.loja&&!ofDraft.loja)ofDraft.loja=d.loja;
-    if(d.ok){ofDraft.titulo=d.titulo||ofDraft.titulo;ofDraft.imagem=d.imagem||'';toast(d.imagem?'Nome e foto encontrados. Confira e publique.':'Nome encontrado. Esta loja não mostrou a foto.')}
+    if(d.ok){ofDraft.titulo=d.titulo||ofDraft.titulo;ofDraft.imagem=d.imagem||ofDraft.imagem||'';toast(d.imagem?'Nome e foto encontrados. Confira e publique.':'Nome encontrado. Esta loja não mostra a foto para leitura: cole o endereço da imagem no campo Foto, se quiser.')}
     else toast(d.erro||'Não foi possível ler esta página. Preencha à mão.');
   }catch(e){toast('Não foi possível buscar agora. Preencha à mão.')}
   keep(render);
@@ -1872,7 +1872,8 @@ function adminBlock(){
    ${ofs.map((o,i)=>`<div class="date-row"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:36px;height:36px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}<b>${esc(o.titulo)}</b>${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.loja?' · '+esc(o.loja):''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><button class="link" data-act="delOferta" data-i="${i}">Excluir</button></div>`).join('')||'<div class="muted">Nenhuma oferta.</div>'}
    ${ofs.length<6?`<div class="inline-form"><b>Nova oferta</b><span class="small" style="color:var(--muted)">Cole o link do produto e toque em Buscar dados: o nome, a foto e a loja vêm sozinhos.</span>
    <label class="f">Link do produto<div class="row" style="flex-wrap:nowrap"><input id="ofL" inputmode="url" autocapitalize="off" placeholder="Cole aqui o link do produto" value="${esc(ofDraft.link||'')}"><button class="btn small" data-act="buscarProduto">Buscar dados</button></div></label>
-   ${ofDraft.imagem?`<div class="of-prev"><img src="${esc(ofDraft.imagem)}" alt="" referrerpolicy="no-referrer"><div class="small" style="min-width:0">Foto encontrada.<br><button class="link" data-act="ofSemFoto">Tirar a foto</button></div></div>`:''}
+   ${ofDraft.imagem?`<div class="of-prev"><img src="${esc(ofDraft.imagem)}" alt="" referrerpolicy="no-referrer"><div class="small" style="min-width:0">Foto da oferta.<br><button class="link" data-act="ofSemFoto">Tirar a foto</button></div></div>`:''}
+   <label class="f">Foto (opcional)<input id="ofImg" inputmode="url" autocapitalize="off" placeholder="Se não vier sozinha: na loja, clique com o botão direito na foto > Copiar endereço da imagem, e cole aqui" value="${esc(ofDraft.imagem||'')}"></label>
    <label class="f">Nome do produto<input id="ofT" maxlength="80" placeholder="Ex.: Fone JBL Tune 520BT" value="${esc(ofDraft.titulo||'')}"></label>
    <div class="grid2"><label class="f">Loja<input id="ofLoja" maxlength="30" placeholder="Ex.: Amazon" value="${esc(ofDraft.loja||'')}"></label><label class="f">Preço (opcional)<input id="ofP" maxlength="30" placeholder="Em branco, não aparece" value="${esc(ofDraft.preco||'')}"></label></div>
    <div class="row"><button class="btn small" data-act="addOferta">Publicar oferta</button>${ofDraft.link||ofDraft.titulo?'<button class="link" data-act="ofLimpar">Limpar</button>':''}</div></div>`:'<span class="small" style="color:var(--muted)">Limite de 6 ofertas. Exclua uma para adicionar outra.</span>'}</section>`;
@@ -2174,7 +2175,7 @@ app.addEventListener('click',e=>{
       const id=dom.replace(/[^a-z0-9]/g,'').slice(0,30);saveConfig({...config,lojasAfiliadas:{...(config.lojasAfiliadas||{}),[id]:{nome:nome.slice(0,30),dominio:dom,busca:busca.slice(0,300),modelo:mod.slice(0,400)}}},'Loja adicionada');break}
     case 'delLojaAf': {const la={...(config.lojasAfiliadas||{})};delete la[ds.id];const lpc={...(config.lojaPorCategoria||{})};Object.keys(lpc).forEach(c=>{if(lpc[c]===ds.id)delete lpc[c]});saveConfig({...config,lojasAfiliadas:la,lojaPorCategoria:lpc},'Loja removida');break}
     case 'addOferta': {const t=val('ofT');let l=val('ofL').replace(/\s+/g,'');if(!t||!l){toast('Preencha o link e o nome do produto');break}if(!/^https?:\/\//i.test(l))l='https://'+l;
-      const img=ofDraft.link&&ofDraft.link.replace(/\s+/g,'')===val('ofL').replace(/\s+/g,'')?(ofDraft.imagem||''):'';
+      const im=val('ofImg').replace(/\s+/g,'');const img=/^https:\/\//i.test(im)?im:'';
       const preco=precoBR(val('ofP')).slice(0,30);ofDraft={};
       saveConfig({...config,ofertas:[...(config.ofertas||[]),{id:uid(),titulo:t.slice(0,80),preco,link:l.slice(0,500),loja:val('ofLoja').slice(0,30),imagem:img.slice(0,1000)}].slice(0,6)},'Oferta publicada no Mural');break}
     case 'buscarProduto': buscarProduto();break;
