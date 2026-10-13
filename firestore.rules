@@ -53,6 +53,64 @@ service cloud.firestore {
     // Assinaturas recebidas da Kiwify: gravadas só pelo servidor; só o administrador lê
     match /assinaturas/{e} { allow read: if admin(); allow write: if false; }
 
+    // Sugestões dos usuários: qualquer pessoa logada envia; só o administrador lê, muda e apaga
+    match /feedback/{id} {
+      allow create: if logado()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid','nome','email','tipo','texto','img','data','status'])
+        && request.resource.data.status == 'nova'
+        && request.resource.data.tipo in ['ideia','problema','elogio']
+        && request.resource.data.texto is string && request.resource.data.texto.size() <= 1000
+        && (!('img' in request.resource.data) || (request.resource.data.img is string && request.resource.data.img.size() < 400000));
+      allow read, update, delete: if admin();
+    }
+
+    // Respostas do administrador às sugestões: só a própria pessoa lê; só o administrador escreve
+    match /respostas/{uid} { allow read: if dono(uid) || admin(); allow write: if admin(); }
+
+    // Listas de evento (casamento, chá de bebê, casa nova, chá de panela).
+    // A pessoa cria e edita a sua lista, mas NÃO consegue publicá-la sozinha: quem publica é o servidor (api/publicar-evento),
+    // depois de conferir o pagamento. Convidados (logados) só leem listas publicadas.
+    match /eventos/{id} {
+      allow read: if admin() || (logado() && (resource.data.dono == request.auth.uid || resource.data.publicado == true));
+      allow create: if logado()
+        && request.resource.data.dono == request.auth.uid
+        && request.resource.data.publicado == false
+        && request.resource.data.tipo in ['casamento','chabebe','casanova','panela']
+        && request.resource.data.keys().hasOnly(['dono','donoNome','tipo','titulo','data','msg','itens','publicado','criado'])
+        && request.resource.data.itens.size() <= 80;
+      allow update: if logado() && resource.data.dono == request.auth.uid
+        && request.resource.data.dono == resource.data.dono
+        && request.resource.data.publicado == resource.data.publicado
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['donoNome','tipo','titulo','data','msg','itens'])
+        && request.resource.data.tipo in ['casamento','chabebe','casanova','panela']
+        && request.resource.data.itens.size() <= 80;
+      allow delete: if logado() && resource.data.dono == request.auth.uid;
+
+      // Presentes já escolhidos pelos convidados (todos veem "escolhido", ninguém vê por quem)
+      match /marcados/{item} {
+        allow read: if logado();
+        allow create: if logado()
+          && get(/databases/$(database)/documents/eventos/$(id)).data.publicado == true
+          && get(/databases/$(database)/documents/eventos/$(id)).data.dono != request.auth.uid
+          && getAfter(/databases/$(database)/documents/eventos/$(id)/quem/$(item)).data.por == request.auth.uid;
+        allow delete: if logado() && get(/databases/$(database)/documents/eventos/$(id)/quem/$(item)).data.por == request.auth.uid;
+      }
+      // Quem escolheu cada presente: só a própria pessoa (e o administrador) enxerga
+      match /quem/{item} {
+        allow read: if admin() || (logado() && resource.data.por == request.auth.uid);
+        allow create: if logado() && request.resource.data.por == request.auth.uid
+          && get(/databases/$(database)/documents/eventos/$(id)).data.publicado == true;
+        allow delete: if logado() && resource.data.por == request.auth.uid;
+      }
+    }
+
+    // Créditos de lista de evento (1 por compra de R$ 9,90): gravados só pelo servidor ou pelo administrador
+    match /creditos/{e} {
+      allow read: if admin() || (logado() && request.auth.token.email_verified == true && request.auth.token.email.lower() == e);
+      allow write: if admin();
+    }
+
     // Fotos dos itens das listas
     match /fotos/{uid}/itens/{item} { allow read: if logado(); allow write: if dono(uid) || admin(); }
 

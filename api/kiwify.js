@@ -61,6 +61,25 @@ module.exports = async (req, res) => {
   const anual = /year|annual|anual/.test(freq) || /anual/.test(nomeProd);
   const dias = anual ? (+process.env.PLUS_DIAS_ANUAL || 368) : (+process.env.PLUS_DIAS_MENSAL || 33);
 
+  // 3b. Compra da LISTA DE EVENTO (R$ 9,90): soma 1 crédito para o e-mail e termina aqui.
+  // O produto é reconhecido pelo nome (padrão: contém "lista de evento") ou por EVENTO_PRODUTO_ID.
+  const prod = b.Product || {};
+  const idEnv = process.env.EVENTO_PRODUTO_ID, nomeEnv = String(process.env.EVENTO_PRODUTO_NOME || 'lista de evento').toLowerCase();
+  const ehEvento = (idEnv && String(prod.product_id || '') === idEnv) || nomeProd.includes(nomeEnv);
+  if (ehEvento) {
+    const pedido = String(b.order_id || '');
+    const cref = db.doc('creditos/' + email.replace(/\//g, '_'));
+    const r = await db.runTransaction(async (t) => {
+      const s = await t.get(cref); const c = s.exists ? s.data() : {};
+      const pedidos = Array.isArray(c.pedidos) ? c.pedidos : [];
+      const ja = pedido && pedidos.includes(pedido);
+      if (acao === 'ativar' && !ja) { t.set(cref, { email, saldo: (c.saldo || 0) + 1, pedidos: pedido ? [...pedidos, pedido].slice(-50) : pedidos, atualizado: admin.firestore.Timestamp.now() }, { merge: true }); return 'credito +1'; }
+      if (acao === 'desligar' && ja) { t.set(cref, { saldo: Math.max(0, (c.saldo || 0) - 1), pedidos: pedidos.filter((x) => x !== pedido), atualizado: admin.firestore.Timestamp.now() }, { merge: true }); return 'credito -1'; }
+      return 'nada';
+    });
+    return res.status(200).json({ ok: true, evento: r });
+  }
+
   const agora = new Date();
   const ref = db.doc('assinaturas/' + email.replace(/\//g, '_'));
   const antes = (await ref.get()).data() || {};

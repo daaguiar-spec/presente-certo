@@ -15,7 +15,10 @@ Tempo estimado: 30 a 40 minutos, sem precisar programar.
 | `index.html` | O PresenteCerto inteiro (telas, Mural, fichas, Amigo secreto, Painel) |
 | `firebase-config.js` | Onde você cola os dados do seu projeto Firebase (passo 4) |
 | `firestore.rules` | Regras de segurança do banco de dados (passo 3) |
+| `api/produto.js` | Lê o nome e a foto de um produto pelo link, para cadastrar Ofertas da semana |
+| `api/publicar-evento.js` | Libera o link de uma lista de evento (usa 1 crédito, comprado ou dado pelo administrador) |
 | `api/sugestoes.js` | Função que gera as sugestões de presente com IA |
+| `cidades/` | Lista oficial de cidades do IBGE, um arquivo por estado (usada na busca de cidade) |
 | `seed/dados-iniciais.json` | Seus dados da versão de teste, para importar no Painel (passo 9) |
 | `manifest.json` e `icon.svg` | Nome e ícone quando alguém instala o site no celular |
 

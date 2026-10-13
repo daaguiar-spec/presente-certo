@@ -144,6 +144,18 @@ button.chip{cursor:pointer}
 .holidays{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
 .holiday{flex:none;background:var(--ribbon-soft);color:var(--ribbon);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600}
 .holiday span{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.ev-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;font:inherit;color:var(--fg);cursor:pointer}
+.ev-card:hover{border-color:var(--accent)}
+.ev-emo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex:none}
+.ev-info{display:flex;flex-direction:column;min-width:0;flex:1}
+.ev-hero{display:flex;gap:14px;align-items:flex-start;border-radius:var(--r);padding:18px;color:#2a2230}
+.ev-hero .eyebrow,.ev-hero .small{color:#5a4d63}
+.ev-big{font-size:40px;line-height:1}
+.ev-item{display:flex;align-items:center;gap:10px;background:var(--sunk);border-radius:12px;padding:10px 12px}
+.ev-item>div:first-child{flex:1}
+.ev-item.ev-off .t{text-decoration:line-through;color:var(--muted)}
+.ev-tag{font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.ev-tag.off{background:var(--line);color:var(--muted)}
 .empty{text-align:center;color:var(--muted);padding:24px 16px;border:1.5px dashed var(--line);border-radius:var(--r);display:flex;flex-direction:column;gap:10px;align-items:center}
 .tag-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .tag-head{background:var(--accent-soft);padding:18px 16px;display:flex;gap:14px;align-items:center;position:relative}
@@ -350,6 +362,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   <button class="mais-item" data-mais="desejo" role="menuitem"><span>🎁</span>Adicionar presente à minha lista</button>
   <button class="mais-item" data-mais="precisa" role="menuitem"><span>🆘</span>Adicionar em “Precisando com urgência”</button>
   <button class="mais-item" data-mais="sorteio" role="menuitem"><span>🎲</span>Amigo secreto</button>
+  <button class="mais-item" data-mais="evento" role="menuitem"><span>🎉</span>Lista de evento (casamento, chá de bebê…)</button>
   <button class="mais-item" data-mais="convidar" role="menuitem"><span>💌</span>Convidar amigos</button>
 </div></div>
 
@@ -708,7 +721,7 @@ function pixBox(v,valor){
 }
 
 /* ---------- render ---------- */
-function setTab(t){tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
+function setTab(t){if(t!=='eventos'&&evAberto)evFechar();tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
 document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
 document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
 function keep(fn){const y=window.scrollY;const xs=[...document.querySelectorAll('.ofertas')].map(l=>l.scrollLeft);fn();window.scrollTo(0,y);if(xs.some(Boolean))document.querySelectorAll('.ofertas').forEach((l,i)=>{if(xs[i]){l.style.scrollBehavior='auto';l.scrollLeft=xs[i];l.style.scrollBehavior=''}});if(xs.length)ofSetas()}
@@ -728,6 +741,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='conta')renderConta();
   else if(tab==='sugestao')renderSugestao();
   else if(tab==='ofertas')renderOfertas();
+  else if(tab==='eventos')renderEventos();
   else if(tab==='aparencia')renderAparencia();
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
@@ -864,6 +878,7 @@ function renderMenu(){
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="ficha">Minha ficha</button>
+   <button class="menu-item" data-menu="eventos">Listas de evento</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
@@ -880,6 +895,7 @@ document.addEventListener('click',e=>{
   if(a==='sairOk'){if(user&&user.logout)user.logout().then(()=>location.reload());return}
   if(!sairDaFicha())return;
   if(a==='ficha')setTab('perfil');
+  if(a==='eventos'){evFechar();setTab('eventos')}
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
@@ -960,6 +976,7 @@ function renderMural(){
   let h=`<div class="view"><div><h1>Novidades</h1><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
+  if(!Object.keys(meusEv).length)h+=`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   h+=ofertasSemana();
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
@@ -1536,7 +1553,7 @@ function renderAdmin(){
   // 5 usuários
   const lista=vis.map(([id,p])=>({id,p,c:completude(p).pct,t:Date.parse(p.atualizado||'')||0})).sort((a,b)=>b.t-a.t);
   h+=`<section class="panel"><h2>Usuários</h2><p class="lede" style="margin:0">Todas as pessoas com ficha, da atualização mais recente para a mais antiga.</p><div>${lista.map(u=>`<div class="urow"><img src="${esc(av(u.id))}" alt=""><div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.id===myId?(myName||'Você')+' (você)':nm(u.id))}</div><div class="small" style="color:var(--muted)">Ficha ${u.c}% · ${seguidores(u.id)} ${seguidores(u.id)===1?'seguidor':'seguidores'}${u.p.fechado?' · perfil fechado':''}${u.t?' · atualizou '+ago(u.t):''}</div></div><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="when ${u.c===100?'':'soon'}">${u.c}%</span><button class="btn small ${isPlus(u.id)?'on':'ghost'}" data-act="togglePlus" data-id="${esc(u.id)}" title="${isPlus(u.id)?'Plus até '+esc(plusAte(u.id))+'. Toque para desligar':'Ligar o Plus por 1 ano'}">${isPlus(u.id)?'Plus ✓':'Plus'}</button></span></div>`).join('')||'<span class="muted">Ninguém ainda.</span>'}</div></section>`;
-  h+=plusAdmin();
+  h+=plusAdmin();h+=eventosAdmin();
   // 6 moderação
   const mod=config.moderados||[];
   h+=`<section class="panel"><h2>Moderação</h2><p class="lede" style="margin:0">Todas as mensagens de parabéns. Ocultar esconde a mensagem para todos, sem apagar.</p>${msgs.length?msgs.slice(0,50).map(m=>{const hid=mod.includes(m.id);return `<div class="msg-card" style="${hid?'opacity:.55':''}"><img src="${esc(av(m.from))}" alt=""><div style="min-width:0"><div><b>${esc(nm(m.from))}</b> para <b>${esc(nm(m.para))}</b> <span class="small" style="color:var(--muted)">${ago(Date.parse(m.data))}</span></div><div style="overflow-wrap:anywhere">${esc(m.texto)}</div><div class="item-actions"><button class="link ${hid?'alt':''}" data-act="moderar" data-mid="${esc(m.id)}">${hid?'Mostrar de novo':'Ocultar para todos'}</button></div></div></div>`}).join(''):'<span class="muted">Nenhuma mensagem ainda.</span>'}</section>`;
@@ -1567,7 +1584,7 @@ function renderAdmin(){
    <div class="inline-form" style="gap:4px"><div class="row between"><b>Instalar no celular (fixo)</b><span class="when ${config.popupInstalar===false?'':'soon'}">${config.popupInstalar===false?'desligado':'no ar'}</span></div>
      <span class="small" style="color:var(--muted)">Aparece para quem usa pelo navegador e ainda não instalou. Vem antes dos outros destaques. "Já instalei" esconde de vez naquele celular.</span>
      <label class="f" style="margin-top:4px">Quantas vezes aparece<select data-instfreq>${Object.entries(INST_FREQ).map(([k,v])=>`<option value="${k}" ${(config.instalarFreq||'dia')===k?'selected':''}>${v}</option>`).join('')}</select></label>
-     <div class="item-actions"><button class="link" data-act="previaInstalar">Ver prévia</button><button class="link alt" data-act="toggleInstalar">${config.popupInstalar===false?'Ligar':'Desligar'}</button></div></div>
+     <div class="item-actions"><button class="link" data-act="previaInstalar">Ver prévia</button><button class="link" data-act="zerarInstalar">Voltar a mostrar neste aparelho</button><button class="link alt" data-act="toggleInstalar">${config.popupInstalar===false?'Ligar':'Desligar'}</button></div></div>
    ${form&&form.type==='novoDq'?dqForm(form.rascunho||{},-1):`<div class="row"><button class="btn small ghost" data-act="novoDq">Criar destaque</button></div>`}</section>`;
   // 8 avisos
   const avs=avisosList();const PUB={todos:'Todos',plus:'Só assinantes Plus',free:'Só quem não é Plus'};
@@ -1823,6 +1840,166 @@ async function buscarProduto(){
 }
 
 
+/* ---------- listas de evento (casamento, chá de bebê, casa nova, chá de panela) ---------- */
+const EV_TIPOS={
+  casamento:{n:'Casamento',e:'💍',cor:'linear-gradient(135deg,#fdeef4,#f4d6e6)',ph:'Ex.: Casamento de Ana e Bruno',
+    msg:'Estamos nos casando! 💍 Veja a nossa lista de presentes e escolha o que quiser nos dar:',
+    sug:['Jogo de panelas antiaderente','Conjunto de facas','Jogo de jantar 20 peças','Jogo de taças','Jogo de cama casal','Jogo de toalhas','Air fryer','Liquidificador','Batedeira','Cafeteira','Aspirador de pó robô','Ferro de passar roupa','Edredom casal','Kit de potes herméticos','Jogo de copos','Cesto de roupas','Tábua de corte','Smart TV','Micro-ondas']},
+  chabebe:{n:'Chá de bebê',e:'🍼',cor:'linear-gradient(135deg,#e7f0fd,#cddffa)',ph:'Ex.: Chá de bebê do Miguel',
+    msg:'Vem aí um bebê! 🍼 Veja a lista do chá e escolha um presente:',
+    sug:['Pacote de fraldas RN','Pacote de fraldas P','Pacote de fraldas M','Pacote de fraldas G','Lenços umedecidos','Kit de body e macacão','Kit de mantas','Banheira','Mamadeiras','Chupetas','Babá eletrônica','Cadeirinha de carro','Carrinho de bebê','Toalha com capuz','Kit de higiene do bebê','Berço','Móbile','Trocador portátil','Esterilizador de mamadeira']},
+  casanova:{n:'Casa nova',e:'🏡',cor:'linear-gradient(135deg,#e8f7f4,#c9ece4)',ph:'Ex.: Casa nova da Carla',
+    msg:'Casa nova! 🏡 Veja a nossa lista e escolha um presente:',
+    sug:['Jogo de panelas','Jogo de pratos','Jogo de copos','Jogo de talheres','Jogo de toalhas','Jogo de cama','Aspirador de pó','Cafeteira','Air fryer','Liquidificador','Tapete','Cortina','Luminária','Porta-retratos','Vaso decorativo','Organizador de armário','Cesto de roupas','Kit de potes','Escorredor de louça','Lixeira inox']},
+  panela:{n:'Chá de panela',e:'🍳',cor:'linear-gradient(135deg,#fdf5e6,#f8e2b8)',ph:'Ex.: Chá de panela da Juliana',
+    msg:'Chá de panela! 🍳 Veja a lista e escolha um presente para a cozinha:',
+    sug:['Panela de pressão','Jogo de panelas','Frigideira antiaderente','Conjunto de facas','Tábua de corte','Jogo de potes de vidro','Escorredor de macarrão','Jogo de utensílios de silicone','Espremedor de alho','Ralador','Assadeira','Forma de bolo','Batedeira','Liquidificador','Sanduicheira','Jarra de vidro','Jogo de xícaras','Pano de prato (kit)','Porta-temperos']}
+};
+let meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
+try{const e=new URLSearchParams(location.search).get('e');if(e)pendingEv=e.replace(/[^A-Za-z0-9_-]/g,'')}catch(e){}
+const evPreco=()=>config.eventoPreco||'R$ 9,90';
+const evLink=id=>`${APP_URL}/?e=${encodeURIComponent(id)}`;
+const evData=d=>{if(!d)return '';try{return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}catch(e){return ''}};
+const evFalta=d=>{if(!d)return '';const n=Math.round((new Date(d+'T12:00:00')-new Date(new Date().toDateString()+' 12:00:00'))/864e5);return n>1?`faltam ${n} dias`:n===1?'é amanhã':n===0?'é hoje!':''};
+function evFechar(){evUnsubs.forEach(f=>{try{f()}catch(e){}});evUnsubs=[];evAberto=null;evDoc=undefined;evMarc={};evMinhas={};evEdit=false}
+function evAbrir(id){
+  evFechar();evAberto=id;tab='eventos';viewing=null;form=null;
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected','false'));
+  const d=db.doc('eventos/'+id);
+  evUnsubs.push(d.onSnapshot(s=>{evDoc=s.exists?{id:s.id,...s.data()}:null;if(tab==='eventos')softRender()},()=>{evDoc=null;if(tab==='eventos')softRender()}));
+  evUnsubs.push(d.collection('marcados').onSnapshot(s=>{evMarc={};s.docs.forEach(x=>{evMarc[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
+  evUnsubs.push(d.collection('quem').where('por','==',myId).onSnapshot(s=>{evMinhas={};s.docs.forEach(x=>{evMinhas[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
+  render();window.scrollTo(0,0);
+}
+const evPode=()=>isOwner||(evCred.saldo||0)>=1||(isPlus(myId)&&!evCred.plusGratisUsado);
+const evSalvarItens=itens=>db.doc('eventos/'+evAberto).update({itens}).catch(()=>toast('Não foi possível salvar. Tente de novo.'));
+
+function renderEventos(){
+  if(evAberto)return renderEvento();
+  const lista=Object.entries(meusEv).sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
+  let h=`<div class="view"><div><h1>Listas de evento</h1><p class="lede">Casamento, chá de bebê, casa nova ou chá de panela: monte a lista, compartilhe o link e seus convidados escolhem o presente sem repetir.</p></div>`;
+  if(evForm){
+    const T=EV_TIPOS[evForm.tipo];
+    h+=`<section class="panel"><h2>Nova lista</h2><div class="flabel">Que tipo de evento?</div><div class="chips">${Object.entries(EV_TIPOS).map(([k,v])=>`<button class="chip" aria-pressed="${evForm.tipo===k}" data-ev="tipo" data-v="${k}">${v.e} ${v.n}</button>`).join('')}</div>
+     <label class="f">Nome da lista<input id="evTit" maxlength="60" value="${esc(evForm.titulo||'')}" placeholder="${esc(T.ph)}"></label>
+     <label class="f">Data do evento (opcional)<input id="evDt" type="date" value="${esc(evForm.data||'')}"></label>
+     <label class="f">Mensagem para os convidados (opcional)<textarea id="evMsg" rows="3" maxlength="300" placeholder="Ex.: Nossa casa está quase pronta, só faltam estes itens.">${esc(evForm.msg||'')}</textarea></label>
+     <div class="row"><button class="btn" data-ev="criar">Criar lista</button><button class="link" data-ev="cancelar">Cancelar</button></div></section>`;
+  }else h+=`<div class="row"><button class="btn" data-ev="novo">Criar lista de evento</button></div>`;
+  h+=`<section class="panel hl"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, o valor é <b>${esc(evPreco())}</b> por lista, em pagamento único. Assinantes do Plus ganham 1 lista.${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}</span><span class="small" style="color:var(--muted)">Os convidados marcam o presente que vão dar e você vê só que ele já foi escolhido, sem saber por quem. A surpresa continua.</span></section>`;
+  if(!lista.length&&!evForm)h+=`<div class="empty"><b>Nenhuma lista ainda</b><span>Crie a primeira e já comece com sugestões prontas para o seu tipo de evento.</span></div>`;
+  lista.forEach(([id,e])=>{const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;
+    h+=`<button class="ev-card" data-ev="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${T.cor}">${T.e}</span><span class="ev-info"><b>${esc(e.titulo||T.n)}</b><span class="small" style="color:var(--muted)">${esc(T.n)}${e.data?' · '+esc(evData(e.data)):''} · ${(e.itens||[]).length} ite${(e.itens||[]).length===1?'m':'ns'}</span></span><span class="when ${e.publicado?'soon':''}">${e.publicado?'Publicada':'Rascunho'}</span></button>`});
+  app.innerHTML=h+'</div>';
+}
+
+function renderEvento(){
+  const voltar=`<button class="back" data-ev="voltar">← ${meusEv[evAberto]||(evDoc&&evDoc.dono===myId)?'Minhas listas':'Voltar'}</button>`;
+  if(evDoc===undefined){app.innerHTML=`<div class="view">${voltar}<div class="muted">Carregando a lista…</div></div>`;return}
+  if(!evDoc){app.innerHTML=`<div class="view">${voltar}<div class="empty"><b>Lista não encontrada</b><span>O link pode estar errado, ou a lista ainda não foi publicada pelo dono.</span></div></div>`;return}
+  const e=evDoc,T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento,dono=e.dono===myId,itens=e.itens||[];
+  const escolhidos=itens.filter(i=>evMarc[i.id]).length;
+  let h=`<div class="view">${voltar}<section class="ev-hero" style="background:${T.cor}"><span class="ev-big">${T.e}</span><div><div class="eyebrow">${esc(T.n)}</div><h1 style="margin:2px 0 0">${esc(e.titulo||T.n)}</h1>${e.data?`<div class="small" style="margin-top:4px">${esc(evData(e.data))}${evFalta(e.data)?' · '+esc(evFalta(e.data)):''}</div>`:''}${e.msg?`<p style="margin:10px 0 0">${esc(e.msg)}</p>`:''}<div class="small" style="color:var(--muted);margin-top:8px">Organizada por ${esc(dono?'você':(e.donoNome||nm(e.dono)))}</div></div></section>`;
+
+  if(dono){
+    if(!e.publicado){
+      h+=`<div class="notice"><b>Rascunho.</b> Só você vê esta lista. Monte os itens e, quando estiver pronta, publique para liberar o link aos convidados.</div>`;
+      if(evPode()){
+        const gratis=isOwner?'Administrador: sem custo.':(evCred.saldo||0)>=1?`Vai usar 1 dos seus ${evCred.saldo} créditos.`:'Esta é a lista grátis do seu Plus.';
+        h+=`<section class="panel hl"><b>Pronta para compartilhar?</b><span class="small">${esc(gratis)}</span><div class="row"><button class="btn" data-ev="publicar">Publicar e liberar o link</button></div></section>`;
+      }else{
+        h+=`<section class="panel hl"><b>Liberar o link para os convidados</b><span class="small">Pagamento único de <b>${esc(evPreco())}</b> por lista. Depois do pagamento a liberação é automática.</span>
+         ${safeLink(config.eventoLink)?`<div class="row"><a class="btn" href="${esc(config.eventoLink)}" target="_blank" rel="noopener" data-track="loja:evento">Liberar o link · ${esc(evPreco())}</a><button class="link" data-ev="credito">Já paguei, atualizar</button></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o crédito aparece aqui sozinho.</span>`:`<span class="small" style="color:var(--muted)">O pagamento será liberado em breve. Você já pode montar a lista.</span>`}</section>`;
+      }
+    }else{
+      const l=evLink(evAberto);
+      h+=`<section class="panel hl"><b>Lista publicada. Compartilhe com os convidados</b><div class="pix-code" style="user-select:all">${esc(l)}</div><div class="row"><button class="btn small" data-ev="compartilhar">Compartilhar</button><button class="btn small ghost" data-ev="copiar">Copiar link</button></div><span class="small" style="color:var(--muted)">Quem abrir o link entra (ou cria a conta) e escolhe um presente. ${itens.length?`${escolhidos} de ${itens.length} já escolhidos.`:''}</span></section>`;
+    }
+    // detalhes
+    if(evEdit){
+      h+=`<section class="panel"><h2>Editar detalhes</h2><label class="f">Nome da lista<input id="edTit" maxlength="60" value="${esc(e.titulo||'')}"></label><label class="f">Data do evento<input id="edDt" type="date" value="${esc(e.data||'')}"></label><label class="f">Mensagem<textarea id="edMsg" rows="3" maxlength="300">${esc(e.msg||'')}</textarea></label><div class="row"><button class="btn small" data-ev="salvarDet">Salvar</button><button class="link" data-ev="editFim">Cancelar</button></div></section>`;
+    }
+    h+=`<section class="panel"><div class="row between"><h2>Itens da lista (${itens.length})</h2><button class="link" data-ev="editar">Editar detalhes</button></div>`;
+    if(!itens.length)h+=`<div class="muted">Ainda sem itens. Toque nas sugestões abaixo ou escreva o seu.</div>`;
+    h+=`<div class="wish">${itens.map(i=>`<div class="ev-item"><div style="min-width:0"><div class="t">${esc(i.nome)}</div>${safeLink(i.link)?`<a class="small" href="${esc(i.link)}" target="_blank" rel="noopener">Ver link</a>`:''}</div>${evMarc[i.id]?'<span class="ev-tag">✓ Já escolhido</span>':''}<button class="link" data-ev="del" data-id="${esc(i.id)}" aria-label="Remover ${esc(i.nome)}">Remover</button></div>`).join('')}</div>
+     <div class="grid2"><label class="f">Novo item<input id="itNome" maxlength="80" placeholder="Ex.: Jogo de panelas"></label><label class="f">Link do produto (opcional)<input id="itLink" autocapitalize="off" placeholder="Cole o link da loja"></label></div>
+     <div class="row"><button class="btn small" data-ev="addItem" ${itens.length>=80?'disabled':''}>Adicionar item</button></div>`;
+    const jaTem=new Set(itens.map(i=>semAcento(i.nome)));const faltam=T.sug.filter(s=>!jaTem.has(semAcento(s)));
+    if(faltam.length&&itens.length<80)h+=`<div class="flabel">Sugestões para ${esc(T.n.toLowerCase())}</div><div class="chips">${faltam.map(s=>`<button class="chip" data-ev="sug" data-v="${esc(s)}">+ ${esc(s)}</button>`).join('')}</div><div><button class="link" data-ev="sugTodas">Adicionar todas as sugestões</button></div>`;
+    h+=`</section><div class="row"><button class="link" data-ev="excluir" style="color:var(--warn)">Excluir esta lista</button></div>`;
+  }else{
+    h+=`<section class="panel"><h2>Escolha um presente</h2><span class="small" style="color:var(--muted)">Toque em “Vou dar este” para ninguém repetir. O dono da lista não vê quem escolheu o quê.</span>`;
+    if(!itens.length)h+=`<div class="muted">O dono ainda não colocou itens.</div>`;
+    h+=`<div class="wish">${itens.map(i=>{const meu=evMinhas[i.id],outro=evMarc[i.id]&&!meu;
+      return `<div class="ev-item${outro?' ev-off':''}"><div style="min-width:0"><div class="t">${esc(i.nome)}</div>${safeLink(i.link)?`<a class="small" href="${esc(affiliate(i.link))}" target="_blank" rel="noopener sponsored" data-track="loja:evento-item">Ver na loja</a>`:(outro?'':shopLinks(i.nome))}</div>${meu?`<span class="ev-tag">✓ Você vai dar</span><button class="link" data-ev="desmarcar" data-id="${esc(i.id)}">Desfazer</button>`:outro?'<span class="ev-tag off">Já escolhido</span>':`<button class="btn small" data-ev="marcar" data-id="${esc(i.id)}">Vou dar este</button>`}</div>`}).join('')}</div></section>`;
+  }
+  app.innerHTML=h+'</div>';
+}
+
+async function evPublicar(){
+  const u=window.firebase&&firebase.auth().currentUser;if(!u){toast('Entre na sua conta');return}
+  toast('Publicando…');
+  try{
+    const t=await u.getIdToken();
+    const r=await fetch('/api/publicar-evento',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({id:evAberto})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok){toast('Lista publicada! Agora é só compartilhar o link.');return}
+    toast(j.erro==='sem_credito'?'Você ainda não tem crédito. Faça o pagamento para liberar.':j.erro==='email_nao_verificado'?'Confirme o e-mail da sua conta para publicar.':'Não foi possível publicar agora. Tente de novo.');
+  }catch(e){toast('Sem conexão. Tente de novo.')}
+}
+function evCompartilhar(){
+  const e=evDoc;if(!e)return;const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;const l=evLink(evAberto);
+  const txt=`${T.msg} ${l}`;
+  if(navigator.share)navigator.share({title:e.titulo||T.n,text:T.msg,url:l}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');
+}
+function evLerForm(p){return {titulo:val(p+'Tit').slice(0,60),data:val(p+'Dt'),msg:val(p+'Msg').slice(0,300)}}
+app.addEventListener('click',async ev=>{
+  const b=ev.target.closest&&ev.target.closest('[data-ev]');if(!b||!db||!myId)return;
+  const ds=b.dataset,a=ds.ev;
+  switch(a){
+    case 'novo': evForm={tipo:'casamento'};keep(render);break;
+    case 'cancelar': evForm=null;keep(render);break;
+    case 'tipo': {const antes=evLerForm('ev');evForm={...evForm,...antes,tipo:ds.v};keep(render);break}
+    case 'criar': {const f=evLerForm('ev');const T=EV_TIPOS[evForm.tipo];
+      const ref=db.collection('eventos').doc();
+      try{await ref.set({dono:myId,donoNome:(myName||'').split(' ')[0].slice(0,30),tipo:evForm.tipo,titulo:f.titulo||T.n,data:f.data||'',msg:f.msg,itens:[],publicado:false,criado:Date.now()});evForm=null;toast('Lista criada');evAbrir(ref.id)}
+      catch(e){toast('Não foi possível criar a lista.')}break}
+    case 'abrir': evAbrir(ds.id);break;
+    case 'abrirLista': evFechar();setTab('eventos');break;
+    case 'voltar': if(meusEv[evAberto]||(evDoc&&evDoc.dono===myId)){evFechar();render();window.scrollTo(0,0)}else{evFechar();setTab('mural')}break;
+    case 'publicar': evPublicar();break;
+    case 'credito': try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():{};toast((evCred.saldo||0)>0?'Crédito encontrado! Já pode publicar.':'Ainda não apareceu. Pode levar alguns minutos depois do pagamento.');keep(render)}catch(e){toast('Não foi possível conferir agora.')}break;
+    case 'copiar': navigator.clipboard&&navigator.clipboard.writeText(evLink(evAberto)).then(()=>toast('Link copiado'),()=>toast('Não foi possível copiar'));break;
+    case 'compartilhar': evCompartilhar();break;
+    case 'editar': evEdit=true;keep(render);break;
+    case 'editFim': evEdit=false;keep(render);break;
+    case 'salvarDet': {const f=evLerForm('ed');db.doc('eventos/'+evAberto).update({titulo:f.titulo||(EV_TIPOS[evDoc.tipo]||{}).n||'Lista',data:f.data||'',msg:f.msg}).then(()=>{evEdit=false;toast('Detalhes salvos')}).catch(()=>toast('Não foi possível salvar.'));break}
+    case 'addItem': {const n=val('itNome').replace(/\s+/g,' ');if(!n){toast('Escreva o nome do item');break}let l=val('itLink').replace(/\s+/g,'');if(l&&!/^https?:\/\//i.test(l))l='https://'+l;
+      if((evDoc.itens||[]).length>=80){toast('Máximo de 80 itens');break}
+      evSalvarItens([...(evDoc.itens||[]),{id:uid(),nome:n.slice(0,80),link:safeLink(l)?l.slice(0,500):''}]);break}
+    case 'sug': if((evDoc.itens||[]).length<80)evSalvarItens([...(evDoc.itens||[]),{id:uid(),nome:ds.v,link:''}]);break;
+    case 'sugTodas': {const T=EV_TIPOS[evDoc.tipo]||EV_TIPOS.casamento;const tem=new Set((evDoc.itens||[]).map(i=>semAcento(i.nome)));
+      evSalvarItens([...(evDoc.itens||[]),...T.sug.filter(s=>!tem.has(semAcento(s))).map(s=>({id:uid(),nome:s,link:''}))].slice(0,80));break}
+    case 'del': evSalvarItens((evDoc.itens||[]).filter(i=>i.id!==ds.id));break;
+    case 'excluir': if(confirm('Excluir esta lista? Isso não pode ser desfeito.')){const id=evAberto;db.doc('eventos/'+id).delete().then(()=>{evFechar();toast('Lista excluída');render()}).catch(()=>toast('Não foi possível excluir.'))}break;
+    case 'marcar': {const bt=db.batch();
+      bt.set(db.doc(`eventos/${evAberto}/quem/${ds.id}`),{por:myId});bt.set(db.doc(`eventos/${evAberto}/marcados/${ds.id}`),{em:Date.now()});
+      bt.commit().then(()=>toast('Combinado! Este presente é seu.')).catch(()=>toast('Alguém acabou de escolher este presente.'));break}
+    case 'desmarcar': {const bt=db.batch();bt.delete(db.doc(`eventos/${evAberto}/marcados/${ds.id}`));bt.delete(db.doc(`eventos/${evAberto}/quem/${ds.id}`));
+      bt.commit().then(()=>toast('Escolha desfeita')).catch(()=>toast('Não foi possível desfazer.'));break}
+    case 'salvarCfg': {let l=val('evLinkCfg').replace(/\s+/g,'');if(l&&!/^https?:\/\//i.test(l))l='https://'+l;saveConfig({...config,eventoLink:l.slice(0,300),eventoPreco:val('evPrecoCfg').slice(0,40)},'Dados da lista de evento salvos');break}
+    case 'darCredito': {const em=val('evCredEmail').toLowerCase();if(!/^\S+@\S+\.\S+$/.test(em)){toast('Digite um e-mail válido');break}
+      db.doc('creditos/'+em.replace(/\//g,'_')).set({email:em,saldo:window.firebase.firestore.FieldValue.increment(1)},{merge:true}).then(()=>toast('1 crédito dado a '+em)).catch(()=>toast('Não foi possível dar o crédito.'));break}
+  }
+});
+function eventosAdmin(){
+  return `<section class="panel"><h2>Listas de evento (R$ 9,90 por lista)</h2><p class="lede" style="margin:0">Casamento, chá de bebê, casa nova e chá de panela. A pessoa monta de graça e paga para liberar o link. Crie na Kiwify um produto de pagamento único chamado <b>Lista de Evento PresenteCerto</b> (o nome precisa conter “lista de evento”) e cole o link de pagamento abaixo. O webhook que você já cadastrou dá o crédito sozinho.</p>
+   <div class="grid2"><label class="f">Link de pagamento da lista<input id="evLinkCfg" autocapitalize="off" value="${esc(config.eventoLink||'')}" placeholder="Ex.: pay.kiwify.com.br/..."></label><label class="f">Preço exibido<input id="evPrecoCfg" value="${esc(config.eventoPreco||'')}" placeholder="R$ 9,90"></label></div>
+   <div class="row"><button class="btn small ghost" data-ev="salvarCfg">Salvar</button></div>
+   <div class="flabel">Dar 1 crédito de presente (cortesia ou suporte)</div>
+   <div class="row" style="flex-wrap:nowrap"><input id="evCredEmail" autocapitalize="off" placeholder="email@da.pessoa.com"><button class="btn small" data-ev="darCredito">Dar crédito</button></div></section>`;
+}
+
 /* ---------- botão + do menu de baixo ---------- */
 (function(){
   const btn=document.getElementById('maisBtn'),ov=document.getElementById('maisOv');if(!btn||!ov)return;
@@ -1831,9 +2008,10 @@ async function buscarProduto(){
   ov.addEventListener('click',e=>{if(e.target===ov){abrir(false);return}const it=e.target.closest('[data-mais]');if(!it)return;abrir(false);
     if(!db||!myId){toast('Entre na sua conta primeiro');return}
     const k=it.dataset.mais;
-    if(tab==='perfil'&&!viewing&&dirty&&(k==='sorteio'||k==='convidar')){toast('Salve sua ficha antes de sair');return}
+    if(tab==='perfil'&&!viewing&&dirty&&(k==='sorteio'||k==='convidar'||k==='evento')){toast('Salve sua ficha antes de sair');return}
     if(k==='desejo'||k==='precisa'){const n=k==='desejo'?PASSOS.indexOf('Pretendo ganhar'):PASSOS.indexOf('Precisando');if(tab==='perfil'&&!viewing){irPasso(n)}else{fichaStep=n;setTab('perfil')}}
     else if(k==='sorteio')setTab('sorteio');
+    else if(k==='evento'){evFechar();setTab('eventos')}
     else if(k==='convidar'){const txt=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e o que pretendo ganhar, e vejo os seus também. Entra e cria a sua ficha: ${location.origin}`;
       if(navigator.share)navigator.share({title:'PresenteCerto',text:txt}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
   });
@@ -2220,6 +2398,7 @@ app.addEventListener('click',e=>{
     case 'fbRespEnviar': responderSugestao(ds.id);break;
     case 'fbExcluir': if(confirm('Excluir esta sugestão?'))db.doc('feedback/'+ds.id).delete().then(()=>toast('Sugestão excluída')).catch(()=>toast('Não foi possível excluir.'));break;
     case 'previaInstalar': abrirInstalar(true);break;
+    case 'zerarInstalar': {try{localStorage.removeItem('instalarPop')}catch(e){}if(appInstalado()){toast('Neste aparelho o PresenteCerto já está instalado, então a janela não aparece. Use Ver prévia.');break}toast('Pronto! A janela vai aparecer de novo neste aparelho.');abrirInstalar(false);break}
     case 'toggleInstalar': saveConfig({...config,popupInstalar:config.popupInstalar===false},config.popupInstalar===false?'Pop-up de instalar ligado':'Pop-up de instalar desligado');break;
     case 'verOfertas': setTab('ofertas');break;
     case 'ofVoltar': setTab('mural');break;
@@ -2359,6 +2538,7 @@ async function start(){
     aparOk=true;tentarInicio()},()=>{aparOk=true;tentarInicio()});
   db.doc(`data/users/${myId}/notificacoes`).onSnapshot(s=>{if(s.exists){const d=s.data();notifEstado={lidoAte:d.lidoAte||0,lidos:[...(d.lidos||[])],desligados:[...(d.desligados||[])]}}else if(!notifEstado.lidoAte){notifEstado={...notifEstado,lidoAte:Date.now()-7*864e5};salvarNotif()}atualizarSino();if(notifAberto)renderSino()},()=>{});
   render();
+  if(pendingEv){const pe=pendingEv;pendingEv=null;try{history.replaceState(null,'',location.pathname)}catch(e){}evAbrir(pe)}
   claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
   const err=()=>toast('Conexão perdida. Recarregue a página.');
   const coll=(path,setter)=>db.collection(path).onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});setter(n);refresh(Object.keys(n))},err);
@@ -2372,6 +2552,8 @@ async function start(){
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
+  db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});if(tab==='eventos'&&!evAberto)softRender()},()=>{});
+  if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
