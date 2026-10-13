@@ -852,7 +852,7 @@ document.addEventListener('click',e=>{
   if(notifAberto&&!e.target.closest('#sinoBox')){notifAberto=false;renderSino()}
   if(menuAberto&&!e.target.closest('#menuBox')&&!e.target.closest('#meBtn')){menuAberto=false;menuSair=false;renderMenu()}
 },true);
-document.addEventListener('change',e=>{if(e.target.id==='ofImg'&&typeof ofGuardar==='function'){ofGuardar();keep(render);return}const fs=e.target.dataset&&e.target.dataset.fbstatus;if(fs&&isOwner){db.doc('feedback/'+fs).update({status:e.target.value}).then(()=>toast('Situação: '+FB_STATUS[e.target.value])).catch(()=>toast('Não foi possível mudar a situação.'));return}const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
+document.addEventListener('change',e=>{if(e.target.hasAttribute&&e.target.hasAttribute('data-instfreq')&&isOwner){const v=e.target.value;saveConfig({...config,instalarFreq:v},'Instalar no celular: '+INST_FREQ[v].toLowerCase());return}if(e.target.id==='ofImg'&&typeof ofGuardar==='function'){ofGuardar();keep(render);return}const fs=e.target.dataset&&e.target.dataset.fbstatus;if(fs&&isOwner){db.doc('feedback/'+fs).update({status:e.target.value}).then(()=>toast('Situação: '+FB_STATUS[e.target.value])).catch(()=>toast('Não foi possível mudar a situação.'));return}const ap=e.target.dataset&&e.target.dataset.apcheck;if(ap&&aparDraft){aparDraft[ap]=e.target.checked;aplicarTema(aparDraft);return}const k=e.target.dataset&&e.target.dataset.sinotipo;if(!k)return;const d=new Set(notifEstado.desligados||[]);if(e.target.checked)d.delete(k);else d.add(k);notifEstado={...notifEstado,desligados:[...d]};salvarNotif();atualizarSino()});
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(notifAberto||menuAberto)){notifAberto=false;menuAberto=false;menuSair=false;renderSino();renderMenu()}});
 /* ---------- Menu da foto ---------- */
@@ -1565,7 +1565,8 @@ function renderAdmin(){
      <span class="small" style="color:var(--muted)">${esc([PUB2[x.publico||'todos'],FREQ[x.frequencia||'uma'],x.ir?'botão "'+(x.botao||(x.ir==='link'?'Saiba mais':'Ver agora'))+'" → '+DQ_IR[x.ir]:'sem botão',x.temImagem?'com imagem':'',x.inicio?'de '+new Date(x.inicio+'T12:00').toLocaleDateString('pt-BR'):'',x.fim?'até '+new Date(x.fim+'T12:00').toLocaleDateString('pt-BR'):'',(x.cidades||[]).join(', ')].filter(Boolean).join(' · '))} · ${sumAd('pop:'+x.id,'v')} visualizações · ${sumAd('pop:'+x.id,'c')} cliques</span>
      <div class="item-actions"><button class="link" data-act="previaDq" data-id="${esc(x.id)}">Ver prévia</button><button class="link" data-act="editDq" data-id="${esc(x.id)}">Editar</button><button class="link alt" data-act="pausarDq" data-id="${esc(x.id)}">${x.ativo?'Pausar':'Reativar'}</button>${i>0?`<button class="link" data-act="subirDq" data-id="${esc(x.id)}">Subir na lista</button>`:''}<button class="link" data-act="excluirDq" data-id="${esc(x.id)}">Excluir</button></div></div>`).join(''):'<span class="muted">Nenhum destaque criado.</span>'}
    <div class="inline-form" style="gap:4px"><div class="row between"><b>Instalar no celular (fixo)</b><span class="when ${config.popupInstalar===false?'':'soon'}">${config.popupInstalar===false?'desligado':'no ar'}</span></div>
-     <span class="small" style="color:var(--muted)">Aparece para quem usa pelo navegador e ainda não instalou. Vem antes dos outros destaques. "Agora não" esconde até o dia seguinte; "Já instalei" esconde de vez naquele celular.</span>
+     <span class="small" style="color:var(--muted)">Aparece para quem usa pelo navegador e ainda não instalou. Vem antes dos outros destaques. "Já instalei" esconde de vez naquele celular.</span>
+     <label class="f" style="margin-top:4px">Quantas vezes aparece<select data-instfreq>${Object.entries(INST_FREQ).map(([k,v])=>`<option value="${k}" ${(config.instalarFreq||'dia')===k?'selected':''}>${v}</option>`).join('')}</select></label>
      <div class="item-actions"><button class="link" data-act="previaInstalar">Ver prévia</button><button class="link alt" data-act="toggleInstalar">${config.popupInstalar===false?'Ligar':'Desligar'}</button></div></div>
    ${form&&form.type==='novoDq'?dqForm(form.rascunho||{},-1):`<div class="row"><button class="btn small ghost" data-act="novoDq">Criar destaque</button></div>`}</section>`;
   // 8 avisos
@@ -1592,10 +1593,16 @@ let instalarEvento=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();instalarEvento=e});
 const appInstalado=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
 const sistema=()=>{const u=navigator.userAgent||'';if(/iPhone|iPad|iPod/i.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1))return 'ios';if(/Android/i.test(u))return 'android';return ''};
+const INST_FREQ={sempre:'Toda vez que abrir o site',dia:'Uma vez por dia',semana:'Uma vez por semana',uma:'Só uma vez (até a pessoa fechar)'};
 function instalarPraMostrar(){
   if(config.popupInstalar===false||appInstalado())return false;
-  try{const v=localStorage.getItem('instalarPop');if(v==='nunca'||v===hoje())return false}catch(e){}
-  return true;
+  let v='';try{v=localStorage.getItem('instalarPop')||''}catch(e){}
+  if(v==='nunca')return false;if(!v)return true;
+  const f=config.instalarFreq||'dia';
+  if(f==='sempre')return true;
+  if(f==='uma')return false;
+  if(f==='semana'){const d=Date.parse(v+'T12:00');return !(d&&Date.now()-d<7*864e5)}
+  return v!==hoje();
 }
 function abrirInstalar(previa){
   if(document.querySelector('.dq-ov'))return;
