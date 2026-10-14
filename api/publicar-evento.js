@@ -5,38 +5,38 @@ const ADMIN = String(process.env.ADMIN_EMAIL || 'daaguiar@gmail.com').toLowerCas
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
-  let db, admin;
-  try { ({ db, admin } = require('./_firebase')); }
+  let R;
+  try { R = require('./_robo'); }
   catch (e) { return res.status(500).json({ ok: false, erro: 'config', detalhe: String(e && e.message).slice(0, 160) }); }
-  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  let user;
-  try { user = await admin.auth().verifyIdToken(token); } catch (e) { return res.status(401).json({ ok: false, erro: 'login' }); }
-  const email = String(user.email || '').toLowerCase();
-  const id = String((req.body && req.body.id) || '').replace(/[^A-Za-z0-9_-]/g, '');
-  if (!id) return res.status(400).json({ ok: false, erro: 'id' });
-
-  const evRef = db.doc('eventos/' + id);
-  const crRef = email ? db.doc('creditos/' + email.replace(/\//g, '_')) : null;
-  const plRef = db.doc('planos/' + user.uid);
   try {
-    const out = await db.runTransaction(async (t) => {
-      const ev = await t.get(evRef);
-      if (!ev.exists || ev.data().dono !== user.uid) return { status: 404, erro: 'nao_encontrada' };
-      if (ev.data().publicado) return { status: 200, ja: true };
-      const cr = crRef ? await t.get(crRef) : null;
-      const pl = await t.get(plRef);
-      const c = cr && cr.exists ? cr.data() : {};
-      const verificado = !!user.email_verified;
-      const ehAdmin = verificado && email === ADMIN;
-      const pd = pl.exists ? pl.data() : null;
-      const plus = !!(pd && pd.plus && pd.ate && pd.ate.toDate() > new Date());
+    const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+    const user = token ? await R.usuarioDoToken(token) : null;
+    if (!user) return res.status(401).json({ ok: false, erro: 'login' });
+    const id = String((req.body && req.body.id) || '').replace(/[^A-Za-z0-9_-]/g, '');
+    if (!id) return res.status(400).json({ ok: false, erro: 'id' });
+    const chave = user.email ? user.email.replace(/\//g, '_') : '';
+
+    const out = await R.transacao(async (get) => {
+      const ev = await get('eventos/' + id);
+      if (!ev || ev.data.dono !== user.uid) return { result: { status: 404, erro: 'nao_encontrada' } };
+      if (ev.data.publicado) return { result: { status: 200, ja: true } };
+      const cr = chave ? await get('creditos/' + chave) : null;
+      const pl = await get('planos/' + user.uid);
+      const c = cr ? cr.data : {};
+      const ehAdmin = user.verificado && user.email === ADMIN;
+      const plus = !!(pl && pl.data.plus && pl.data.ate && pl.data.ate > new Date());
+      const writes = [];
       let motivo = '';
       if (ehAdmin) motivo = 'admin';
-      else if (verificado && (c.saldo || 0) >= 1) { motivo = 'credito'; t.set(crRef, { saldo: (c.saldo || 0) - 1, usados: (c.usados || 0) + 1 }, { merge: true }); }
-      else if (plus && !c.plusGratisUsado && crRef) { motivo = 'plus'; t.set(crRef, { plusGratisUsado: true, usados: (c.usados || 0) + 1 }, { merge: true }); }
-      else return { status: 402, erro: verificado ? 'sem_credito' : 'email_nao_verificado' };
-      t.update(evRef, { publicado: true, publicadoEm: admin.firestore.Timestamp.now(), publicadoPor: motivo });
-      return { status: 200, motivo };
+      else if (user.verificado && (c.saldo || 0) >= 1) {
+        motivo = 'credito';
+        writes.push(R.W.set('creditos/' + chave, { saldo: (c.saldo || 0) - 1, usados: (c.usados || 0) + 1 }, { merge: true, pre: cr }));
+      } else if (plus && !c.plusGratisUsado && chave) {
+        motivo = 'plus';
+        writes.push(R.W.set('creditos/' + chave, { plusGratisUsado: true, usados: (c.usados || 0) + 1 }, { merge: true, pre: cr }));
+      } else return { result: { status: 402, erro: user.verificado ? 'sem_credito' : 'email_nao_verificado' } };
+      writes.push(R.W.set('eventos/' + id, { publicado: true, publicadoEm: new Date(), publicadoPor: motivo }, { merge: true, pre: ev }));
+      return { writes, result: { status: 200, motivo } };
     });
     const { status, ...resto } = out;
     return res.status(status).json({ ok: status === 200, ...resto });
