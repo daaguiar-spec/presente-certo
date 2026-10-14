@@ -402,14 +402,15 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-gift .status .row{flex-direction:column;align-items:stretch}
 .pf-need .pf-gimg{--c:#e8890c!important}
 .pf-need .pf-gift{background:color-mix(in srgb,#e8890c 7%,var(--surface))}
-.pf-sizes,.pf-ints{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pf-sizes,.pf-ints{display:flex;flex-wrap:wrap;gap:8px}
+.pf-sizes>*,.pf-ints>*{flex:1 1 calc((100% - (var(--cols,4) - 1) * 8px) / var(--cols,4));min-width:0;box-sizing:border-box}
 .pf-size{background:color-mix(in srgb,var(--c) 14%,var(--surface));border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
 .pf-size .e,.pf-int .e{font-size:28px;line-height:1.2}
 .pf-size .l,.pf-int .l{font-size:12px;font-weight:600;color:var(--fg);overflow-wrap:anywhere}
 .pf-size b{font-family:var(--display);font-size:19px;color:color-mix(in srgb,var(--c) 70%,var(--fg));overflow-wrap:anywhere}
 .pf-int{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
 .pf-kv{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
-@media (max-width:360px){.pf-sizes,.pf-ints{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:360px){.pf-size .l,.pf-int .l{font-size:11px}.pf-size b{font-size:17px}.pf-size .e,.pf-int .e{font-size:24px}}
 </style>
 
 </head>
@@ -1253,8 +1254,8 @@ function renderPerson(id){
   h+=sec('🎁','Pretende ganhar',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
   h+=sec('🚨','Precisando com urgência',(p.precisa||[]).length?`<div class="pf-gifts">${pfItems(id,p.precisa,!self)}</div>`:`<div class="muted">Nada listado no momento.</div>`,'pf-need');
   if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(n),`<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
-  if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
-  if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
+  if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes" style="--cols:${pfCols(sz.length)}">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
+  if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints" style="--cols:${pfCols(gTags.length)}">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
   if((p.cores||[]).length||(p.evitarCores||[]).length)h+=sec('🎨','Cores',`${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}`);
   if(kv.length)h+=sec('📝','Mais sobre '+esc(firstName(id)),`<dl class="kv pf-kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`);
   if(!self)h+=aiBlock(id);
@@ -1269,6 +1270,7 @@ const PF_TAM={'Camiseta':['👕','#22a35a'],'Calça':['👖','#2f6fd6'],'Calçad
 const PF_GOSTO={'Café':'☕','Chá':'🍵','Vinho':'🍷','Cerveja':'🍺','Chocolate':'🍫','Doces':'🍬','Comida japonesa':'🍣','Churrasco':'🍖','Cozinhar':'🍳','Confeitaria':'🧁','Leitura':'📚','Escrever':'✍️','Viagem':'✈️','Praia':'🏖️','Campo e natureza':'🌿','Trilha':'🥾','Camping':'⛺','Futebol':'⚽','Academia':'🏋️','Corrida':'🏃','Ciclismo':'🚴','Natação':'🏊','Yoga':'🧘','Pilates':'🤸','Dança':'💃','Beach tennis':'🎾','Lutas':'🥋','Séries e filmes':'🎬','Anime':'🍥','Música':'🎵','Shows e festivais':'🎤','Teatro':'🎭','Podcasts':'🎧','Games':'🎮','Jogos de tabuleiro':'🎲','Tecnologia':'💻','Fotografia':'📷','Desenho e pintura':'🎨','Artesanato':'🧵','Crochê e tricô':'🧶','Plantas':'🪴','Jardinagem':'🌻','Decoração':'🛋️','Pets':'🐾','Moda':'👗','Maquiagem':'💄','Skincare':'🧴','Perfumes':'🌸','Autocuidado':'🛁','Meditação':'🕯️','Carros':'🚗','Motos':'🏍️','Pescaria':'🎣','Futebol na TV':'📺','Astrologia':'🔮','Espiritualidade':'🙏','Voluntariado':'🤝','Idiomas':'🗣️'};
 const PF_ICONES=[[/rel[oó]gio|smartwatch|watch/,'⌚'],[/t[eê]nis|sapato|sand[aá]lia|chinelo|bota/,'👟'],[/caf[eé]|cafeteira|caneca/,'☕'],[/fone|headphone|airpods|caixa de som/,'🎧'],[/livro|kindle/,'📚'],[/perfume|col[oô]nia/,'🌸'],[/bolsa|mochila|mala/,'👜'],[/camis|blusa|roupa|vestido|cal[cç]a|jaqueta|moletom|short/,'👕'],[/celular|iphone|smartphone|tablet|ipad/,'📱'],[/notebook|computador|teclado|mouse|monitor/,'💻'],[/game|videogame|playstation|xbox|nintendo|jogo/,'🎮'],[/panela|air ?fryer|fritadeira|liquidificador|cozinha|batedeira/,'🍳'],[/maquiagem|batom|skincare|creme/,'💄'],[/flor|planta|vaso/,'🪴'],[/vinho|cerveja|bebida|whisky/,'🍷'],[/chocolate|doce|bombom/,'🍫'],[/viagem|passagem|hotel/,'✈️'],[/brinco|colar|anel|pulseira|joia|j[oó]ia/,'💍'],[/[oó]culos/,'🕶️'],[/bicicleta|bike/,'🚲'],[/c[aâ]mera|foto/,'📷'],[/len[cç]ol|toalha|travesseiro|edredom|cama/,'🛏️'],[/brinquedo|boneca|lego|pel[uú]cia/,'🧸'],[/vale|gift ?card|dinheiro|pix/,'💳']];
 const pfIcone=t=>{const s=String(t||'').toLowerCase();const m=PF_ICONES.find(([r])=>r.test(s));return m?m[1]:'🎁'};
+const pfCols=n=>{if(n<=4)return Math.max(n,1);const r=Math.ceil(n/4);return Math.ceil(n/r)};
 const PF_TONS=['#2f6fd6','#d9467e','#c28a00','#22a35a','#7b4fd1'];
 function pfItems(owner,items,showStatus){
   return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
