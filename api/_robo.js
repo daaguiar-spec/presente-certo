@@ -16,7 +16,7 @@ async function token() {
   const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${KEY}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, returnSecureToken: true })
   });
-  const j = await r.json().catch(() => ({}));A
+  const j = await r.json().catch(() => ({}));
   if (!r.ok || !j.idToken) throw new Error('Login do robô falhou: ' + ((j.error && j.error.message) || r.status));
   cache = { token: j.idToken, exp: Date.now() + Math.max(60, (+j.expiresIn || 3600) - 300) * 1000 };
   return cache.token;
