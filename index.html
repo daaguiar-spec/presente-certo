@@ -1944,7 +1944,7 @@ async function evPublicar(){
     const r=await fetch('/api/publicar-evento',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({id:evAberto})});
     const j=await r.json().catch(()=>({}));
     if(r.ok&&j.ok){toast('Lista publicada! Agora é só compartilhar o link.');return}
-    toast(j.erro==='sem_credito'?'Você ainda não tem crédito. Faça o pagamento para liberar.':j.erro==='email_nao_verificado'?'Confirme o e-mail da sua conta para publicar.':'Não foi possível publicar agora. Tente de novo.');
+    toast(j.erro==='sem_credito'?'Você ainda não tem crédito. Faça o pagamento para liberar.':j.erro==='email_nao_verificado'?'Confirme o e-mail da sua conta para publicar.':'Não foi possível publicar agora. Tente de novo.'+(isOwner?` [${r.status} ${j.erro||''} ${j.detalhe||''}]`:''));
   }catch(e){toast('Sem conexão. Tente de novo.')}
 }
 function evCompartilhar(){
