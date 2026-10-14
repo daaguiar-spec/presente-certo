@@ -1024,10 +1024,10 @@ function renderMural(){
     const nAds=adsElegiveis().length;let posto=0;
     restShown.forEach((e,i)=>{h+=post(e);if(i%3===2&&posto<nAds){h+=adCard(0,null,posto);posto++}});
     h+='</div>';
-    if(!posto)h+=adCard(0);
+    for(;posto<Math.min(nAds,2);posto++)h+=adCard(0,null,posto);
     if(restAll.length>restShown.length)h+=`<div class="row" style="justify-content:center"><button class="btn ghost" data-act="feedMais">Ver mais novidades (${restAll.length-restShown.length})</button></div>`;
   }
-  if(!h.includes('class="panel ad"'))h+=adCard(0);
+  if(!h.includes('class="panel ad"')){const n2=Math.min(adsElegiveis().length,2);for(let i=0;i<n2;i++)h+=adCard(0,null,i)}
   app.innerHTML=h+'</div>';
 }
 function muralParabens(id){
