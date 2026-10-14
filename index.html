@@ -1904,6 +1904,9 @@ function renderEvento(){
   if(dono){
     if(!e.publicado){
       h+=`<div class="notice"><b>Rascunho.</b> Só você vê esta lista. Monte os itens e, quando estiver pronta, publique para liberar o link aos convidados.</div>`;
+      if(!isOwner&&firebase.auth().currentUser&&!firebase.auth().currentUser.emailVerified){
+        h+=`<section class="panel"><b>Confirme seu e-mail</b><span class="small">Para liberar a lista e achar seu pagamento, confirme o e-mail da conta (<b>${esc(firebase.auth().currentUser.email||'')}</b>). Enviamos um link; depois de clicar nele, volte aqui.</span><div class="row"><button class="btn small" data-ev="verEmail">Enviar link de confirmação</button><button class="link" data-ev="verOk">Já confirmei</button></div></section>`;
+      }
       if(evPode()){
         const gratis=isOwner?'Administrador: sem custo.':(evCred.saldo||0)>=1?`Vai usar 1 dos seus ${evCred.saldo} créditos.`:'Esta é a lista grátis do seu Plus.';
         h+=`<section class="panel hl"><b>Pronta para compartilhar?</b><span class="small">${esc(gratis)}</span><div class="row"><button class="btn" data-ev="publicar">Publicar e liberar o link</button></div></section>`;
@@ -1968,7 +1971,9 @@ app.addEventListener('click',async ev=>{
     case 'abrirLista': evFechar();setTab('eventos');break;
     case 'voltar': if(meusEv[evAberto]||(evDoc&&evDoc.dono===myId)){evFechar();render();window.scrollTo(0,0)}else{evFechar();setTab('mural')}break;
     case 'publicar': evPublicar();break;
-    case 'credito': try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():{};toast((evCred.saldo||0)>0?'Crédito encontrado! Já pode publicar.':'Ainda não apareceu. Pode levar alguns minutos depois do pagamento.');keep(render)}catch(e){toast('Não foi possível conferir agora.')}break;
+    case 'verEmail': try{await firebase.auth().currentUser.sendEmailVerification();toast('Enviamos o link para '+firebase.auth().currentUser.email+'. Veja também o spam.')}catch(e){toast(e&&e.code==='auth/too-many-requests'?'Aguarde alguns minutos e tente de novo.':'Não foi possível enviar agora.')}break;
+    case 'verOk': try{await firebase.auth().currentUser.reload();await firebase.auth().currentUser.getIdToken(true);if(firebase.auth().currentUser.emailVerified){toast('E-mail confirmado!');setTimeout(()=>location.reload(),600)}else toast('Ainda não confirmou. Clique no link que enviamos ao seu e-mail.')}catch(e){toast('Não foi possível conferir agora.')}break;
+    case 'credito': try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():{};toast((evCred.saldo||0)>0?'Crédito encontrado! Já pode publicar.':'Ainda não apareceu. Pode levar alguns minutos depois do pagamento.');keep(render)}catch(e){toast(firebase.auth().currentUser&&!firebase.auth().currentUser.emailVerified?'Confirme o e-mail da sua conta primeiro (aviso acima).':'Não foi possível conferir agora.')}break;
     case 'copiar': navigator.clipboard&&navigator.clipboard.writeText(evLink(evAberto)).then(()=>toast('Link copiado'),()=>toast('Não foi possível copiar'));break;
     case 'compartilhar': evCompartilhar();break;
     case 'editar': evEdit=true;keep(render);break;
