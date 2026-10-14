@@ -1855,18 +1855,26 @@ const EV_TIPOS={
     msg:'Chá de panela! 🍳 Veja a lista e escolha um presente para a cozinha:',
     sug:['Panela de pressão','Jogo de panelas','Frigideira antiaderente','Conjunto de facas','Tábua de corte','Jogo de potes de vidro','Escorredor de macarrão','Jogo de utensílios de silicone','Espremedor de alho','Ralador','Assadeira','Forma de bolo','Batedeira','Liquidificador','Sanduicheira','Jarra de vidro','Jogo de xícaras','Pano de prato (kit)','Porta-temperos']}
 };
-let meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
+let listasRec={},meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
 try{const e=new URLSearchParams(location.search).get('e');if(e)pendingEv=e.replace(/[^A-Za-z0-9_-]/g,'')}catch(e){}
 const evPreco=()=>config.eventoPreco||'R$ 9,90';
 const evLink=id=>`${APP_URL}/?e=${encodeURIComponent(id)}`;
 const evData=d=>{if(!d)return '';try{return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}catch(e){return ''}};
 const evFalta=d=>{if(!d)return '';const n=Math.round((new Date(d+'T12:00:00')-new Date(new Date().toDateString()+' 12:00:00'))/864e5);return n>1?`faltam ${n} dias`:n===1?'é amanhã':n===0?'é hoje!':''};
 function evFechar(){evUnsubs.forEach(f=>{try{f()}catch(e){}});evUnsubs=[];evAberto=null;evDoc=undefined;evMarc={};evMinhas={};evEdit=false}
+function evLembrar(){
+  const e=evDoc;if(!e||!e.publicado||!myId||e.dono===myId||evAberto!==e.id)return;
+  const a=listasRec[e.id];
+  if(a&&a.t===(e.titulo||'')&&a.d===(e.data||'')&&a.dn===(e.donoNome||'')&&a.tp===(e.tipo||''))return;
+  const next={...listasRec,[e.id]:{t:e.titulo||'',tp:e.tipo||'',d:e.data||'',dn:e.donoNome||'',v:(a&&a.v)||Date.now()}};
+  const ids=Object.keys(next);if(ids.length>100){ids.sort((x,y)=>(next[x].v||0)-(next[y].v||0)).slice(0,ids.length-100).forEach(k=>delete next[k])}
+  listasRec=next;db.doc(`data/users/${myId}/listasRecebidas`).set({lista:next}).catch(()=>{});
+}
 function evAbrir(id){
   evFechar();evAberto=id;tab='eventos';viewing=null;form=null;
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected','false'));
   const d=db.doc('eventos/'+id);
-  evUnsubs.push(d.onSnapshot(s=>{evDoc=s.exists?{id:s.id,...s.data()}:null;if(tab==='eventos')softRender()},()=>{evDoc=null;if(tab==='eventos')softRender()}));
+  evUnsubs.push(d.onSnapshot(s=>{evDoc=s.exists?{id:s.id,...s.data()}:null;evLembrar();if(tab==='eventos')softRender()},()=>{evDoc=null;if(tab==='eventos')softRender()}));
   evUnsubs.push(d.collection('marcados').onSnapshot(s=>{evMarc={};s.docs.forEach(x=>{evMarc[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
   evUnsubs.push(d.collection('quem').where('por','==',myId).onSnapshot(s=>{evMinhas={};s.docs.forEach(x=>{evMinhas[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
   render();window.scrollTo(0,0);
@@ -1877,6 +1885,13 @@ const evSalvarItens=itens=>db.doc('eventos/'+evAberto).update({itens}).catch(()=
 function renderEventos(){
   if(evAberto)return renderEvento();
   const lista=Object.entries(meusEv).sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
+  const rec=Object.entries(listasRec).filter(([id])=>!meusEv[id]).sort((a,b)=>(b[1].v||0)-(a[1].v||0));
+  let recHtml='';
+  if(rec.length){
+    recHtml=`<h2 style="margin:6px 0 2px">Listas que recebi</h2><p class="small" style="color:var(--muted);margin:0 0 8px">Listas de presentes que você abriu por link. Toque para escolher ou conferir.</p>`;
+    rec.forEach(([id,e])=>{const T=EV_TIPOS[e.tp]||EV_TIPOS.casamento;
+      recHtml+=`<div class="row" style="align-items:center;gap:6px;margin-bottom:8px"><button class="ev-card" style="flex:1;margin:0" data-ev="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${T.cor}">${T.e}</span><span class="ev-info"><b>${esc(e.t||T.n)}</b><span class="small" style="color:var(--muted)">${esc(T.n)}${e.dn?' · de '+esc(e.dn):''}${e.d?' · '+esc(evData(e.d)):''}</span></span></button><button class="link" data-ev="esquecer" data-id="${esc(id)}" aria-label="Remover da minha lista">Remover</button></div>`});
+  }
   let h=`<div class="view"><div><h1>Listas de evento</h1><p class="lede">Casamento, chá de bebê, casa nova ou chá de panela: monte a lista, compartilhe o link e seus convidados escolhem o presente sem repetir.</p></div>`;
   if(evForm){
     const T=EV_TIPOS[evForm.tipo];
@@ -1886,15 +1901,17 @@ function renderEventos(){
      <label class="f">Mensagem para os convidados (opcional)<textarea id="evMsg" rows="3" maxlength="300" placeholder="Ex.: Nossa casa está quase pronta, só faltam estes itens.">${esc(evForm.msg||'')}</textarea></label>
      <div class="row"><button class="btn" data-ev="criar">Criar lista</button><button class="link" data-ev="cancelar">Cancelar</button></div></section>`;
   }else h+=`<div class="row"><button class="btn" data-ev="novo">Criar lista de evento</button></div>`;
+  if(!lista.length)h+=recHtml;
   h+=`<section class="panel hl"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, o valor é <b>${esc(evPreco())}</b> por lista, em pagamento único. Assinantes do Plus ganham 1 lista.${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}</span><span class="small" style="color:var(--muted)">Os convidados marcam o presente que vão dar e você vê só que ele já foi escolhido, sem saber por quem. A surpresa continua.</span></section>`;
-  if(!lista.length&&!evForm)h+=`<div class="empty"><b>Nenhuma lista ainda</b><span>Crie a primeira e já comece com sugestões prontas para o seu tipo de evento.</span></div>`;
+  if(!lista.length&&!rec.length&&!evForm)h+=`<div class="empty"><b>Nenhuma lista ainda</b><span>Crie a primeira e já comece com sugestões prontas para o seu tipo de evento.</span></div>`;
   lista.forEach(([id,e])=>{const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;
     h+=`<button class="ev-card" data-ev="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${T.cor}">${T.e}</span><span class="ev-info"><b>${esc(e.titulo||T.n)}</b><span class="small" style="color:var(--muted)">${esc(T.n)}${e.data?' · '+esc(evData(e.data)):''} · ${(e.itens||[]).length} ite${(e.itens||[]).length===1?'m':'ns'}</span></span><span class="when ${e.publicado?'soon':''}">${e.publicado?'Publicada':'Rascunho'}</span></button>`});
+  if(lista.length)h+=recHtml;
   app.innerHTML=h+'</div>';
 }
 
 function renderEvento(){
-  const voltar=`<button class="back" data-ev="voltar">← ${meusEv[evAberto]||(evDoc&&evDoc.dono===myId)?'Minhas listas':'Voltar'}</button>`;
+  const voltar=`<button class="back" data-ev="voltar">← ${meusEv[evAberto]||(evDoc&&evDoc.dono===myId)||listasRec[evAberto]?'Listas de evento':'Voltar'}</button>`;
   if(evDoc===undefined){app.innerHTML=`<div class="view">${voltar}<div class="muted">Carregando a lista…</div></div>`;return}
   if(!evDoc){app.innerHTML=`<div class="view">${voltar}<div class="empty"><b>Lista não encontrada</b><span>O link pode estar errado, ou a lista ainda não foi publicada pelo dono.</span></div></div>`;return}
   const e=evDoc,T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento,dono=e.dono===myId,itens=e.itens||[];
@@ -1968,8 +1985,9 @@ app.addEventListener('click',async ev=>{
       try{await ref.set({dono:myId,donoNome:(myName||'').split(' ')[0].slice(0,30),tipo:evForm.tipo,titulo:f.titulo||T.n,data:f.data||'',msg:f.msg,itens:[],publicado:false,criado:Date.now()});evForm=null;toast('Lista criada');evAbrir(ref.id)}
       catch(e){toast('Não foi possível criar a lista.')}break}
     case 'abrir': evAbrir(ds.id);break;
+    case 'esquecer': {const next={...listasRec};delete next[ds.id];listasRec=next;db.doc(`data/users/${myId}/listasRecebidas`).set({lista:next}).catch(()=>toast('Não foi possível remover.'));keep(render);break}
     case 'abrirLista': evFechar();setTab('eventos');break;
-    case 'voltar': if(meusEv[evAberto]||(evDoc&&evDoc.dono===myId)){evFechar();render();window.scrollTo(0,0)}else{evFechar();setTab('mural')}break;
+    case 'voltar': if(meusEv[evAberto]||(evDoc&&evDoc.dono===myId)||listasRec[evAberto]){evFechar();render();window.scrollTo(0,0)}else{evFechar();setTab('mural')}break;
     case 'publicar': evPublicar();break;
     case 'verEmail': try{await firebase.auth().currentUser.sendEmailVerification();toast('Enviamos o link para '+firebase.auth().currentUser.email+'. Veja também o spam.')}catch(e){toast(e&&e.code==='auth/too-many-requests'?'Aguarde alguns minutos e tente de novo.':'Não foi possível enviar agora.')}break;
     case 'verOk': try{await firebase.auth().currentUser.reload();await firebase.auth().currentUser.getIdToken(true);if(firebase.auth().currentUser.emailVerified){toast('E-mail confirmado!');setTimeout(()=>location.reload(),600)}else toast('Ainda não confirmou. Clique no link que enviamos ao seu e-mail.')}catch(e){toast('Não foi possível conferir agora.')}break;
@@ -2557,6 +2575,7 @@ async function start(){
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
+  db.doc(`data/users/${myId}/listasRecebidas`).onSnapshot(s=>{listasRec=s.exists&&s.data().lista&&typeof s.data().lista==='object'?{...s.data().lista}:{};if(tab==='eventos'&&!evAberto)softRender()},()=>{});
   db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});if(tab==='eventos'&&!evAberto)softRender()},()=>{});
   if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
