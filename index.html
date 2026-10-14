@@ -1843,16 +1843,16 @@ async function buscarProduto(){
 /* ---------- listas de evento (casamento, chá de bebê, casa nova, chá de panela) ---------- */
 const EV_TIPOS={
   casamento:{n:'Casamento',e:'💍',cor:'linear-gradient(135deg,#fdeef4,#f4d6e6)',ph:'Ex.: Casamento de Ana e Bruno',
-    msg:'Estamos nos casando! 💍 Veja a nossa lista de presentes e escolha o que quiser nos dar:',
+    msg:'Vamos celebrar o nosso casamento! 💍 Preparamos uma lista de presentes com muito carinho. Escolha o que quiser nela e o item fica reservado para você, sem repetir. Sua presença já é o maior presente. 🤍',
     sug:['Jogo de panelas antiaderente','Conjunto de facas','Jogo de jantar 20 peças','Jogo de taças','Jogo de cama casal','Jogo de toalhas','Air fryer','Liquidificador','Batedeira','Cafeteira','Aspirador de pó robô','Ferro de passar roupa','Edredom casal','Kit de potes herméticos','Jogo de copos','Cesto de roupas','Tábua de corte','Smart TV','Micro-ondas']},
   chabebe:{n:'Chá de bebê',e:'🍼',cor:'linear-gradient(135deg,#e7f0fd,#cddffa)',ph:'Ex.: Chá de bebê do Miguel',
-    msg:'Vem aí um bebê! 🍼 Veja a lista do chá e escolha um presente:',
+    msg:'Estamos esperando um bebê e o coração já está transbordando! 🍼 Veja a lista de presentes do chá, escolha um item e ele fica reservado para você. Esperamos você nessa festa! 💙💗',
     sug:['Pacote de fraldas RN','Pacote de fraldas P','Pacote de fraldas M','Pacote de fraldas G','Lenços umedecidos','Kit de body e macacão','Kit de mantas','Banheira','Mamadeiras','Chupetas','Babá eletrônica','Cadeirinha de carro','Carrinho de bebê','Toalha com capuz','Kit de higiene do bebê','Berço','Móbile','Trocador portátil','Esterilizador de mamadeira']},
   casanova:{n:'Casa nova',e:'🏡',cor:'linear-gradient(135deg,#e8f7f4,#c9ece4)',ph:'Ex.: Casa nova da Carla',
-    msg:'Casa nova! 🏡 Veja a nossa lista e escolha um presente:',
+    msg:'Casa nova, vida nova! 🏡 Montamos uma lista de presentes para esta fase. É só abrir, escolher o que quiser dar e pronto: o item fica reservado. Venha comemorar com a gente! ✨',
     sug:['Jogo de panelas','Jogo de pratos','Jogo de copos','Jogo de talheres','Jogo de toalhas','Jogo de cama','Aspirador de pó','Cafeteira','Air fryer','Liquidificador','Tapete','Cortina','Luminária','Porta-retratos','Vaso decorativo','Organizador de armário','Cesto de roupas','Kit de potes','Escorredor de louça','Lixeira inox']},
   panela:{n:'Chá de panela',e:'🍳',cor:'linear-gradient(135deg,#fdf5e6,#f8e2b8)',ph:'Ex.: Chá de panela da Juliana',
-    msg:'Chá de panela! 🍳 Veja a lista e escolha um presente para a cozinha:',
+    msg:'Vem aí o chá de panela! 🍳 Veja a lista de presentes, escolha o seu e ele fica reservado para você, sem ninguém repetir. Vai ser uma festa e tanto! 🥂',
     sug:['Panela de pressão','Jogo de panelas','Frigideira antiaderente','Conjunto de facas','Tábua de corte','Jogo de potes de vidro','Escorredor de macarrão','Jogo de utensílios de silicone','Espremedor de alho','Ralador','Assadeira','Forma de bolo','Batedeira','Liquidificador','Sanduicheira','Jarra de vidro','Jogo de xícaras','Pano de prato (kit)','Porta-temperos']}
 };
 let listasRec={},meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
@@ -1933,7 +1933,7 @@ function renderEvento(){
       }
     }else{
       const l=evLink(evAberto);
-      h+=`<section class="panel hl"><b>Lista publicada. Compartilhe com os convidados</b><div class="pix-code" style="user-select:all">${esc(l)}</div><div class="row"><button class="btn small" data-ev="compartilhar">Compartilhar</button><button class="btn small ghost" data-ev="copiar">Copiar link</button></div><span class="small" style="color:var(--muted)">Quem abrir o link entra (ou cria a conta) e escolhe um presente. ${itens.length?`${escolhidos} de ${itens.length} já escolhidos.`:''}</span></section>`;
+      h+=`<section class="panel hl"><b>Lista publicada. Compartilhe com os convidados</b><div class="pix-code" style="user-select:all">${esc(l)}</div><div class="row"><button class="btn small" data-ev="compartilhar">Compartilhar</button><button class="btn small ghost" data-ev="copiarMsg">Copiar mensagem</button><button class="btn small ghost" data-ev="copiar">Copiar só o link</button></div><span class="small" style="color:var(--muted)">Quem abrir o link entra (ou cria a conta) e escolhe um presente. ${itens.length?`${escolhidos} de ${itens.length} já escolhidos.`:''}</span></section>`;
     }
     // detalhes
     if(evEdit){
@@ -1969,8 +1969,8 @@ async function evPublicar(){
 }
 function evCompartilhar(){
   const e=evDoc;if(!e)return;const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;const l=evLink(evAberto);
-  const txt=`${T.msg} ${l}`;
-  if(navigator.share)navigator.share({title:e.titulo||T.n,text:T.msg,url:l}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');
+  const txt=`${T.msg}\n\n${l}`;
+  if(navigator.share)navigator.share({title:e.titulo||T.n,text:txt}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');
 }
 function evLerForm(p){return {titulo:val(p+'Tit').slice(0,60),data:val(p+'Dt'),msg:val(p+'Msg').slice(0,300)}}
 app.addEventListener('click',async ev=>{
@@ -1994,6 +1994,7 @@ app.addEventListener('click',async ev=>{
     case 'credito': try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():{};toast((evCred.saldo||0)>0?'Crédito encontrado! Já pode publicar.':'Ainda não apareceu. Pode levar alguns minutos depois do pagamento.');keep(render)}catch(e){toast(firebase.auth().currentUser&&!firebase.auth().currentUser.emailVerified?'Confirme o e-mail da sua conta primeiro (aviso acima).':'Não foi possível conferir agora.')}break;
     case 'copiar': navigator.clipboard&&navigator.clipboard.writeText(evLink(evAberto)).then(()=>toast('Link copiado'),()=>toast('Não foi possível copiar'));break;
     case 'compartilhar': evCompartilhar();break;
+    case 'copiarMsg': {const T=EV_TIPOS[(evDoc&&evDoc.tipo)]||EV_TIPOS.casamento;navigator.clipboard&&navigator.clipboard.writeText(`${T.msg}\n\n${evLink(evAberto)}`).then(()=>toast('Mensagem copiada. É só colar no WhatsApp'),()=>toast('Não foi possível copiar'));break}
     case 'editar': evEdit=true;keep(render);break;
     case 'editFim': evEdit=false;keep(render);break;
     case 'salvarDet': {const f=evLerForm('ed');db.doc('eventos/'+evAberto).update({titulo:f.titulo||(EV_TIPOS[evDoc.tipo]||{}).n||'Lista',data:f.data||'',msg:f.msg}).then(()=>{evEdit=false;toast('Detalhes salvos')}).catch(()=>toast('Não foi possível salvar.'));break}
