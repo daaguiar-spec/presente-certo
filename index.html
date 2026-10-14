@@ -1345,7 +1345,7 @@ function renderLoja(id){
   h+=`<span class="small" style="color:var(--muted)">Loja parceira do PresenteCerto. As compras são feitas direto com a loja.</span></div></div></div>`;
   app.innerHTML=h;
 }
-const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎁','Listas extras por ocasião','Natal, casamento, chá de bebê e casa nova, além da sua lista principal.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','1 lista de evento grátis','Crie uma lista de casamento, chá de bebê ou casa nova e compartilhe o link com os convidados.']];
+const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎁','Listas extras por ocasião','Natal, casamento, chá de bebê e casa nova, além da sua lista principal.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
   const on=isPlus(myId);
   let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
@@ -1362,7 +1362,7 @@ function plusPanel(){
    <div class="flabel">Listas extras por ocasião (aparecem na etapa Pretendo ganhar)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
    <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
-   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li><li>1 lista de evento grátis (casamento, chá de bebê...)</li></ul>
+   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li><li>2 listas de evento grátis (casamento, chá de bebê...)</li></ul>
    <div class="row"><button class="link" data-act="tab" data-id="plus">Ver todos os benefícios</button></div>
    ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:''}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
@@ -1896,7 +1896,9 @@ function evAbrir(id){
   evUnsubs.push(d.collection('quem').where('por','==',myId).onSnapshot(s=>{evMinhas={};s.docs.forEach(x=>{evMinhas[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
   render();window.scrollTo(0,0);
 }
-const evPode=()=>isOwner||(evCred.saldo||0)>=1||(isPlus(myId)&&!evCred.plusGratisUsado);
+const PLUS_LISTAS_GRATIS=2;
+const plusGratisUsadas=()=>Math.max(evCred.plusGratis||0,evCred.plusGratisUsado?1:0);
+const evPode=()=>isOwner||(evCred.saldo||0)>=1||(isPlus(myId)&&plusGratisUsadas()<PLUS_LISTAS_GRATIS);
 const evSalvarItens=itens=>db.doc('eventos/'+evAberto).update({itens}).catch(()=>toast('Não foi possível salvar. Tente de novo.'));
 
 function renderEventos(){
@@ -1919,7 +1921,7 @@ function renderEventos(){
      <div class="row"><button class="btn" data-ev="criar">Criar lista</button><button class="link" data-ev="cancelar">Cancelar</button></div></section>`;
   }else h+=`<div class="row"><button class="btn" data-ev="novo">Criar lista de evento</button></div>`;
   if(!lista.length)h+=recHtml;
-  h+=`<section class="panel hl"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, o valor é <b>${esc(evPreco())}</b> por lista, em pagamento único. Assinantes do Plus ganham 1 lista.${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}</span><span class="small" style="color:var(--muted)">Os convidados marcam o presente que vão dar e você vê só que ele já foi escolhido, sem saber por quem. A surpresa continua.</span></section>`;
+  h+=`<section class="panel hl"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, o valor é <b>${esc(evPreco())}</b> por lista, em pagamento único. Assinantes do Plus ganham ${PLUS_LISTAS_GRATIS} listas grátis${isPlus(myId)?` (você já usou ${Math.min(plusGratisUsadas(),PLUS_LISTAS_GRATIS)})`:''}.${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}</span><span class="small" style="color:var(--muted)">Os convidados marcam o presente que vão dar e você vê só que ele já foi escolhido, sem saber por quem. A surpresa continua.</span></section>`;
   if(!lista.length&&!rec.length&&!evForm)h+=`<div class="empty"><b>Nenhuma lista ainda</b><span>Crie a primeira e já comece com sugestões prontas para o seu tipo de evento.</span></div>`;
   lista.forEach(([id,e])=>{const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;
     h+=`<button class="ev-card" data-ev="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${T.cor}">${T.e}</span><span class="ev-info"><b>${esc(e.titulo||T.n)}</b><span class="small" style="color:var(--muted)">${esc(T.n)}${e.data?' · '+esc(evData(e.data)):''} · ${(e.itens||[]).length} ite${(e.itens||[]).length===1?'m':'ns'}</span></span><span class="when ${e.publicado?'soon':''}">${e.publicado?'Publicada':'Rascunho'}</span></button>`});
@@ -1942,7 +1944,7 @@ function renderEvento(){
         h+=`<section class="panel"><b>Confirme seu e-mail</b><span class="small">Para liberar a lista e achar seu pagamento, confirme o e-mail da conta (<b>${esc(firebase.auth().currentUser.email||'')}</b>). Enviamos um link; depois de clicar nele, volte aqui.</span><div class="row"><button class="btn small" data-ev="verEmail">Enviar link de confirmação</button><button class="link" data-ev="verOk">Já confirmei</button></div></section>`;
       }
       if(evPode()){
-        const gratis=isOwner?'Administrador: sem custo.':(evCred.saldo||0)>=1?`Vai usar 1 dos seus ${evCred.saldo} créditos.`:'Esta é a lista grátis do seu Plus.';
+        const gratis=isOwner?'Administrador: sem custo.':(evCred.saldo||0)>=1?`Vai usar 1 dos seus ${evCred.saldo} créditos.`:`Esta é uma das ${PLUS_LISTAS_GRATIS} listas grátis do seu Plus.`;
         h+=`<section class="panel hl"><b>Pronta para compartilhar?</b><span class="small">${esc(gratis)}</span><div class="row"><button class="btn" data-ev="publicar">Publicar e liberar o link</button></div></section>`;
       }else{
         h+=`<section class="panel hl"><b>Liberar o link para os convidados</b><span class="small">Pagamento único de <b>${esc(evPreco())}</b> por lista. Depois do pagamento a liberação é automática.</span>
