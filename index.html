@@ -743,6 +743,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='ofertas')renderOfertas();
   else if(tab==='eventos')renderEventos();
   else if(tab==='aparencia')renderAparencia();
+  else if(tab==='plus')renderPlus();
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
   drawQrs();
@@ -879,6 +880,7 @@ function renderMenu(){
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="ficha">Minha ficha</button>
    <button class="menu-item" data-menu="eventos">Listas de evento</button>
+   <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
@@ -896,6 +898,7 @@ document.addEventListener('click',e=>{
   if(!sairDaFicha())return;
   if(a==='ficha')setTab('perfil');
   if(a==='eventos'){evFechar();setTab('eventos')}
+  if(a==='plus')setTab('plus');
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
@@ -977,6 +980,7 @@ function renderMural(){
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
   if(!Object.keys(meusEv).length)h+=`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`;
+  if(!isPlus(myId)&&!isOwner)h+=`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, listas extras e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   h+=ofertasSemana();
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
@@ -1341,6 +1345,16 @@ function renderLoja(id){
   h+=`<span class="small" style="color:var(--muted)">Loja parceira do PresenteCerto. As compras são feitas direto com a loja.</span></div></div></div>`;
   app.innerHTML=h;
 }
+const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎁','Listas extras por ocasião','Natal, casamento, chá de bebê e casa nova, além da sua lista principal.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','1 lista de evento grátis','Crie uma lista de casamento, chá de bebê ou casa nova e compartilhe o link com os convidados.']];
+function renderPlus(){
+  const on=isPlus(myId);
+  let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
+  <section class="panel hl">${PLUS_BENEF.map(([i,t,d])=>`<div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px"><span style="font-size:24px;line-height:1.2">${i}</span><div><b>${t}</b><div class="small" style="color:var(--muted)">${d}</div></div></div>`).join('')}</section>`;
+  if(on)h+=`<section class="panel"><div class="row"><button class="btn small" data-act="tab" data-id="aparencia">Personalizar visual</button><button class="btn small ghost" data-menu="compartilhar">Escolher capa e listas</button></div></section>`;
+  else h+=`<section class="panel"><h2>Quero o Plus</h2>${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:'<span class="muted">Em breve o botão de assinatura estará aqui.</span>'}
+   <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
+  app.innerHTML=h+'</div>';
+}
 function plusPanel(){
   const d=draft;
   if(isPlus(myId))return `<section class="panel hl"><h2>PresenteCerto Plus <span class="plus-badge">Ativo</span></h2><span class="muted">Seu Plus vale até <b>${esc(plusAte(myId))}</b>.</span>
@@ -1348,7 +1362,8 @@ function plusPanel(){
    <div class="flabel">Listas extras por ocasião (aparecem na etapa Pretendo ganhar)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
    <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
-   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li></ul>
+   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li><li>1 lista de evento grátis (casamento, chá de bebê...)</li></ul>
+   <div class="row"><button class="link" data-act="tab" data-id="plus">Ver todos os benefícios</button></div>
    ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:''}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
 }
@@ -1612,7 +1627,7 @@ const appInstalado=()=>(window.matchMedia&&matchMedia('(display-mode: standalone
 const sistema=()=>{const u=navigator.userAgent||'';if(/iPhone|iPad|iPod/i.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1))return 'ios';if(/Android/i.test(u))return 'android';return ''};
 const INST_FREQ={sempre:'Toda vez que abrir o site',dia:'Uma vez por dia',semana:'Uma vez por semana',uma:'Só uma vez (até a pessoa fechar)'};
 function instalarPraMostrar(){
-  if(config.popupInstalar===false||appInstalado())return false;
+  if(config.popupInstalar===false||appInstalado()||dqInstalou||!sistema())return false;
   let v='';try{v=localStorage.getItem('instalarPop')||''}catch(e){}
   if(v==='nunca')return false;if(!v)return true;
   const f=config.instalarFreq||'dia';
@@ -1621,6 +1636,7 @@ function instalarPraMostrar(){
   if(f==='semana'){const d=Date.parse(v+'T12:00');return !(d&&Date.now()-d<7*864e5)}
   return v!==hoje();
 }
+function instalouSalvar(){if(dqInstalou&&!myId)return;dqInstalou=true;if(myId&&db)db.doc(`data/users/${myId}/destaques`).set({instalou:true},{merge:true}).catch(()=>{})}
 function abrirInstalar(previa){
   if(document.querySelector('.dq-ov'))return;
   const so=sistema();
@@ -1630,7 +1646,7 @@ function abrirInstalar(previa){
   const and=`<div class="inst-os ${so==='android'?'seu':''}"><b>No Android (Chrome)</b><ol><li>Toque nos ${icoPontos} <b style="display:inline">três pontinhos</b>, lá em cima.</li><li>Toque em <b style="display:inline">“Adicionar à tela inicial”</b> ou “Instalar app”.</li><li>Confirme em <b style="display:inline">Adicionar</b>. Pronto! 🎉</li></ol></div>`;
   const passos=so==='ios'?ios:so==='android'?and:ios+and;
   const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Instalar o PresenteCerto');
-  const marcar=v=>{if(previa)return;try{localStorage.setItem('instalarPop',v)}catch(e){}};
+  const marcar=v=>{if(previa)return;try{localStorage.setItem('instalarPop',v)}catch(e){}if(v==='nunca')instalouSalvar()};
   const fechar=()=>{ov.remove();document.removeEventListener('keydown',tecla)};
   const depois=()=>{marcar(hoje());fechar()};
   const tecla=e=>{if(e.key==='Escape')depois()};document.addEventListener('keydown',tecla);
@@ -1661,7 +1677,7 @@ function abrirInstalar(previa){
 }
 
 /* ---------- Destaque (tela pop-up) ---------- */
-let dqVistos={},dqVistosOk=false,configOk=false,dqMostrado=false,dqImgs={};
+let dqInstalou=false,dqVistos={},dqVistosOk=false,configOk=false,dqMostrado=false,dqImgs={};
 const DQ_IR={'':'Nenhum (só fechar)',link:'Um link (site, loja, WhatsApp)',perfil:'Minha ficha',datas:'Datas',pessoas:'Encontrar',sorteio:'Amigo secreto',plus:'Assinar o Plus',aparencia:'Personalizar visual'};
 const destaquesList=()=>config.destaques||[];
 function destaquePraMim(x){
@@ -1678,6 +1694,7 @@ async function dqImagem(x){if(!x.temImagem)return '';if(dqImgs[x.id]!==undefined
   try{const s=await db.doc('config/destaque-'+x.id).get();dqImgs[x.id]=s.exists?(s.data().img||''):''}catch(e){dqImgs[x.id]=''}return dqImgs[x.id]}
 function tentarDestaque(){
   if(dqMostrado||!dqVistosOk||!planosOk||!configOk||!myId||!db)return;
+  if(appInstalado()&&!dqInstalou)instalouSalvar();
   if(tab==='aparencia'||document.querySelector('.crop-ov,.dq-ov'))return;
   if(instalarPraMostrar()){dqMostrado=true;setTimeout(()=>abrirInstalar(false),900);return}
   const x=destaquesList().find(destaquePraMim);if(!x)return;
@@ -1687,7 +1704,7 @@ function tentarDestaque(){
 async function abrirDestaque(x,previa){
   if(document.querySelector('.dq-ov'))return;
   const img=x.imgPrevia||await dqImagem(x);
-  if(!previa){dqVistos={...dqVistos,[x.id]:hoje()};db.doc(`data/users/${myId}/destaques`).set({vistos:dqVistos}).catch(()=>{});trackView('pop:'+x.id)}
+  if(!previa){dqVistos={...dqVistos,[x.id]:hoje()};db.doc(`data/users/${myId}/destaques`).set({vistos:dqVistos},{merge:true}).catch(()=>{});trackView('pop:'+x.id)}
   const temAcao=x.ir&&(x.ir!=='link'||safeLink(x.link));
   const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',x.titulo||'Destaque');
   ov.innerHTML=`<div class="dq-box"><button class="dq-x" aria-label="Fechar">×</button>${img?`<img class="dq-img" src="${esc(img)}" alt="">`:''}
@@ -1699,7 +1716,7 @@ async function abrirDestaque(x,previa){
   ov.querySelector('.dq-x').onclick=fechar;ov.querySelector('.dq-fechar').onclick=fechar;
   const go=ov.querySelector('.dq-go');
   if(go)go.addEventListener('click',()=>{if(!previa)trackClick('ad:pop:'+x.id);
-    if(x.ir!=='link'){fechar();if(x.ir==='plus'){if(safeLink(config.plusLink))window.open(config.plusLink,'_blank','noopener');else setTab('perfil')}else{if(x.ir==='aparencia')aparDraft=null;setTab(x.ir)}}else setTimeout(fechar,50)});
+    if(x.ir!=='link'){fechar();if(x.ir==='plus'){if(safeLink(config.plusLink))window.open(config.plusLink,'_blank','noopener');else setTab('plus')}else{if(x.ir==='aparencia')aparDraft=null;setTab(x.ir)}}else setTimeout(fechar,50)});
   document.body.appendChild(ov);(go||ov.querySelector('.dq-fechar')).focus({preventScroll:true});
 }
 function lerImagemDestaque(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=900;let w=img.width,h=img.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);let q=.82,d=c.toDataURL('image/jpeg',q);while(d.length>300000&&q>.35){q-=.08;d=c.toDataURL('image/jpeg',q)}res(d)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
@@ -2574,7 +2591,7 @@ async function start(){
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n});
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
-  db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
+  db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
   db.doc(`data/users/${myId}/listasRecebidas`).onSnapshot(s=>{listasRec=s.exists&&s.data().lista&&typeof s.data().lista==='object'?{...s.data().lista}:{};if(tab==='eventos'&&!evAberto)softRender()},()=>{});
   db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});if(tab==='eventos'&&!evAberto)softRender()},()=>{});
