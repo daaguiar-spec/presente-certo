@@ -254,6 +254,9 @@ details summary::-webkit-details-marker{display:none}
 .seg2{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk);border-radius:999px;padding:4px}
 .seg2 button{border:0;background:none;padding:8px;border-radius:999px;font:600 14px var(--body);color:var(--muted);cursor:pointer}
 .seg2 button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.seg2 .seg-loja{white-space:nowrap;padding:8px 6px;display:flex;align-items:center;justify-content:center;gap:5px}
+.seg2 .seg-loja[aria-pressed="false"]{background:var(--accent-soft);color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.seg-tag{background:var(--accent);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:700;letter-spacing:.2px}
 .foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center}
 .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
 .stat div{background:var(--surface);border-radius:10px;padding:10px;text-align:center}
@@ -1068,8 +1071,8 @@ function renderSearch(){
   const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e o que pretendo ganhar, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
   const temLojas=(config.lojas||[]).some(l=>l.ativo);
   if(!temLojas)encModo='pessoas';
-  if(encModo==='lojas'){app.innerHTML=`<div class="view"><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div><div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="false">Pessoas</button><button data-act="encModo" data-v="lojas" aria-pressed="true">Lojas parceiras</button></div>${lojasHtml()}</div>`;return}
-  let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>${temLojas?'<div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="true">Pessoas</button><button data-act="encModo" data-v="lojas" aria-pressed="false">Lojas parceiras</button></div>':''}
+  if(encModo==='lojas'){app.innerHTML=`<div class="view"><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div><div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="false">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="true">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>${lojasHtml()}</div>`;return}
+  let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>${temLojas?'<div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="true">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="false">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>':''}
   <section class="panel hl"><h2>Convidar amigos</h2><span class="muted">Mande o convite pelo WhatsApp. A pessoa entra com a conta Google ou com e-mail e senha e cria a ficha dela.</span>
    <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(convite)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="copy" data-text="${esc(convite)}">Copiar convite</button></div></section>
   <label class="f">Buscar pelo nome ou @usuário<input id="q" type="search" placeholder="Ex.: Mariana ou @mariana.souza" value="${esc(query)}" autocomplete="off" autocapitalize="off"></label>`;
