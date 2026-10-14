@@ -979,8 +979,8 @@ function renderMural(){
   let h=`<div class="view"><div><h1>Novidades</h1><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
-  if(!Object.keys(meusEv).length)h+=`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`;
-  if(!isPlus(myId)&&!isOwner)h+=`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, listas extras e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`;
+  if(meusEvOk)h+=Object.keys(meusEv).length?`<section class="panel hl ev-promo"><b>🎉 Suas listas de evento</b><div class="row"><button class="btn small" data-menu="eventos">Ver minhas listas</button><button class="btn small ghost" data-ev="abrirLista">Nova lista</button></div></section>`:`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`;
+  if(planosOk&&!isPlus(myId)&&!isOwner)h+=`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, listas extras e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   h+=ofertasSemana();
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
@@ -1872,7 +1872,7 @@ const EV_TIPOS={
     msg:'Vem aí o chá de panela! 🍳 Veja a lista de presentes, escolha o seu e ele fica reservado para você, sem ninguém repetir. Vai ser uma festa e tanto! 🥂',
     sug:['Panela de pressão','Jogo de panelas','Frigideira antiaderente','Conjunto de facas','Tábua de corte','Jogo de potes de vidro','Escorredor de macarrão','Jogo de utensílios de silicone','Espremedor de alho','Ralador','Assadeira','Forma de bolo','Batedeira','Liquidificador','Sanduicheira','Jarra de vidro','Jogo de xícaras','Pano de prato (kit)','Porta-temperos']}
 };
-let listasRec={},meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
+let meusEvOk=false,listasRec={},meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
 try{const e=new URLSearchParams(location.search).get('e');if(e)pendingEv=e.replace(/[^A-Za-z0-9_-]/g,'')}catch(e){}
 const evPreco=()=>config.eventoPreco||'R$ 9,90';
 const evLink=id=>`${APP_URL}/?e=${encodeURIComponent(id)}`;
@@ -2594,7 +2594,7 @@ async function start(){
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
   db.doc(`data/users/${myId}/listasRecebidas`).onSnapshot(s=>{listasRec=s.exists&&s.data().lista&&typeof s.data().lista==='object'?{...s.data().lista}:{};if(tab==='eventos'&&!evAberto)softRender()},()=>{});
-  db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});if(tab==='eventos'&&!evAberto)softRender()},()=>{});
+  db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});meusEvOk=true;if((tab==='eventos'&&!evAberto)||(tab==='mural'&&!viewing))softRender()},()=>{});
   if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
