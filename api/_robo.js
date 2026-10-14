@@ -11,7 +11,7 @@ const FS = `https://firestore.googleapis.com/v1/${ROOT}`;
 let cache = { token: '', exp: 0 };
 async function token() {
   if (cache.token && Date.now() < cache.exp) return cache.token;
-  const email = process.env.ROBO_EMAIL, password = process.env.ROBO_SENHA;
+  const email = String(process.env.ROBO_EMAIL || '').trim(), password = String(process.env.ROBO_SENHA || '').trim();
   if (!email || !password) throw new Error('Faltam ROBO_EMAIL e ROBO_SENHA na Vercel');
   const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${KEY}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, returnSecureToken: true })
