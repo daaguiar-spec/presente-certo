@@ -1,12 +1,13 @@
 // Publica uma lista de evento (libera o link para os convidados), gastando 1 crédito.
 // Quem pode publicar: o administrador (grátis), quem tem crédito (comprou na Kiwify ou ganhou do administrador)
 // ou assinante Plus (1 lista grátis por conta). O site chama este endereço com o login da pessoa.
-const { db, admin } = require('./_firebase');
-
 const ADMIN = String(process.env.ADMIN_EMAIL || 'daaguiar@gmail.com').toLowerCase();
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
+  let db, admin;
+  try { ({ db, admin } = require('./_firebase')); }
+  catch (e) { return res.status(500).json({ ok: false, erro: 'config', detalhe: String(e && e.message).slice(0, 160) }); }
   const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   let user;
   try { user = await admin.auth().verifyIdToken(token); } catch (e) { return res.status(401).json({ ok: false, erro: 'login' }); }
@@ -40,6 +41,6 @@ module.exports = async (req, res) => {
     const { status, ...resto } = out;
     return res.status(status).json({ ok: status === 200, ...resto });
   } catch (e) {
-    return res.status(500).json({ ok: false, erro: 'falha' });
+    return res.status(500).json({ ok: false, erro: 'falha', detalhe: String(e && e.message).slice(0, 160) });
   }
 };
