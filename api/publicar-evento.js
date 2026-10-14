@@ -3,6 +3,7 @@
 // ou assinante Plus (1 lista grátis por conta). O site chama este endereço com o login da pessoa.
 const ADMIN = String(process.env.ADMIN_EMAIL || 'daaguiar@gmail.com').toLowerCase();
 
+const PLUS_GRATIS = 2; // listas de evento grátis para assinantes do Plus
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
   let R;
@@ -31,9 +32,10 @@ module.exports = async (req, res) => {
       else if (user.verificado && (c.saldo || 0) >= 1) {
         motivo = 'credito';
         writes.push(R.W.set('creditos/' + chave, { saldo: (c.saldo || 0) - 1, usados: (c.usados || 0) + 1 }, { merge: true, pre: cr }));
-      } else if (plus && !c.plusGratisUsado && chave) {
+      } else if (plus && chave && Math.max(c.plusGratis || 0, c.plusGratisUsado ? 1 : 0) < PLUS_GRATIS) {
         motivo = 'plus';
-        writes.push(R.W.set('creditos/' + chave, { plusGratisUsado: true, usados: (c.usados || 0) + 1 }, { merge: true, pre: cr }));
+        const jaUsou = Math.max(c.plusGratis || 0, c.plusGratisUsado ? 1 : 0);
+        writes.push(R.W.set('creditos/' + chave, { plusGratis: jaUsou + 1, plusGratisUsado: true, usados: (c.usados || 0) + 1 }, { merge: true, pre: cr }));
       } else return { result: { status: 402, erro: user.verificado ? 'sem_credito' : 'email_nao_verificado' } };
       writes.push(R.W.set('eventos/' + id, { publicado: true, publicadoEm: new Date(), publicadoPor: motivo }, { merge: true, pre: ev }));
       return { writes, result: { status: 200, motivo } };
