@@ -371,6 +371,45 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .marca-grupo .chips{margin-top:8px}
 .marca-outra{margin-top:8px}
 .marca-outra input{flex:1;min-width:0}
+.pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b));color:#fff;border-radius:22px;padding:18px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+.pf-head:after{content:"";position:absolute;right:-50px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.13);pointer-events:none}
+.pf-head.clara{color:var(--fg)}.pf-head.clara .pf-pill{background:rgba(255,255,255,.6)}
+.pf-top{display:flex;gap:14px;align-items:center}
+.pf-av{width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #fff;flex:none;background:#fff}
+.pf-nome{font-size:22px;line-height:1.15;margin:0;color:inherit;overflow-wrap:anywhere}
+.pf-at{font-size:13px;font-weight:700;opacity:.92;margin-top:2px}
+.pf-frase{font-size:14px;line-height:1.4}
+.pf-pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pf-pill{background:rgba(255,255,255,.2);font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px}
+.pf-head .when{background:#ffd23f;color:#1d1530}.pf-head .when.today{background:#fff;color:var(--accent)}
+.pf-acts{display:flex;gap:8px;position:relative;z-index:1}
+.pf-acts .btn{flex:1;background:#fff;color:var(--accent);border-color:#fff;font-weight:800;padding:10px 14px;font-size:14px}
+.pf-acts .btn.on{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.7)}
+.pf-head.clara .pf-acts .btn{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pf-body{display:flex;flex-direction:column;gap:22px;margin-top:18px}
+.pf-sec{display:flex;flex-direction:column;gap:10px}
+.pf-h{margin:0;font-size:17px;font-weight:800;display:flex;gap:8px;align-items:center;color:var(--fg)}
+.pf-gifts{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;margin:0 -2px;align-items:flex-start}
+.pf-gift{flex:0 0 min(46%,190px);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:4px;min-width:0;box-shadow:0 2px 10px rgba(80,40,140,.06)}
+.pf-gift:has(.inline-form),.pf-gift:has(.status .msg){flex-basis:min(82%,300px)}
+.pf-gimg{position:relative;height:110px;border-radius:12px;background:color-mix(in srgb,var(--c) 13%,var(--surface));display:flex;align-items:center;justify-content:center;font-size:50px;overflow:hidden;margin-bottom:4px}
+.pf-gimg img{width:100%;height:100%;object-fit:cover}
+.pf-n{position:absolute;left:6px;top:6px;background:var(--surface);color:var(--accent);font-size:12px;font-weight:800;border-radius:999px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.pf-gt{font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.pf-gs{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.pf-gift a,.pf-gift .pf-link{color:var(--ribbon);font-weight:600;font-size:12px}
+.pf-gift .status{grid-column:auto;margin-top:4px}
+.pf-gift .status .row{flex-direction:column;align-items:stretch}
+.pf-need .pf-gimg{--c:#e8890c!important}
+.pf-need .pf-gift{background:color-mix(in srgb,#e8890c 7%,var(--surface))}
+.pf-sizes,.pf-ints{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pf-size{background:color-mix(in srgb,var(--c) 14%,var(--surface));border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pf-size .e,.pf-int .e{font-size:28px;line-height:1.2}
+.pf-size .l,.pf-int .l{font-size:12px;font-weight:600;color:var(--fg);overflow-wrap:anywhere}
+.pf-size b{font-family:var(--display);font-size:19px;color:color-mix(in srgb,var(--c) 70%,var(--fg));overflow-wrap:anywhere}
+.pf-int{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pf-kv{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
+@media (max-width:360px){.pf-sizes,.pf-ints{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 
 </head>
@@ -1202,28 +1241,38 @@ function renderPerson(id){
   }
   const sz=[['Camiseta',p.camiseta],['Calça',p.calca],['Calçado',p.calcado],['Vestido',p.vestido],['Anel',p.anel],['Cama',p.cama]].filter(x=>x[1]);
   const ev=eventsFor(id).filter(e=>e.label!=='Aniversário');
-  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],['Gosta de',juntar(p.gostosTags,p.gosta)],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
+  const gTags=(p.gostosTags||[]).filter(Boolean);
+  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],[gTags.length?'Também gosta de':'Gosta de',p.gosta],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
-  h+=`<div class="tag-card"><div class="tag-head ${capaEsc?'escura':''}" ${capa}><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 style="font-size:24px">${esc(nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="small" style="color:var(--accent);font-weight:600">@${esc(handleOf(id))}</div>`:''}${p.frase?`<div style="font-size:14px;margin-top:2px">${esc(p.frase)}</div>`:''}<div class="muted">${esc(bdayText(p))}</div><div style="margin-top:6px">${pill(bdayDays(p))}</div></div></div><div class="tag-body">`;
+  const sec=(ic,t,body,cls)=>`<section class="pf-sec ${cls||''}"><h3 class="pf-h"><span aria-hidden="true">${ic}</span>${t}</h3>${body}</section>`;
+  h+=`<div class="pf-head ${capa?(capaEsc?'escura':'clara'):''}" ${capa}><div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
+  h+=`<div class="pf-body">`;
   if(self)h+=`<div class="notice">Assim os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
-  else{
-    h+=`<div class="row">${followBtn(id)}</div>`;
-    if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
-  }
-  h+=`<section class="sec"><div class="eyebrow">Pretende ganhar</div>${(p.desejos||[]).length?`<div class="wish">${itemsView(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`}</section>`;
-  h+=`<section class="sec need"><div class="eyebrow">Precisando com urgência</div>${(p.precisa||[]).length?`<div class="wish">${itemsView(id,p.precisa,!self)}</div>`:`<div class="muted">Nada listado no momento.</div>`}</section>`;
-  if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=`<section class="sec"><div class="eyebrow">Lista de ${esc(n)}</div><div class="wish">${itemsView(id,p[k],!self)}</div></section>`});
+  else if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
+  h+=sec('🎁','Pretende ganhar',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
+  h+=sec('🚨','Precisando com urgência',(p.precisa||[]).length?`<div class="pf-gifts">${pfItems(id,p.precisa,!self)}</div>`:`<div class="muted">Nada listado no momento.</div>`,'pf-need');
+  if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(n),`<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
+  if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
+  if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
+  if((p.cores||[]).length||(p.evitarCores||[]).length)h+=sec('🎨','Cores',`${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}`);
+  if(kv.length)h+=sec('📝','Mais sobre '+esc(firstName(id)),`<dl class="kv pf-kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`);
   if(!self)h+=aiBlock(id);
   h+=muralParabens(id);
-  if(sz.length)h+=`<section class="sec"><div class="eyebrow">Tamanhos</div><div class="sizes">${sz.map(s=>`<div class="size"><b>${esc(s[1])}</b><span>${s[0]}</span></div>`).join('')}</div></section>`;
-  if((p.cores||[]).length||(p.evitarCores||[]).length)h+=`<section class="sec"><div class="eyebrow">Cores</div>${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}</section>`;
-  if(kv.length)h+=`<dl class="kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
-  if(ev.length)h+=`<section class="sec"><div class="eyebrow">Outras datas</div>${ev.map(e=>`<div class="date-row"><span><b>${esc(e.label)}</b> · ${esc(e.txt)}</span>${pill(e.dias)}</div>`).join('')}</section>`;
+  if(ev.length)h+=sec('📅','Outras datas',ev.map(e=>`<div class="date-row"><span><b>${esc(e.label)}</b> · ${esc(e.txt)}</span>${pill(e.dias)}</div>`).join(''));
   if(p.atualizado)h+=`<div class="small" style="color:var(--muted)">Ficha atualizada em ${esc(new Date(p.atualizado).toLocaleDateString('pt-BR'))}</div>`;
-  h+='</div></div>';
+  h+='</div>';
   if(!self){const n=bdayDays(p);h+=adCard(1,{aniv:n!==null&&n<=7})}
   app.innerHTML=h+'</div>';
+}
+const PF_TAM={'Camiseta':['👕','#22a35a'],'Calça':['👖','#2f6fd6'],'Calçado':['👟','#7b4fd1'],'Vestido':['👗','#d9467e'],'Anel':['💍','#c28a00'],'Cama':['🛏️','#d9467e']};
+const PF_GOSTO={'Café':'☕','Chá':'🍵','Vinho':'🍷','Cerveja':'🍺','Chocolate':'🍫','Doces':'🍬','Comida japonesa':'🍣','Churrasco':'🍖','Cozinhar':'🍳','Confeitaria':'🧁','Leitura':'📚','Escrever':'✍️','Viagem':'✈️','Praia':'🏖️','Campo e natureza':'🌿','Trilha':'🥾','Camping':'⛺','Futebol':'⚽','Academia':'🏋️','Corrida':'🏃','Ciclismo':'🚴','Natação':'🏊','Yoga':'🧘','Pilates':'🤸','Dança':'💃','Beach tennis':'🎾','Lutas':'🥋','Séries e filmes':'🎬','Anime':'🍥','Música':'🎵','Shows e festivais':'🎤','Teatro':'🎭','Podcasts':'🎧','Games':'🎮','Jogos de tabuleiro':'🎲','Tecnologia':'💻','Fotografia':'📷','Desenho e pintura':'🎨','Artesanato':'🧵','Crochê e tricô':'🧶','Plantas':'🪴','Jardinagem':'🌻','Decoração':'🛋️','Pets':'🐾','Moda':'👗','Maquiagem':'💄','Skincare':'🧴','Perfumes':'🌸','Autocuidado':'🛁','Meditação':'🕯️','Carros':'🚗','Motos':'🏍️','Pescaria':'🎣','Futebol na TV':'📺','Astrologia':'🔮','Espiritualidade':'🙏','Voluntariado':'🤝','Idiomas':'🗣️'};
+const PF_ICONES=[[/rel[oó]gio|smartwatch|watch/,'⌚'],[/t[eê]nis|sapato|sand[aá]lia|chinelo|bota/,'👟'],[/caf[eé]|cafeteira|caneca/,'☕'],[/fone|headphone|airpods|caixa de som/,'🎧'],[/livro|kindle/,'📚'],[/perfume|col[oô]nia/,'🌸'],[/bolsa|mochila|mala/,'👜'],[/camis|blusa|roupa|vestido|cal[cç]a|jaqueta|moletom|short/,'👕'],[/celular|iphone|smartphone|tablet|ipad/,'📱'],[/notebook|computador|teclado|mouse|monitor/,'💻'],[/game|videogame|playstation|xbox|nintendo|jogo/,'🎮'],[/panela|air ?fryer|fritadeira|liquidificador|cozinha|batedeira/,'🍳'],[/maquiagem|batom|skincare|creme/,'💄'],[/flor|planta|vaso/,'🪴'],[/vinho|cerveja|bebida|whisky/,'🍷'],[/chocolate|doce|bombom/,'🍫'],[/viagem|passagem|hotel/,'✈️'],[/brinco|colar|anel|pulseira|joia|j[oó]ia/,'💍'],[/[oó]culos/,'🕶️'],[/bicicleta|bike/,'🚲'],[/c[aâ]mera|foto/,'📷'],[/len[cç]ol|toalha|travesseiro|edredom|cama/,'🛏️'],[/brinquedo|boneca|lego|pel[uú]cia/,'🧸'],[/vale|gift ?card|dinheiro|pix/,'💳']];
+const pfIcone=t=>{const s=String(t||'').toLowerCase();const m=PF_ICONES.find(([r])=>r.test(s));return m?m[1]:'🎁'};
+const PF_TONS=['#2f6fd6','#d9467e','#c28a00','#22a35a','#7b4fd1'];
+function pfItems(owner,items,showStatus){
+  return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
+    return `<div class="pf-gift"><div class="pf-gimg" style="--c:${PF_TONS[i%PF_TONS.length]}">${f?`<img src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:`<span aria-hidden="true">${pfIcone(w.t)}</span>`}<span class="pf-n">${i+1}</span></div><div class="pf-gt">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="pf-gs">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a class="pf-link" href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:(showStatus?shopLinks(w.t):'')}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
 }
 
 /* ---------- Amigo secreto ---------- */
