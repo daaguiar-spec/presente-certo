@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
 
   // 1. Segurança: a chave secreta precisa vir no endereço
   const chave = process.env.WEBHOOK_CHAVE;
-  if (!chave || !iguais(req.query && req.query.chave, chave)) return res.status(401).json({ ok: false, erro: 'chave inválida' });
+  if (!chave || !iguais(req.query && req.query.chave, chave)) { console.log('[kiwify] 401 chave invalida ou WEBHOOK_CHAVE ausente'); return res.status(401).json({ ok: false, erro: 'chave inválida' }); }
 
   const { raw, json: b } = await lerCorpo(req);
 
@@ -40,13 +40,14 @@ module.exports = async (req, res) => {
   }
 
   let R;
-  try { R = require('./_robo'); } catch (e) { return res.status(500).json({ ok: false, erro: 'config', detalhe: String(e && e.message).slice(0, 160) }); }
+  try { R = require('./_robo'); } catch (e) { console.log('[kiwify] 500 config', String(e && e.message).slice(0, 160)); return res.status(500).json({ ok: false, erro: 'config', detalhe: String(e && e.message).slice(0, 160) }); }
   try {
     // 3. Entende o aviso
     const evento = String(b.webhook_event_type || b.trigger || b.event || '').toLowerCase();
     const status = String(b.order_status || '').toLowerCase();
     const cliente = b.Customer || b.customer || {};
     const email = String(cliente.email || b.email || '').trim().toLowerCase();
+    console.log('[kiwify] recebido evento=' + (evento || status || '?') + ' produto=' + String((b.Product || {}).product_name || '?').slice(0, 60) + ' temEmail=' + !!email);
     if (!email) return res.status(200).json({ ok: true, ignorado: 'sem e-mail' });
     const emailKey = email.replace(/\//g, '_');
 
@@ -83,6 +84,7 @@ module.exports = async (req, res) => {
         }
         return { result: 'nada' };
       });
+      console.log('[kiwify] lista de evento: ' + r);
       return res.status(200).json({ ok: true, evento: r });
     }
 
@@ -115,6 +117,7 @@ module.exports = async (req, res) => {
     await R.commit(writes);
     return res.status(200).json({ ok: true, acao, vinculado: !!uid });
   } catch (e) {
+    console.log('[kiwify] 500 falha', String(e && e.message).slice(0, 200));
     return res.status(500).json({ ok: false, erro: 'falha', detalhe: String(e && e.message).slice(0, 160) });
   }
 };
