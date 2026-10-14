@@ -877,10 +877,10 @@ function renderMenu(){
   box.hidden=false;
   box.innerHTML=menuSair?`<div class="pop-body"><b>Quer mesmo sair da conta?</b><span class="small" style="color:var(--muted)">Para voltar, é só entrar de novo com o Google ou com seu e-mail.</span><div class="row"><button class="btn small" data-menu="sairOk">Sair da conta</button><button class="link" data-menu="cancelar">Cancelar</button></div></div>`
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
+   <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="ficha">Minha ficha</button>
    <button class="menu-item" data-menu="eventos">Listas de evento</button>
-   <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
