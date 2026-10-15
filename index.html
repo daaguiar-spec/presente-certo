@@ -462,6 +462,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .emp-tag{left:50%;right:auto;transform:translateX(-50%);white-space:nowrap}
 .emp-mail{background:#fffaf0;border:1.5px solid #f2cf4a;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;margin:8px 0;color:#2a2230}
 .emp-gratis{background:#e6f6ee;color:#1f6b46;border-radius:12px;padding:10px 12px;font-size:14px}
+.ola{margin:0 0 6px;font-family:var(--display);font-size:28px;line-height:1.15;font-weight:800;color:var(--fg)}.ola b{color:var(--accent)}
+.mural-tit{margin:10px 0 0;font-size:19px}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -1164,7 +1166,8 @@ function renderMural(){
   const restAll=f==='tudo'?rest:f==='datas'?[]:rest.filter(e=>e.kind===f);
   const restShown=restAll.slice(0,feedLimite);
   const filtros=[['tudo','Tudo'],['datas','Datas'],['listas','Listas'],['parabens','Parabéns']];
-  let h=`<div class="view"><div><h1>Novidades</h1><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
+  const hr=new Date().getHours(),saud=hr<5?'Boa noite':hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite';const pn=String(myName||'').trim().split(/\s+/)[0];
+  let h=`<div class="view"><div><p class="ola">${saud}${pn?', <b>'+esc(pn)+'</b>':''}! 👋</p><h2 class="mural-tit">Novidades</h2><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
   if(meusEvOk&&planosOk){const cards=[];
