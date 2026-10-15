@@ -499,7 +499,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   <button class="mais-item" data-mais="desejo" role="menuitem"><span>🎁</span>Adicionar presente à minha lista</button>
   <button class="mais-item" data-mais="precisa" role="menuitem"><span>🆘</span>Adicionar em “Precisando com urgência”</button>
   <button class="mais-item" data-mais="sorteio" role="menuitem"><span>🎲</span>Amigo secreto</button>
-  <button class="mais-item" data-mais="empresa" role="menuitem"><span>🏢</span>Amigo secreto da empresa</button>
+  <button class="mais-item" data-mais="empresa" role="menuitem"><span>🏢</span>Amigo Secreto para Empresas</button>
   <button class="mais-item" data-mais="evento" role="menuitem"><span>🎉</span>Lista de evento (casamento, chá de bebê…)</button>
   <button class="mais-item" data-mais="convidar" role="menuitem"><span>💌</span>Convidar amigos</button>
 </div></div>
@@ -2354,9 +2354,9 @@ function empTopo(e,sub){
 function renderEmpresas(){
   if(empAberto)return renderEmpresa();
   const lista=Object.entries(empMeus).sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
-  let h=`<div class="view"><button class="back" data-act="tab" data-id="sorteio">← Amigo secreto</button><div><h1>Amigo secreto da empresa</h1><p class="lede">O RH cria o evento, manda o link e cada colaborador preenche uma ficha rápida. O sorteio é automático e ninguém, nem o RH, vê quem tirou quem.</p></div>`;
+  let h=`<div class="view"><button class="back" data-act="tab" data-id="sorteio">← Amigo secreto</button><div><h1>Amigo Secreto para Empresas</h1><p class="lede">O RH cria o evento, manda o link e cada colaborador preenche uma ficha rápida. O sorteio é automático e ninguém, nem o RH, vê quem tirou quem.</p></div>`;
   if(empForm){
-    h+=`<section class="panel"><h2>Novo amigo secreto da empresa</h2>
+    h+=`<section class="panel"><h2>Novo Amigo Secreto para Empresas</h2>
      <label class="f">Nome do evento<input id="emNome" maxlength="60" value="${esc(empForm.nome||'')}" placeholder="Ex.: Amigo Secreto Acme 2026"></label>
      <label class="f">Nome da empresa<input id="emEmp" maxlength="60" value="${esc(empForm.empresa||'')}" placeholder="Ex.: Acme Ltda"></label>
      <div class="flabel">Cor da empresa</div><div class="row">${EMP_CORES.map(c=>`<button class="emp-cor" style="background:${c}" aria-pressed="${(empForm.cor||EMP_CORES[0])===c}" aria-label="Cor ${c}" data-emp="cor" data-v="${c}"></button>`).join('')}</div>
