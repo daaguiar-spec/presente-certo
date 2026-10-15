@@ -853,7 +853,10 @@ function isPlus(id){const pl=planos[id];if(!pl||!pl.plus)return false;const ate=
 function plusAte(id){const pl=planos[id];if(!pl||!pl.ate)return '';const d=pl.ate.toDate?pl.ate.toDate():new Date(pl.ate);return d.toLocaleDateString('pt-BR')}
 const CAPAS={rosa:'linear-gradient(135deg,#fdeef4,#f9d3e2)',menta:'linear-gradient(135deg,#e8f7f4,#c9ece4)',ceu:'linear-gradient(135deg,#e7f0fd,#cddffa)',sol:'linear-gradient(135deg,#fdf5e6,#f8e2b8)',lavanda:'linear-gradient(135deg,#f1ecfb,#ddd1f5)',noite:'linear-gradient(135deg,#2e2536,#4a3a58)'};
 const selo=id=>isPlus(id)?' <span class="plus-badge">Plus</span>':'';
-const LISTAS_EXTRA={lista_natal:'Natal',lista_casamento:'Casamento',lista_chabebe:'Chá de bebê',lista_casanova:'Casa nova'};
+const LISTAS_EXTRA={lista_natal:'Natal'};
+// listas antigas do Plus que agora viram Listas de evento
+const LISTAS_LEGADO={lista_casamento:['Casamento','casamento'],lista_chabebe:['Chá de bebê','chabebe'],lista_casanova:['Casa nova','casanova']};
+const legadoAviso=(k,n)=>`<div class="notice" style="display:flex;flex-direction:column;gap:8px"><span>A <b>Lista de ${esc(LISTAS_LEGADO[k][0])}</b> agora funciona como <b>Lista de evento</b>: com link para os convidados escolherem sem repetir. Transforme a sua com um toque; os ${n} ${n===1?'item vai':'itens vão'} junto.</span><div><button class="btn small" data-act="legadoEv" data-k="${k}">Transformar em lista de evento</button></div></div>`;
 const LIMITE_SORTEIO=10;
 try{const u=new URLSearchParams(location.search).get('u');if(u)pendingOpen=u.replace(/^@/,'').toLowerCase()}catch(e){}
 const handleOf=id=>{const h=profiles[id]?.usuario;return h&&usernames[h]&&usernames[h].uid===id?h:''};
@@ -1081,7 +1084,7 @@ function renderMural(){
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
   if(meusEvOk&&planosOk){const cards=[];
     if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
-    if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, listas extras e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
+    if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, 2 listas de evento grátis e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
   if((config.lojas||[]).some(l=>l.ativo))h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
@@ -1286,7 +1289,8 @@ function renderPerson(id,aba){
   else if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
   h+=sec('🎁','Lista de desejos',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
   h+=sec('🚨','Precisando com urgência',(p.precisa||[]).length?`<div class="pf-gifts">${pfItems(id,p.precisa,!self)}</div>`:`<div class="muted">Nada listado no momento.</div>`,'pf-need');
-  if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(n),`<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
+  if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=sec('🎄','Lista de '+esc(n),`<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
+  if(isPlus(id))Object.entries(LISTAS_LEGADO).forEach(([k,L])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(L[0]),`${self?legadoAviso(k,p[k].length):''}<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
   if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes" style="--cols:${pfCols(sz.length)}">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
   if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints" style="--cols:${pfCols(gTags.length)}">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
   if((p.cores||[]).length||(p.evitarCores||[]).length)h+=sec('🎨','Cores',`${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}`);
@@ -1301,7 +1305,7 @@ function renderPerson(id,aba){
 }
 const PF_TAM={'Camiseta':['👕','#22a35a'],'Calça':['👖','#2f6fd6'],'Calçado':['👟','#7b4fd1'],'Vestido':['👗','#d9467e'],'Anel':['💍','#c28a00'],'Cama':['🛏️','#d9467e']};
 const PF_GOSTO={'Café':'☕','Chá':'🍵','Vinho':'🍷','Cerveja':'🍺','Chocolate':'🍫','Doces':'🍬','Comida japonesa':'🍣','Churrasco':'🍖','Cozinhar':'🍳','Confeitaria':'🧁','Leitura':'📚','Escrever':'✍️','Viagem':'✈️','Praia':'🏖️','Campo e natureza':'🌿','Trilha':'🥾','Camping':'⛺','Futebol':'⚽','Academia':'🏋️','Corrida':'🏃','Ciclismo':'🚴','Natação':'🏊','Yoga':'🧘','Pilates':'🤸','Dança':'💃','Beach tennis':'🎾','Lutas':'🥋','Séries e filmes':'🎬','Anime':'🍥','Música':'🎵','Shows e festivais':'🎤','Teatro':'🎭','Podcasts':'🎧','Games':'🎮','Jogos de tabuleiro':'🎲','Tecnologia':'💻','Fotografia':'📷','Desenho e pintura':'🎨','Artesanato':'🧵','Crochê e tricô':'🧶','Plantas':'🪴','Jardinagem':'🌻','Decoração':'🛋️','Pets':'🐾','Moda':'👗','Maquiagem':'💄','Skincare':'🧴','Perfumes':'🌸','Autocuidado':'🛁','Meditação':'🕯️','Carros':'🚗','Motos':'🏍️','Pescaria':'🎣','Futebol na TV':'📺','Astrologia':'🔮','Espiritualidade':'🙏','Voluntariado':'🤝','Idiomas':'🗣️'};
-const PF_ICONES=[[/rel[oó]gio|smartwatch|watch/,'⌚'],[/t[eê]nis|sapato|sand[aá]lia|chinelo|bota/,'👟'],[/caf[eé]|cafeteira|caneca/,'☕'],[/fone|headphone|airpods|caixa de som/,'🎧'],[/livro|kindle/,'📚'],[/perfume|col[oô]nia/,'🌸'],[/bolsa|mochila|mala/,'👜'],[/camis|blusa|roupa|vestido|cal[cç]a|jaqueta|moletom|short/,'👕'],[/celular|iphone|smartphone|tablet|ipad/,'📱'],[/notebook|computador|teclado|mouse|monitor/,'💻'],[/game|videogame|playstation|xbox|nintendo|jogo/,'🎮'],[/panela|air ?fryer|fritadeira|liquidificador|cozinha|batedeira/,'🍳'],[/maquiagem|batom|skincare|creme/,'💄'],[/flor|planta|vaso/,'🪴'],[/vinho|cerveja|bebida|whisky/,'🍷'],[/chocolate|doce|bombom/,'🍫'],[/viagem|passagem|hotel/,'✈️'],[/brinco|colar|anel|pulseira|joia|j[oó]ia/,'💍'],[/[oó]culos/,'🕶️'],[/bicicleta|bike/,'🚲'],[/c[aâ]mera|foto/,'📷'],[/len[cç]ol|toalha|travesseiro|edredom|cama/,'🛏️'],[/brinquedo|boneca|lego|pel[uú]cia/,'🧸'],[/vale|gift ?card|dinheiro|pix/,'💳']];
+const PF_ICONES=[[/rel[oó]gio|smartwatch|watch/,'⌚'],[/t[eê]nis|sapato|sand[aá]lia|chinelo|bota/,'👟'],[/caf[eé]|cafeteira|caneca/,'☕'],[/fone|headphone|airpods|caixa de som/,'🎧'],[/livro|kindle/,'📚'],[/perfume|col[oô]nia/,'🌸'],[/bolsa|mochila|mala/,'👜'],[/camis|blusa|roupa|vestido|cal[cç]a|jaqueta|moletom|short/,'👕'],[/celular|iphone|smartphone|tablet|ipad/,'📱'],[/notebook|computador|teclado|mouse|monitor/,'💻'],[/game|videogame|playstation|xbox|nintendo|controle|jogo de tabuleiro/,'🎮'],[/panela|air ?fryer|fritadeira|liquidificador|cozinha|batedeira/,'🍳'],[/maquiagem|batom|skincare|creme/,'💄'],[/flor|planta|vaso/,'🪴'],[/vinho|cerveja|bebida|whisky/,'🍷'],[/chocolate|doce|bombom/,'🍫'],[/viagem|passagem|hotel/,'✈️'],[/brinco|colar|anel|pulseira|joia|j[oó]ia/,'💍'],[/[oó]culos/,'🕶️'],[/bicicleta|bike/,'🚲'],[/c[aâ]mera|foto/,'📷'],[/len[cç]ol|toalha|travesseiro|edredom|cama/,'🛏️'],[/brinquedo|boneca|lego|pel[uú]cia/,'🧸'],[/vale|gift ?card|dinheiro|pix/,'💳']];
 const pfIcone=t=>{const s=String(t||'').toLowerCase();const m=PF_ICONES.find(([r])=>r.test(s));return m?m[1]:'🎁'};
 const pfCols=n=>{if(n<=4)return Math.max(n,1);const r=Math.ceil(n/4);return Math.ceil(n/r)};
 const PF_TONS=['#2f6fd6','#d9467e','#c28a00','#22a35a','#7b4fd1'];
@@ -1467,7 +1471,7 @@ function renderLoja(id){
   h+=`<span class="small" style="color:var(--muted)">Loja parceira do PresenteCerto. As compras são feitas direto com a loja.</span></div></div></div>`;
   app.innerHTML=h;
 }
-const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎁','Listas extras por ocasião','Natal, casamento, chá de bebê e casa nova, além da sua lista principal.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
+const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
   const on=isPlus(myId);
   let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
@@ -1481,10 +1485,10 @@ function plusPanel(){
   const d=draft;
   if(isPlus(myId))return `<section class="panel hl"><h2>PresenteCerto Plus <span class="plus-badge">Ativo</span></h2><span class="muted">Seu Plus vale até <b>${esc(plusAte(myId))}</b>.</span>
    <div class="flabel">Capa da sua ficha</div><div class="chips">${Object.keys(CAPAS).map(c=>`<button class="chip" data-act="pickOne" data-key="capa" data-v="${c}" aria-pressed="${d.capa===c}"><span class="dot" style="background:${CAPAS[c]}"></span>${c[0].toUpperCase()+c.slice(1)}</button>`).join('')}</div>
-   <div class="flabel">Listas extras por ocasião (aparecem na etapa Lista de desejos)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
+   <div class="flabel">Lista extra de Natal (aparece na etapa Lista de desejos)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
    <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
-   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li><li>2 listas de evento grátis (casamento, chá de bebê...)</li></ul>
+   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Lista de Natal separada da sua lista de desejos</li><li>2 listas de evento grátis (casamento, chá de bebê, casa nova)</li><li>Amigo secreto sem limite de participantes</li><li>2 listas de evento grátis (casamento, chá de bebê...)</li></ul>
    <div class="row"><button class="link" data-act="tab" data-id="plus">Ver todos os benefícios</button></div>
    ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:''}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
@@ -2424,7 +2428,8 @@ function renderMine(){
    </div></details></section>`;
   if(st===4){h+=listEditor('desejos','Lista de desejos','O que você gostaria de ganhar. Escolha a categoria e toque nos presentes. Até 10 itens.','Ex.: Fone sem fio');
     if(isPlus(myId))(d.listasAtivas||[]).filter(k=>LISTAS_EXTRA[k]).forEach(k=>{h+=listEditor(k,'Lista de '+LISTAS_EXTRA[k],'Lista extra do seu Plus. Até 10 itens.','Ex.: Panetone artesanal')});
-    else h+=`<div class="notice">Quer listas separadas para Natal, casamento, chá de bebê ou casa nova? Elas fazem parte do PresenteCerto Plus, em Mais opções.</div>`;}
+    else h+=`<div class="notice">Quer uma lista separada só para o Natal? Ela faz parte do PresenteCerto Plus, em Mais opções.</div>`;
+    Object.keys(LISTAS_LEGADO).forEach(k=>{const n=((profiles[myId]||{})[k]||[]).length;if(n)h+=legadoAviso(k,n)});}
   if(st===5)h+=listEditor('precisa','Precisando com urgência','Coisas úteis que estão fazendo falta no dia a dia. Até 10 itens.','Ex.: Jogo de toalhas','need');
   if(st===6)h+=`${plusPanel()}${shareBox()}
   <section class="panel"><h2>Nome de usuário</h2><span class="muted">Seu @ é único. Com ele, as pessoas acham você na busca mesmo que exista alguém com o mesmo nome.</span>
@@ -2492,7 +2497,7 @@ async function decide(id,ok){
 }
 async function saveConfig(next,msg){try{await db.doc('config/app').set(next);config=next;applyRaw();keep(render);toast(msg)}catch(e){toast('Não foi possível salvar a configuração.')}}
 app.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset?.act==='open')e.target.click()});
-app.addEventListener('click',e=>{
+app.addEventListener('click',async e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   const a=el.dataset.act,ds=el.dataset;
   if(a!=='open')e.stopPropagation();
@@ -2500,6 +2505,16 @@ app.addEventListener('click',e=>{
   switch(a){
     case 'open': viewing=ds.id;form=null;render();window.scrollTo(0,0);break;
     case 'back': viewing=null;form=null;render();break;
+    case 'legadoEv': {const k=ds.k,L=LISTAS_LEGADO[k];const pr=profiles[myId]||{};if(!L)break;
+      if(dirty){toast('Salve sua ficha antes');break}
+      const its=(pr[k]||[]).filter(w=>w&&w.t).slice(0,80);
+      if(!confirm(`Transformar sua Lista de ${L[0]} em uma lista de evento? Os ${its.length} itens vão para a nova lista e saem da sua ficha.`))break;
+      try{const T=EV_TIPOS[L[1]]||{};const ref=db.collection('eventos').doc();
+        await ref.set({dono:myId,donoNome:(myName||'').split(' ')[0].slice(0,30),tipo:L[1],titulo:L[0],data:'',msg:T.msg||'',itens:its.map(w=>({id:uid(),nome:String(w.t).slice(0,80),link:safeLink(w.link)?String(w.link).slice(0,500):''})),publicado:false,criado:Date.now()});
+        const ativas=(pr.listasAtivas||[]).filter(x=>x!==k);
+        await db.doc('profiles/'+myId).update({[k]:[],listasAtivas:ativas});
+        profiles[myId]={...pr,[k]:[],listasAtivas:ativas};draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
+      catch(e){toast('Não foi possível transformar a lista. Tente de novo.')}break}
     case 'editarFicha': if(viewing===myId)viewing=null;setTab('perfil',true);break;
     case 'verMeuPerfil': if(dirty){toast('Salve primeiro para ver a versão final');break}setTab('perfil',false);break;
     case 'tab': setTab(ds.id);break;
