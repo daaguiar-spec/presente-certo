@@ -739,7 +739,7 @@ function buscaUrl(id,q){
 function catDoItem(nome){const n=String(nome||'').toLowerCase();for(const cats of [CAT_DESEJOS,CAT_PRECISA])for(const [c,its] of Object.entries(cats))if(its.some(it=>n.startsWith(String(Array.isArray(it)?it[0]:it).toLowerCase())))return c;return ''}
 function shopLinks(q,cat,rot){
   cat=cat||catDoItem(q);const pref=(config.lojaPorCategoria||{})[cat];
-  const ordem=[...new Set([pref,'amazon','ml','magalu'].filter(Boolean))].filter(id=>lojasAfil()[id]).slice(0,3);
+  const ordem=[...new Set([pref,'amazon','ml','shopee'].filter(Boolean))].filter(id=>lojasAfil()[id]).slice(0,3);
   return `<div class="shop"><span>${rot||'Procurar:'}</span>${ordem.map(id=>`<a href="${esc(buscaUrl(id,q))}" target="_blank" rel="noopener sponsored" data-track="loja:${esc(id)}">${esc(lojasAfil()[id].nome)}</a>`).join('')}</div>`;
 }
 
