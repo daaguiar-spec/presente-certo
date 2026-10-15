@@ -725,6 +725,7 @@ function affiliate(u){
   try{
     const x=new URL(u);const host=x.hostname.toLowerCase().replace(/^www\./,'');
     if(hostOk(host,'amazon.com.br')&&config.amazonTag&&!x.searchParams.get('tag')){x.searchParams.set('tag',config.amazonTag);return x.toString()}
+    if(hostOk(host,'shopee.com.br')&&host!=='s.shopee.com.br'&&config.shopeeId&&!x.searchParams.get('mmp_pid')){const sid='an_'+config.shopeeId;x.searchParams.set('mmp_pid',sid);x.searchParams.set('utm_source',sid);x.searchParams.set('utm_medium','affiliates');x.searchParams.set('utm_content','presentecerto');return x.toString()}
     if(hostOk(host,'magazinevoce.com.br'))return u;
     for(const L of Object.values(lojasAfil())){if(L.modelo&&L.modelo.includes('{url}')&&hostOk(host,L.dominio))return L.modelo.split('{url}').join(encodeURIComponent(u))}
   }catch(e){}
@@ -2674,7 +2675,7 @@ function adminBlock(){
   // afiliados
   const la=config.lojasAfiliadas||{};
   h+=`<section class="panel ad"><h2>Afiliados</h2><p class="lede" style="margin:0">Os botões “Procurar”, os links colados pelos usuários e as ofertas passam a levar seus códigos.</p>
-   <div class="grid2"><label class="f">Código de afiliado Amazon<input id="cfgAmz" value="${esc(config.amazonTag||'')}" placeholder="Ex.: presentecerto-20"></label><label class="f">Sua loja Parceiro Magalu<input id="cfgMg" value="${esc(config.magaluLoja||'')}" placeholder="Ex.: magazinepresentecerto"></label></div>
+   <div class="grid2"><label class="f">Código de afiliado Amazon<input id="cfgAmz" value="${esc(config.amazonTag||'')}" placeholder="Ex.: presentecerto-20"></label><label class="f">ID de afiliado Shopee (só os números depois de an_)<input id="cfgShp" inputmode="numeric" value="${esc(config.shopeeId||'')}" placeholder="Ex.: 18376901238"></label><label class="f">Sua loja Parceiro Magalu<input id="cfgMg" value="${esc(config.magaluLoja||'')}" placeholder="Ex.: magazinepresentecerto"></label></div>
    <div class="flabel">Modelo de link de afiliado por loja</div>
    <span class="small" style="color:var(--muted)">Cole o modelo de link que a rede de afiliados fornece (Awin, Lomadee, Shopee, Mercado Livre e outras), trocando o endereço do produto por <b>{url}</b>. Ex.: https://www.awin1.com/cread.php?awinmid=123&awinaffid=456&ued={url}</span>
    ${Object.entries(LOJAS_BASE).filter(([k])=>k!=='amazon'&&k!=='magalu').map(([k,v])=>`<label class="f">${esc(v.nome)}<input id="mod_${k}" autocapitalize="off" value="${esc((la[k]||{}).modelo||'')}" placeholder="Modelo com {url}"></label>`).join('')}
@@ -3016,7 +3017,7 @@ app.addEventListener('click',async e=>{
     case 'delData': draft.datas.splice(+ds.i,1);dirty=true;keep(renderMine);break;
     case 'saveCfg': {const la={...(config.lojasAfiliadas||{})};let erro='';Object.keys(LOJAS_BASE).filter(k=>k!=='amazon'&&k!=='magalu').forEach(k=>{const m=val('mod_'+k);if(m&&!m.includes('{url}'))erro=erro||('O modelo de '+LOJAS_BASE[k].nome+' precisa ter {url}');la[k]={...(la[k]||{}),modelo:m.slice(0,400)}});if(erro){toast(erro);break}
       const lpc={};app.querySelectorAll('.catLoja').forEach(el=>{if(el.value)lpc[el.dataset.cat]=el.value});
-      saveConfig({...config,amazonTag:val('cfgAmz').replace(/[^\w-]/g,'').slice(0,40),magaluLoja:val('cfgMg').replace(/[^\w-]/g,'').slice(0,60),lojasAfiliadas:la,lojaPorCategoria:lpc},'Afiliados salvos');break}
+      saveConfig({...config,amazonTag:val('cfgAmz').replace(/[^\w-]/g,'').slice(0,40),shopeeId:val('cfgShp').replace(/^an_/i,'').replace(/\D/g,'').slice(0,20),magaluLoja:val('cfgMg').replace(/[^\w-]/g,'').slice(0,60),lojasAfiliadas:la,lojaPorCategoria:lpc},'Afiliados salvos');break}
     case 'addLojaAf': {const nome=val('nlNome'),dom=val('nlDom').toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/.*$/,''),busca=val('nlBusca'),mod=val('nlMod');
       if(!nome||!dom){toast('Preencha o nome e o domínio da loja');break}if(busca&&!busca.includes('{q}')){toast('Na busca, troque a palavra buscada por {q}');break}if(mod&&!mod.includes('{url}')){toast('O modelo precisa ter {url}');break}
       const id=dom.replace(/[^a-z0-9]/g,'').slice(0,30);saveConfig({...config,lojasAfiliadas:{...(config.lojasAfiliadas||{}),[id]:{nome:nome.slice(0,30),dominio:dom,busca:busca.slice(0,300),modelo:mod.slice(0,400)}}},'Loja adicionada');break}
