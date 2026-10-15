@@ -676,10 +676,10 @@ function buscaUrl(id,q){
   return affiliate(L.busca.split('{q-}').join(encodeURIComponent(q.trim().replace(/\s+/g,'-'))).split('{q}').join(encodeURIComponent(q)));
 }
 function catDoItem(nome){const n=String(nome||'').toLowerCase();for(const cats of [CAT_DESEJOS,CAT_PRECISA])for(const [c,its] of Object.entries(cats))if(its.some(it=>n.startsWith(String(Array.isArray(it)?it[0]:it).toLowerCase())))return c;return ''}
-function shopLinks(q,cat){
+function shopLinks(q,cat,rot){
   cat=cat||catDoItem(q);const pref=(config.lojaPorCategoria||{})[cat];
   const ordem=[...new Set([pref,'amazon','ml','magalu'].filter(Boolean))].filter(id=>lojasAfil()[id]).slice(0,3);
-  return `<div class="shop"><span>Procurar:</span>${ordem.map(id=>`<a href="${esc(buscaUrl(id,q))}" target="_blank" rel="noopener sponsored" data-track="loja:${esc(id)}">${esc(lojasAfil()[id].nome)}</a>`).join('')}</div>`;
+  return `<div class="shop"><span>${rot||'Procurar:'}</span>${ordem.map(id=>`<a href="${esc(buscaUrl(id,q))}" target="_blank" rel="noopener sponsored" data-track="loja:${esc(id)}">${esc(lojasAfil()[id].nome)}</a>`).join('')}</div>`;
 }
 
 /* ---------- anúncios segmentados ---------- */
@@ -1202,7 +1202,7 @@ function itemStatusHtml(owner,w){
 }
 function itemsView(owner,items,showStatus){
   return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
-    return `<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:(showStatus?shopLinks(w.t):'')}</div>${f?`<img class="thumb" src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:'<span></span>'}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
+    return `<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:''}${showStatus?shopLinks(w.t,null,safeLink(w.link)?'Ou procure em:':''):''}</div>${f?`<img class="thumb" src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:'<span></span>'}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
 }
 function aiBlock(id){
   const r=aiRes[id];
@@ -1274,7 +1274,7 @@ const pfCols=n=>{if(n<=4)return Math.max(n,1);const r=Math.ceil(n/4);return Math
 const PF_TONS=['#2f6fd6','#d9467e','#c28a00','#22a35a','#7b4fd1'];
 function pfItems(owner,items,showStatus){
   return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
-    return `<div class="pf-gift"><div class="pf-gimg" style="--c:${PF_TONS[i%PF_TONS.length]}">${f?`<img src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:`<span aria-hidden="true">${pfIcone(w.t)}</span>`}<span class="pf-n">${i+1}</span></div><div class="pf-gt">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="pf-gs">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a class="pf-link" href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:(showStatus?shopLinks(w.t):'')}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
+    return `<div class="pf-gift"><div class="pf-gimg" style="--c:${PF_TONS[i%PF_TONS.length]}">${f?`<img src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:`<span aria-hidden="true">${pfIcone(w.t)}</span>`}<span class="pf-n">${i+1}</span></div><div class="pf-gt">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="pf-gs">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a class="pf-link" href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:''}${showStatus?shopLinks(w.t,null,safeLink(w.link)?'Ou procure em:':''):''}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
 }
 
 /* ---------- Amigo secreto ---------- */
