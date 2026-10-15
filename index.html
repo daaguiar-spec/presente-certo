@@ -422,6 +422,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-head.com-foto .pf-acts .btn,.pf-head.com-foto .when{text-shadow:none}
 .pf-head.tem-btns .pf-top{padding-top:22px}
 .pf-aniv{background:#fff6d6;color:#5a4300;border:1.5px solid #f2cf4a;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px}.pf-aniv b{font-size:15px}.pf-aniv .btn{align-self:flex-start;margin-top:4px}
+.push-conv{display:flex;align-items:center;gap:10px;background:var(--accent-soft);border-radius:14px;padding:10px 12px;font-size:13px;margin:6px 8px}.push-conv span{flex:1}.pf-body .push-conv{margin:0;font-size:14px;padding:12px 14px}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -947,6 +948,7 @@ function renderSino(){
   if(!notifAberto){box.hidden=true;box.innerHTML='';return}
   const ns=buildNotifs();box.hidden=false;
   let h=`<div class="pop-head"><b>${notifPrefs?'O que avisar':'Avisos'}</b><span class="row" style="gap:12px">${notifPrefs?'':`<button class="link" data-sino="todasLidas">Marcar tudo como lido</button>`}<button class="link alt" data-sino="prefs">${notifPrefs?'Voltar':'Preferências'}</button></span></div>`;
+  if(!notifPrefs&&pushConvite())h+=`<div class="push-conv"><span>📲 Receba os avisos de aniversário no celular, mesmo com o app fechado.</span><button class="btn small" data-menu="pushOn">Ativar</button></div>`;
   if(notifPrefs)h+=`<div class="pop-body"><span class="small" style="color:var(--muted)">Escolha o que aparece no sino.</span>${Object.entries(NOTIF_TIPOS).map(([k,v])=>`<label class="check"><input type="checkbox" data-sinotipo="${k}" ${(notifEstado.desligados||[]).includes(k)?'':'checked'}><span>${v}</span></label>`).join('')}</div>`;
   else if(!ns.length)h+=`<div class="pop-body"><span class="muted">Nenhum aviso por enquanto. Quando alguém seguir você, deixar parabéns ou tiver aniversário chegando, aparece aqui.</span></div>`;
   else h+=`<div class="pop-body" style="padding:6px">${ns.map(n=>`<div class="notif ${naoLida(n)?'nova':''}" data-sino="ir" data-id="${esc(n.id)}" tabindex="0" role="button">${n.av?`<img src="${esc(av(n.av))}" alt="">`:`<span class="notif-ic">PC</span>`}<div style="min-width:0"><div class="txt">${n.html}</div>${n.link?`<a class="btn small green" style="margin-top:6px" href="${esc(affiliate(n.link))}" target="_blank" rel="noopener" data-track="ad:av:${esc(n.id.slice(3))}">${esc(n.botao)}</a>`:''}<div class="when2">${n.t>=today().getTime()&&n.tipo!=='parabens'&&n.tipo!=='seguidores'?'hoje':ago(n.t)}</div></div></div>`).join('')}</div>`;
@@ -973,6 +975,42 @@ document.addEventListener('change',e=>{if(e.target.hasAttribute&&e.target.hasAtt
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(notifAberto||menuAberto)){notifAberto=false;menuAberto=false;menuSair=false;renderSino();renderMenu()}});
 /* ---------- Menu da foto ---------- */
+/* ---------- avisos no celular (notificações) ---------- */
+const pushSuportado=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const ehIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const ehApp=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+let pushAtivo=null,pushOcupado=false;
+async function pushEstado(){try{if(!pushSuportado()){pushAtivo=false;return false}const reg=await navigator.serviceWorker.getRegistration('/');const sb=reg&&await reg.pushManager.getSubscription();pushAtivo=!!sb&&Notification.permission==='granted'}catch(e){pushAtivo=false}return pushAtivo}
+function b64u(t){const p='='.repeat((4-t.length%4)%4);const b=atob((t+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))}
+async function ativarPush(){
+  if(pushOcupado)return;
+  if(!pushSuportado()){toast(ehIOS&&!ehApp()?'No iPhone, primeiro instale o PresenteCerto na tela de início (Compartilhar › Adicionar à Tela de Início) e abra por lá.':'Este navegador não aceita avisos. Tente pelo Chrome no celular.');return}
+  if(Notification.permission==='denied'){toast('Os avisos estão bloqueados. Libere as notificações deste site nas configurações do navegador.');return}
+  pushOcupado=true;
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){toast('Sem permissão, não dá para avisar. Você pode ativar depois.');return}
+    const reg=await navigator.serviceWorker.register('/sw.js');await navigator.serviceWorker.ready;
+    const j=await (await fetch('/api/push-chave')).json();if(!j.ok||!j.chave)throw new Error('chave');
+    let sb=await reg.pushManager.getSubscription();
+    if(!sb)sb=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(j.chave)});
+    const novo=JSON.parse(JSON.stringify(sb));
+    const ref=db.doc('push/'+myId);const cur=await ref.get();
+    const subs=((cur.exists&&cur.data().subs)||[]).filter(x=>x&&x.endpoint!==novo.endpoint);
+    subs.push({endpoint:novo.endpoint,keys:novo.keys,em:new Date().toISOString(),ua:navigator.userAgent.slice(0,120)});
+    await ref.set({subs:subs.slice(-5)});
+    pushAtivo=true;toast('Pronto! Avisos ativados neste aparelho.');
+    try{const u=firebase.auth().currentUser;const t=u?await u.getIdToken():'';if(t)fetch('/api/push-teste',{method:'POST',headers:{Authorization:'Bearer '+t}}).catch(()=>{})}catch(e){}
+  }catch(e){toast('Não foi possível ativar os avisos. Tente de novo.')}
+  finally{pushOcupado=false;softRender();renderMenu();renderSino()}
+}
+async function desativarPush(){
+  try{const reg=await navigator.serviceWorker.getRegistration('/');const sb=reg&&await reg.pushManager.getSubscription();
+    if(sb){const ep=sb.endpoint;await sb.unsubscribe();const ref=db.doc('push/'+myId);const cur=await ref.get();await ref.set({subs:((cur.exists&&cur.data().subs)||[]).filter(x=>x&&x.endpoint!==ep)})}
+    pushAtivo=false;toast('Avisos desligados neste aparelho')}catch(e){toast(failMsg)}
+  softRender();renderMenu();
+}
+const pushConvite=()=>pushAtivo===false&&(pushSuportado()||ehIOS)&&!(typeof Notification!=='undefined'&&Notification.permission==='denied');
 function renderMenu(){
   const box=document.getElementById('menuBox');if(!box)return;
   if(!menuAberto){box.hidden=true;box.innerHTML='';return}
@@ -982,6 +1020,7 @@ function renderMenu(){
    <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
+   ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
    <button class="menu-item" data-menu="enviar">📲 Enviar meu perfil para amigos</button>
    ${(config.lojas||[]).some(l=>l.ativo)?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
@@ -999,6 +1038,8 @@ document.addEventListener('click',e=>{
   if(!sairDaFicha())return;
   if(a==='ficha')setTab('perfil',true);
   if(a==='lojas')setTab('lojas');
+  if(a==='pushOn'){ativarPush();return}
+  if(a==='pushOff'){desativarPush();return}
   if(a==='eventos'){evFechar();setTab('eventos')}
   if(a==='plus')setTab('plus');
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
@@ -1286,6 +1327,7 @@ function renderPerson(id,aba){
   if(self){
     const dn=bdayDays(p);
     if(dn!==null&&dn<=30)h+=`<div class="pf-aniv"><b>🎂 ${dn===0?'Hoje é o seu aniversário!':dn===1?'Seu aniversário é amanhã!':'Seu aniversário é em '+dn+' dias.'}</b><span>Mande sua lista para a família e os amigos acertarem no presente.</span><button class="btn small" data-menu="enviar">📲 Enviar minha lista</button></div>`;
+    if(pushConvite())h+=`<div class="push-conv"><span>🔔 Ative os avisos e não esqueça nenhum aniversário de quem você segue.</span><button class="btn small" data-menu="pushOn">Ativar avisos</button></div>`;
     h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="enviar">📲 Enviar para amigos</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
     if(completude(p).pct<100)h+=completudeHtml(p,true).replace('data-act="tab" data-id="perfil"','data-act="editarFicha"');
     h+=`<div class="small" style="color:var(--muted)">Mande para a família e acabe com os presentes errados. Abaixo, é assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
@@ -2718,6 +2760,7 @@ function softRender(){updateBadge();if(tab==='perfil'&&!viewing&&dirty)return;if
 app.addEventListener('focusout',()=>setTimeout(()=>{if(pendingRender&&!busy())softRender()},150));
 async function refresh(ids){await resolveNames(ids||[]);tryPendingOpen();softRender()}
 async function start(){
+  pushEstado().then(()=>{softRender();renderMenu()});
   db=await claude.use('db');user=await claude.use('user');
   if(!db){render();return}
   myId=user?await user.id():null;

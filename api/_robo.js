@@ -99,4 +99,17 @@ async function transacao(fn, tentativas = 5) {
   throw new Error('Muitas tentativas de gravação');
 }
 
-module.exports = { getDoc, commit, transacao, W, usuarioDoToken };
+// Lê todos os documentos de uma coleção (de 300 em 300)
+async function listDocs(coll) {
+  const out = []; let pt = '';
+  do {
+    const r = await fetch(`${FS}/${caminho(coll)}?pageSize=300${pt ? '&pageToken=' + encodeURIComponent(pt) : ''}`, { headers: { Authorization: 'Bearer ' + (await token()) } });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error('Lista ' + coll + ': ' + ((j.error && j.error.message) || r.status));
+    (j.documents || []).forEach((d) => { const data = {}; Object.entries(d.fields || {}).forEach(([k, x]) => { data[k] = dec(x); }); out.push({ id: d.name.split('/').pop(), path: coll + '/' + d.name.split('/').pop(), data, updateTime: d.updateTime }); });
+    pt = j.nextPageToken || '';
+  } while (pt);
+  return out;
+}
+
+module.exports = { getDoc, listDocs, commit, transacao, W, usuarioDoToken };

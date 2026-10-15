@@ -3,6 +3,7 @@
   "private": true,
   "description": "PresenteCerto: a rede social dos presentes",
   "dependencies": {
-    "firebase-admin": "12.7.0"
+    "firebase-admin": "12.7.0",
+    "web-push": "3.6.7"
   }
 }
