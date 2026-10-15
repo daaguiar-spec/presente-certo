@@ -444,6 +444,22 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .ev-plano-tag{position:absolute;top:-10px;right:10px;background:#ffd23f;color:#1d1530;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px}
 .ev-dica{background:#fffaf0;border:1px dashed #f2cf4a;border-radius:12px;padding:10px 12px;font-size:13px;color:#4a3d10}
 .ev-novo{align-self:flex-start;background:#ffd23f;color:#1d1530;font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px}
+.emp-topo{display:flex;gap:12px;align-items:center;color:#fff;border-radius:var(--r);padding:16px}.emp-topo h1{margin:0;font-size:20px;line-height:1.2;color:#fff}.emp-topo span{font-size:13px;opacity:.92}
+.emp-logo{width:52px;height:52px;border-radius:12px;background:#fff;color:#1d1530;font-weight:900;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;font-size:18px}.emp-logo img{width:100%;height:100%;object-fit:contain}
+.emp-planos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.emp-plano{position:relative;border:1.5px solid var(--line);border-radius:14px;padding:14px 8px 10px;display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;background:var(--surface)}
+.emp-plano.top{border-color:#f2cf4a;background:#fffaf0;color:#2a2230}.emp-plano .ev-plano-p{font-size:18px}.emp-plano .btn{margin-top:6px;width:100%}
+.emp-ok{background:#e6f6ee;color:#1f6b46;border-radius:12px;padding:10px 12px;font-weight:700;font-size:14px}
+.emp-lista{display:flex;flex-direction:column}.emp-pess{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.emp-pess:first-child{border-top:0}
+.emp-pess .av{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}.emp-pess .small{display:block;color:var(--muted)}
+.emp-st{font-size:12px;font-weight:700;white-space:nowrap}.emp-st.ok{color:#1f8a5b}.emp-st.p{color:var(--warn)}.emp-st.n{color:var(--muted)}
+.emp-regra{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--sunk);border-radius:10px;padding:8px 10px;font-size:14px}
+.emp-det{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}.emp-det summary{cursor:pointer;font-weight:700;color:var(--accent)}.emp-det[open]{display:flex;flex-direction:column;gap:10px}
+.emp-det textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--sunk);color:var(--fg)}
+.emp-cor{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer}.emp-cor[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent)}
+.emp-rev{color:#fff;border-radius:20px;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.emp-rev h2{margin:0;color:#fff;font-size:24px}.emp-rev .small{color:#fff;opacity:.92}
+.emp-rev-av{width:80px;height:80px;border-radius:50%;background:#fff;color:#1d1530;font-weight:900;font-size:28px;display:flex;align-items:center;justify-content:center}
+@media (max-width:380px){.emp-planos{grid-template-columns:1fr}}
+.emp-tag{left:50%;right:auto;transform:translateX(-50%);white-space:nowrap}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -481,6 +497,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   <button class="mais-item" data-mais="desejo" role="menuitem"><span>🎁</span>Adicionar presente à minha lista</button>
   <button class="mais-item" data-mais="precisa" role="menuitem"><span>🆘</span>Adicionar em “Precisando com urgência”</button>
   <button class="mais-item" data-mais="sorteio" role="menuitem"><span>🎲</span>Amigo secreto</button>
+  <button class="mais-item" data-mais="empresa" role="menuitem"><span>🏢</span>Amigo secreto da empresa</button>
   <button class="mais-item" data-mais="evento" role="menuitem"><span>🎉</span>Lista de evento (casamento, chá de bebê…)</button>
   <button class="mais-item" data-mais="convidar" role="menuitem"><span>💌</span>Convidar amigos</button>
 </div></div>
@@ -840,7 +857,7 @@ function pixBox(v,valor){
 }
 
 /* ---------- render ---------- */
-function setTab(t,editar){if(t!=='eventos'&&evAberto)evFechar();if(t==='perfil')fichaEditando=editar===true||(tab==='perfil'&&fichaEditando&&editar!==false);tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
+function setTab(t,editar){if(t!=='eventos'&&evAberto)evFechar();if(t!=='empresa'&&empAberto)empFechar();if(t==='perfil')fichaEditando=editar===true||(tab==='perfil'&&fichaEditando&&editar!==false);tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
 document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
 document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
 function keep(fn){const y=window.scrollY;const xs=[...document.querySelectorAll('.ofertas')].map(l=>l.scrollLeft);fn();window.scrollTo(0,y);if(xs.some(Boolean))document.querySelectorAll('.ofertas').forEach((l,i)=>{if(xs[i]){l.style.scrollBehavior='auto';l.scrollLeft=xs[i];l.style.scrollBehavior=''}});if(xs.length)ofSetas()}
@@ -861,6 +878,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='sugestao')renderSugestao();
   else if(tab==='ofertas')renderOfertas();
   else if(tab==='eventos')renderEventos();
+  else if(tab==='empresa')renderEmpresas();
   else if(tab==='aparencia')renderAparencia();
   else if(tab==='plus')renderPlus();
   else if(tab==='lojas')renderLojasTab();
@@ -1408,7 +1426,7 @@ function membrosPicker(){
 }
 function renderSorteio(){
   const mine=allSorteios().filter(s=>s.org===myId||(s.membros||[]).includes(myId));
-  let h=`<div class="view"><div><h1>Amigo secreto</h1><p class="lede">Crie o grupo, sorteie e cada um vê só quem tirou, já com a ficha de presentes da pessoa.</p></div>`;
+  let h=`<div class="view"><div><h1>Amigo secreto</h1><p class="lede">Crie o grupo, sorteie e cada um vê só quem tirou, já com a ficha de presentes da pessoa.</p></div><button class="mural-lojas" data-act="tab" data-id="empresa"><span>🏢 É para a empresa?</span><span class="seg-tag">Novo</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(form&&form.type==='novoSorteio'){
     h+=`<section class="panel"><h2>Novo amigo secreto</h2>
      <label class="f">Nome<input id="sNome" value="${esc(form.nome||'')}" placeholder="Ex.: Natal da família 2026" maxlength="50"></label>
@@ -1766,7 +1784,7 @@ function renderAdmin(){
   // 5 usuários
   const lista=vis.map(([id,p])=>({id,p,c:completude(p).pct,t:Date.parse(p.atualizado||'')||0})).sort((a,b)=>b.t-a.t);
   h+=`<section class="panel"><h2>Usuários</h2><p class="lede" style="margin:0">Todas as pessoas com ficha, da atualização mais recente para a mais antiga.</p><div>${lista.map(u=>`<div class="urow"><img src="${esc(av(u.id))}" alt=""><div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.id===myId?(myName||'Você')+' (você)':nm(u.id))}</div><div class="small" style="color:var(--muted)">Ficha ${u.c}% · ${seguidores(u.id)} ${seguidores(u.id)===1?'seguidor':'seguidores'}${u.p.fechado?' · perfil fechado':''}${u.t?' · atualizou '+ago(u.t):''}</div></div><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="when ${u.c===100?'':'soon'}">${u.c}%</span><button class="btn small ${isPlus(u.id)?'on':'ghost'}" data-act="togglePlus" data-id="${esc(u.id)}" title="${isPlus(u.id)?'Plus até '+esc(plusAte(u.id))+'. Toque para desligar':'Ligar o Plus por 1 ano'}">${isPlus(u.id)?'Plus ✓':'Plus'}</button></span></div>`).join('')||'<span class="muted">Ninguém ainda.</span>'}</div></section>`;
-  h+=plusAdmin();h+=eventosAdmin();
+  h+=plusAdmin();h+=eventosAdmin();h+=empresasAdmin();
   // 6 moderação
   const mod=config.moderados||[];
   h+=`<section class="panel"><h2>Moderação</h2><p class="lede" style="margin:0">Todas as mensagens de parabéns. Ocultar esconde a mensagem para todos, sem apagar.</p>${msgs.length?msgs.slice(0,50).map(m=>{const hid=mod.includes(m.id);return `<div class="msg-card" style="${hid?'opacity:.55':''}"><img src="${esc(av(m.from))}" alt=""><div style="min-width:0"><div><b>${esc(nm(m.from))}</b> para <b>${esc(nm(m.para))}</b> <span class="small" style="color:var(--muted)">${ago(Date.parse(m.data))}</span></div><div style="overflow-wrap:anywhere">${esc(m.texto)}</div><div class="item-actions"><button class="link ${hid?'alt':''}" data-act="moderar" data-mid="${esc(m.id)}">${hid?'Mostrar de novo':'Ocultar para todos'}</button></div></div></div>`}).join(''):'<span class="muted">Nenhuma mensagem ainda.</span>'}</section>`;
@@ -2302,6 +2320,197 @@ function eventosAdmin(){
    <div class="row" style="flex-wrap:nowrap"><input id="evCredEmail" autocapitalize="off" placeholder="email@da.pessoa.com"><button class="btn small" data-ev="darCredito">Dar crédito</button></div></section>`;
 }
 
+/* ---------- Amigo Secreto para Empresas ---------- */
+const EMP_PLANOS={pequeno:{n:'Pequeno',lim:30,preco:'R$ 49',campo:'empPequeno'},medio:{n:'Médio',lim:100,preco:'R$ 99',campo:'empMedio'},grande:{n:'Grande',lim:300,preco:'R$ 149',campo:'empGrande',extra:'Sorteio por setor'}};
+const EMP_CORES=['#0f4c81','#7b4fd1','#c0392b','#1f8a5b','#d35400','#2c3e50'];
+let empMeus={},empAberto=null,empDoc,empParts={},empConv={},empRes=null,empForm=null,empUnsubs=[],pendingEmp=null,empPartsOk=false;
+try{const e=new URLSearchParams(location.search).get('emp');if(e)pendingEmp=e.replace(/[^A-Za-z0-9_-]/g,'')}catch(e){}
+const empLink=id=>`${APP_URL}/?emp=${encodeURIComponent(id)}`;
+const empLogoKey=id=>'emp_'+id;
+const empChaveEmail=e=>String(e||'').toLowerCase().trim().replace(/[^a-z0-9@._-]/g,'_').slice(0,120);
+function empFechar(){empUnsubs.forEach(f=>{try{f()}catch(e){}});empUnsubs=[];empAberto=null;empDoc=undefined;empParts={};empConv={};empRes=null;empPartsOk=false}
+function empAbrir(id){
+  empFechar();empAberto=id;tab='empresa';viewing=null;form=null;empForm=null;
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected','false'));
+  const d=db.doc('empresas/'+id);
+  empUnsubs.push(d.onSnapshot(s=>{empDoc=s.exists?{id:s.id,...s.data()}:null;if(empDoc){ensureFotos(empDoc.dono);if(empDoc.dono===myId&&!empConvSub)empSubConv()}if(tab==='empresa')softRender()},()=>{empDoc=null;if(tab==='empresa')softRender()}));
+  empSubParts();
+  empUnsubs.push(d.collection('resultado').doc(myId).onSnapshot(s=>{empRes=s.exists?s.data():null;if(tab==='empresa')softRender()},()=>{}));
+  render();window.scrollTo(0,0);
+}
+let empConvSub=false;
+function empSubConv(){empConvSub=true;const id=empAberto;empUnsubs.push(db.doc('empresas/'+id).collection('convites').onSnapshot(s=>{if(empAberto!==id)return;empConv={};s.docs.forEach(x=>{empConv[x.id]=x.data()});if(tab==='empresa')softRender()},()=>{}))}
+function empSubParts(){const id=empAberto;empUnsubs.push(db.doc('empresas/'+id).collection('participantes').onSnapshot(s=>{if(empAberto!==id)return;empParts={};s.docs.forEach(x=>{empParts[x.id]=x.data()});empPartsOk=true;if(tab==='empresa')softRender()},()=>{empPartsOk=false}))}
+async function empApi(body){const u=window.firebase&&firebase.auth().currentUser;if(!u)throw new Error('login');const t=await u.getIdToken();
+  const r=await fetch('/api/empresa',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));return {r,j}}
+const empValor=e=>e.vmin&&e.vmax?`R$ ${e.vmin} a R$ ${e.vmax}`:e.vmin?`a partir de R$ ${e.vmin}`:e.vmax?`até R$ ${e.vmax}`:'';
+const empDataTxt=d=>d?evData(d):'';
+function empTopo(e,sub){
+  const logo=fotoOf(e.dono,empLogoKey(e.id||empAberto));const ini=String(e.empresa||e.nome||'?').trim().slice(0,2).toUpperCase();
+  return `<section class="emp-topo" style="background:${esc(e.cor||EMP_CORES[0])}"><span class="emp-logo">${logo?`<img src="${esc(logo)}" alt="">`:esc(ini)}</span><div style="min-width:0"><h1>${esc(sub||e.nome||'Amigo secreto')}</h1><span>${esc([e.empresa,e.data?'troca em '+empDataTxt(e.data):'',empValor(e)].filter(Boolean).join(' · '))}</span></div></section>`;
+}
+function renderEmpresas(){
+  if(empAberto)return renderEmpresa();
+  const lista=Object.entries(empMeus).sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
+  let h=`<div class="view"><button class="back" data-act="tab" data-id="sorteio">← Amigo secreto</button><div><h1>Amigo secreto da empresa</h1><p class="lede">O RH cria o evento, manda o link e cada colaborador preenche uma ficha rápida. O sorteio é automático e ninguém, nem o RH, vê quem tirou quem.</p></div>`;
+  if(empForm){
+    h+=`<section class="panel"><h2>Novo amigo secreto da empresa</h2>
+     <label class="f">Nome do evento<input id="emNome" maxlength="60" value="${esc(empForm.nome||'')}" placeholder="Ex.: Amigo Secreto Acme 2026"></label>
+     <label class="f">Nome da empresa<input id="emEmp" maxlength="60" value="${esc(empForm.empresa||'')}" placeholder="Ex.: Acme Ltda"></label>
+     <div class="flabel">Cor da empresa</div><div class="row">${EMP_CORES.map(c=>`<button class="emp-cor" style="background:${c}" aria-pressed="${(empForm.cor||EMP_CORES[0])===c}" aria-label="Cor ${c}" data-emp="cor" data-v="${c}"></button>`).join('')}</div>
+     <div class="grid2"><label class="f">Data da troca<input id="emData" type="date" value="${esc(empForm.data||'')}"></label><label class="f">Prazo para confirmar<input id="emPrazo" type="date" value="${esc(empForm.prazo||'')}"></label></div>
+     <div class="grid2"><label class="f">Valor mínimo (R$)<input id="emMin" inputmode="numeric" value="${esc(empForm.vmin||'')}" placeholder="50"></label><label class="f">Valor máximo (R$)<input id="emMax" inputmode="numeric" value="${esc(empForm.vmax||'')}" placeholder="80"></label></div>
+     <div class="row"><button class="btn" data-emp="criar">Criar evento</button><button class="link" data-emp="cancelar">Cancelar</button></div>
+     <span class="small" style="color:var(--muted)">Criar e convidar é grátis. Você escolhe o plano antes de sortear.</span></section>`;
+  }else h+=`<div class="row"><button class="btn" data-emp="novo">Criar evento da empresa</button></div>`;
+  h+=`<section class="panel"><b>Planos (pagamento único por evento)</b><div class="emp-planos">${Object.entries(EMP_PLANOS).map(([k,p])=>`<div class="emp-plano${k==='medio'?' top':''}">${k==='medio'?'<span class="ev-plano-tag emp-tag">Popular</span>':''}<b>${p.n}</b><span class="ev-plano-p">${p.preco}</span><span class="small">até ${p.lim} pessoas${p.extra?' · '+p.extra:''}</span></div>`).join('')}</div>
+   <span class="small" style="color:var(--muted)">Todos incluem: logo e cor da empresa, link de convite, ficha de presentes, regras de quem não tira quem, painel de acompanhamento, lembretes e aviso no celular.</span></section>`;
+  if(!lista.length&&!empForm)h+=`<div class="empty"><b>Nenhum evento ainda</b><span>Crie o primeiro e mande o link para a equipe.</span></div>`;
+  lista.forEach(([id,e])=>{h+=`<button class="ev-card" data-emp="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${esc(e.cor||EMP_CORES[0])};color:#fff">🏢</span><span class="ev-info"><b>${esc(e.nome||'Amigo secreto')}</b><span class="small" style="color:var(--muted)">${esc(e.empresa||'')}${e.data?' · '+esc(empDataTxt(e.data)):''}</span></span><span class="when ${e.sorteado?'soon':''}">${e.sorteado?'Sorteado':e.pago?'Ativo':'Rascunho'}</span></button>`});
+  app.innerHTML=h+'</div>';
+}
+function empFichaHtml(p){
+  const f=p.ficha||{};const tags=[f.camiseta?'Camiseta '+f.camiseta:'',f.calcado?'Calçado '+f.calcado:'',...String(f.gostos||'').split(',').map(x=>x.trim())].filter(Boolean);
+  let h='';
+  const ideias=(f.ideias||[]).filter(Boolean);
+  h+=`<section class="panel"><b>🎁 O que ${esc(String(p.nome||'a pessoa').split(' ')[0])} quer</b>${ideias.length?`<div class="wish">${ideias.map((x,i)=>`<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(x)}</div>${shopLinks(x)}</div><span></span></div>`).join('')}</div>`:'<span class="muted">Ainda não colocou ideias de presente.</span>'}</section>`;
+  if(tags.length||f.naoGosta)h+=`<section class="panel"><b>📏 Tamanhos e gostos</b><div class="chips">${tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>${f.naoGosta?`<span class="small" style="color:var(--muted)">Não gosta de: ${esc(f.naoGosta)}</span>`:''}</section>`;
+  return h;
+}
+function empMinhaParte(e){
+  const eu=empParts[myId];let h='';
+  if(e.sorteado){
+    if(empRes){const alvo=empParts[empRes.tirou]||{nome:empRes.nome,setor:empRes.setor};
+      h+=`<section class="emp-rev" style="background:${esc(e.cor||EMP_CORES[0])}"><span class="small">Você tirou</span><span class="emp-rev-av">${esc(String(alvo.nome||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><h2>${esc(alvo.nome||'')}</h2><span class="small">${esc([alvo.setor,e.data?'troca em '+empDataTxt(e.data):'',empValor(e)].filter(Boolean).join(' · '))}</span></section>`;
+      h+=empFichaHtml(alvo);
+    }else h+=`<div class="notice">O sorteio já foi feito${eu?'. Seu resultado está chegando, atualize a página em instantes.':' e você não estava entre os participantes.'}</div>`;
+    return h;
+  }
+  const f=(eu&&eu.ficha)||{};const pr=profiles[myId]||{};
+  const pre={nome:(eu&&eu.nome)||myName||'',setor:(eu&&eu.setor)||'',camiseta:f.camiseta||pr.camiseta||'',calcado:f.calcado||pr.calcado||'',gostos:f.gostos||(pr.gostosTags||[]).join(', '),ideias:(f.ideias&&f.ideias.length?f.ideias:(pr.desejos||[]).map(w=>w.t)).slice(0,3),naoGosta:f.naoGosta||pr.naoGosta||''};
+  while(pre.ideias.length<3)pre.ideias.push('');
+  if(eu&&eu.vai===false)return `<section class="panel"><b>Você marcou que não vai participar.</b><div class="row"><button class="btn small" data-emp="vou">Mudei de ideia, vou participar</button></div></section>`;
+  h+=`<section class="panel">${eu?'<div class="emp-ok">✓ Você está no sorteio. Pode editar sua ficha até o sorteio.</div>':'<b>1. Vai participar?</b><span class="small" style="color:var(--muted)">Preencha a ficha abaixo e toque em Salvar. Se não for participar, avise o RH tocando em “Não vou”.</span>'}
+   <label class="f">Seu nome<input id="epNome" maxlength="60" value="${esc(pre.nome)}"></label>
+   ${(e.setores||[]).length?`<label class="f">Setor<select id="epSetor"><option value="">Escolha</option>${e.setores.map(s=>`<option ${pre.setor===s?'selected':''}>${esc(s)}</option>`).join('')}</select></label>`:`<label class="f">Setor (opcional)<input id="epSetor" maxlength="40" value="${esc(pre.setor)}" placeholder="Ex.: Financeiro"></label>`}
+   <b style="margin-top:6px">${eu?'Sua ficha':'2. Ajude quem vai te tirar 🎁'}</b><span class="small" style="color:var(--muted)">Leva 1 minuto. Já trouxemos o que está na sua ficha do PresenteCerto.</span>
+   <div class="grid2"><label class="f">Camiseta<input id="epCam" maxlength="10" value="${esc(pre.camiseta)}" placeholder="M"></label><label class="f">Calçado<input id="epCal" maxlength="10" value="${esc(pre.calcado)}" placeholder="38"></label></div>
+   <label class="f">Do que você gosta<input id="epGos" maxlength="150" value="${esc(pre.gostos)}" placeholder="Ex.: café, livros, plantas"></label>
+   <div class="flabel">3 ideias de presente</div>${pre.ideias.map((x,i)=>`<input id="epId${i}" maxlength="80" value="${esc(x)}" placeholder="Ideia ${i+1}">`).join('')}
+   <label class="f">Não gosto de<input id="epNao" maxlength="100" value="${esc(pre.naoGosta)}" placeholder="Ex.: perfume doce"></label>
+   <div class="row"><button class="btn" data-emp="salvarFicha">${eu?'Salvar alterações':'Salvar e entrar no sorteio'}</button>${eu?'':'<button class="btn ghost" data-emp="naoVou">Não vou</button>'}</div></section>`;
+  return h;
+}
+function renderEmpresa(){
+  const voltar=`<button class="back" data-emp="voltar">← ${empDoc&&empDoc.dono===myId?'Meus eventos':'Voltar'}</button>`;
+  if(empDoc===undefined){app.innerHTML=`<div class="view">${voltar}<div class="muted">Carregando…</div></div>`;return}
+  if(!empDoc){app.innerHTML=`<div class="view">${voltar}<div class="empty"><b>Evento não encontrado</b><span>Confira o link com o RH da sua empresa.</span></div></div>`;return}
+  const e=empDoc,rh=e.dono===myId;
+  let h=`<div class="view">${voltar}${empTopo(e,rh?e.nome:(empParts[myId]||e.sorteado?e.nome:'Você foi convidado! 🎉'))}`;
+  if(rh)h+=empPainelRH(e);
+  else h+=empMinhaParte(e);
+  app.innerHTML=h+'</div>';
+}
+function empPainelRH(e){
+  const parts=Object.entries(empParts),vao=parts.filter(([,p])=>p.vai!==false),fichas=vao.filter(([,p])=>((p.ficha||{}).ideias||[]).filter(Boolean).length);
+  const conv=Object.values(empConv),emails=new Set(parts.map(([,p])=>String(p.email||'').toLowerCase()));
+  const pend=conv.filter(c=>!emails.has(String(c.email||'').toLowerCase()));
+  const plano=EMP_PLANOS[e.plano];const lim=plano?plano.lim:0;const l=empLink(empAberto);
+  let h='';
+  // plano
+  if(!e.pago&&!e.sorteado){
+    h+=`<section class="panel ev-prem"><b>Escolha o plano para poder sortear</b><div class="emp-planos">${Object.entries(EMP_PLANOS).map(([k,p])=>{const tem=isOwner||(evCred[p.campo]||0)>=1;const link=(config.empLinks||{})[k];
+      return `<div class="emp-plano${k==='medio'?' top':''}"><b>${p.n}</b><span class="ev-plano-p">${p.preco}</span><span class="small">até ${p.lim} pessoas${p.extra?' · '+p.extra:''}</span>${tem?`<button class="btn small" data-emp="ativar" data-v="${k}">${isOwner?'Ativar (admin)':'Usar meu crédito'}</button>`:safeLink(link)?`<a class="btn small" href="${esc(link)}" target="_blank" rel="noopener" data-track="loja:empresa-${k}">Comprar</a>`:'<span class="small">Em breve</span>'}</div>`}).join('')}</div>
+     <div class="row"><button class="link" data-ev="credito">Já paguei, atualizar</button></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Você pode convidar e montar tudo antes de pagar.</span></section>`;
+  }else if(plano)h+=`<div class="emp-ok">✓ Plano ${esc(plano.n)} ativo · até ${lim} pessoas</div>`;
+  // sorteio feito
+  if(e.sorteado)h+=`<section class="panel hl"><b>✅ Sorteio feito</b><span class="small">${e.sorteadoN||vao.length} participantes. Cada pessoa já vê quem tirou, no app e pelo link. Ninguém, nem você, vê quem tirou quem.</span></section>`;
+  // convite
+  const msg=`Vem aí o ${e.nome||'amigo secreto'}! 🎁 Entre pelo link, confirme sua participação e preencha sua ficha de presentes (leva 1 minuto):\n${l}`;
+  if(!e.sorteado)h+=`<section class="panel hl"><b>📨 Convide a equipe</b><span class="small">Mande este link no grupo da empresa ou por e-mail. Cada pessoa entra com o Google ou com o e-mail.</span><div class="pix-code" style="user-select:all">${esc(l)}</div><div class="row"><button class="btn small" data-emp="compartilhar">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(msg)}">Copiar mensagem</button><button class="btn small ghost" data-act="copy" data-text="${esc(l)}">Copiar link</button></div></section>`;
+  // participação
+  const pct=Math.max(conv.length,vao.length)?Math.round(vao.length/Math.max(conv.length,vao.length)*100):0;
+  h+=`<section class="panel"><b>📊 Participação</b><div class="ev-stats"><div><b>${conv.length||'–'}</b><span>convidados</span></div><div><b>${vao.length}</b><span>confirmados</span></div><div><b>${fichas.length}</b><span>fichas prontas</span></div></div><div class="ev-barra"><i style="width:${pct}%"></i></div>
+   <span class="small" style="color:var(--muted)">${e.prazo?`Prazo para confirmar: ${esc(empDataTxt(e.prazo))}. `:''}${lim&&vao.length>lim?`<b style="color:var(--warn)">Passou do limite do plano (${lim}).</b> `:''}${!e.sorteado&&vao.length-fichas.length>0?`${vao.length-fichas.length} confirmaram mas ainda não preencheram a ficha.`:''}</span>
+   ${!e.sorteado?`<div class="row"><button class="btn small" data-emp="lembrar">🔔 Lembrar quem falta</button></div>`:''}</section>`;
+  // participantes
+  h+=`<section class="panel"><b>👥 Participantes (${vao.length})</b>${parts.length?`<div class="emp-lista">${parts.sort((a,b)=>String(a[1].nome).localeCompare(String(b[1].nome))).map(([uid,p])=>{const ok=((p.ficha||{}).ideias||[]).filter(Boolean).length;
+     return `<div class="emp-pess"><span class="av">${esc(String(p.nome||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><div style="min-width:0;flex:1"><b>${esc(p.nome||'Sem nome')}</b><span class="small">${esc(p.setor||'')}</span></div>${p.vai===false?'<span class="emp-st n">Não vai</span>':ok?'<span class="emp-st ok">✓ Ficha pronta</span>':'<span class="emp-st p">Sem ficha</span>'}${!e.sorteado?`<button class="link" data-emp="tirar" data-id="${esc(uid)}" aria-label="Remover ${esc(p.nome||'')}">✕</button>`:''}</div>`}).join('')}</div>`:'<span class="muted">Ninguém entrou ainda. Mande o link para a equipe.</span>'}
+   ${pend.length?`<div class="flabel">Convidados que ainda não entraram (${pend.length})</div><div class="emp-lista">${pend.map(c=>`<div class="emp-pess"><span class="av">✉️</span><div style="min-width:0;flex:1"><b>${esc(c.nome||c.email)}</b><span class="small">${esc(c.email)}${c.setor?' · '+esc(c.setor):''}</span></div>${!e.sorteado?`<button class="link" data-emp="tirarConv" data-id="${esc(empChaveEmail(c.email))}">✕</button>`:''}</div>`).join('')}</div>`:''}
+   ${!e.sorteado?`<details class="emp-det"><summary>+ Adicionar lista de convidados (para acompanhar quem falta)</summary><span class="small" style="color:var(--muted)">Cole os e-mails, um por linha. Pode copiar direto da planilha, no formato <b>Nome; e-mail; setor</b>.</span><textarea id="emConv" rows="5" placeholder="Mariana Souza; mariana@empresa.com; Financeiro&#10;carlos@empresa.com"></textarea><div class="row"><button class="btn small" data-emp="addConv">Adicionar</button></div></details>`:''}</section>`;
+  // regras e setores
+  if(!e.sorteado){
+    const ops=vao.map(([uid,p])=>`<option value="${esc(uid)}">${esc(p.nome||uid)}</option>`).join('');
+    h+=`<section class="panel"><b>🚫 Regras do sorteio</b><span class="small" style="color:var(--muted)">Quem não pode tirar quem (vale nos dois sentidos). Ex.: casais, chefe e equipe direta.</span>
+     ${(e.regras||[]).map((r,i)=>`<div class="emp-regra"><span>${esc((empParts[r.a]||{}).nome||'?')} <b>não tira</b> ${esc((empParts[r.b]||{}).nome||'?')}</span><button class="link" data-emp="tirarRegra" data-i="${i}">✕</button></div>`).join('')}
+     ${vao.length>=2?`<div class="grid2"><select id="emRa"><option value="">Pessoa</option>${ops}</select><select id="emRb"><option value="">não tira…</option>${ops}</select></div><div class="row"><button class="btn small ghost" data-emp="addRegra">Adicionar regra</button></div>`:'<span class="small">As regras aparecem quando houver participantes.</span>'}
+     <div class="flabel" style="display:flex;gap:8px;align-items:center">Sorteio por setor ${e.plano==='grande'?'':'<span class="plus-badge" style="display:inline-block;width:auto">Plano Grande</span>'}</div>
+     <label class="f">Setores (separados por vírgula)<input id="emSetores" maxlength="300" value="${esc((e.setores||[]).join(', '))}" placeholder="Ex.: Financeiro, Vendas, RH"></label>
+     <label class="check"><input type="checkbox" id="emPorSetor" ${e.porSetor?'checked':''} ${e.plano==='grande'?'':'disabled'}><span>Cada setor sorteia entre si</span></label>
+     <div class="row"><button class="btn small ghost" data-emp="salvarSetores">Salvar setores</button></div></section>`;
+    h+=`<section class="panel"><b>🏷️ Logo da empresa</b><div class="row"><button class="btn small ghost" data-emp="logo">${fotoOf(e.dono,empLogoKey(empAberto))?'Trocar logo':'Enviar logo'}</button></div></section>`;
+    h+=`<section class="panel hl"><b>🎲 Sorteio</b><span class="small">${e.pago||isOwner?`Quando todos tiverem confirmado, faça o sorteio. Depois dele, ninguém entra nem muda a ficha.`:'Escolha um plano acima para liberar o sorteio.'}</span><div class="row"><button class="btn" data-emp="sortear" ${e.pago||isOwner?'':'disabled'}>Fazer o sorteio agora</button></div></section>`;
+  }
+  // RH também participa?
+  h+=`<details class="emp-det" ${empParts[myId]?'':''}><summary>${empParts[myId]?'Sua participação (você também está no sorteio)':'Você também vai participar? Preencha sua ficha'}</summary>${empMinhaParte(e)}</details>`;
+  if(!e.sorteado)h+=`<div class="row"><button class="link" data-emp="excluir" style="color:var(--warn)">Excluir este evento</button></div>`;
+  return h;
+}
+function empLerForm(){return {nome:val('emNome').slice(0,60),empresa:val('emEmp').slice(0,60),data:val('emData'),prazo:val('emPrazo'),vmin:val('emMin').replace(/[^\d]/g,'').slice(0,6),vmax:val('emMax').replace(/[^\d]/g,'').slice(0,6)}}
+app.addEventListener('click',async ev=>{
+  const b=ev.target.closest&&ev.target.closest('[data-emp]');if(!b||!db||!myId)return;
+  const ds=b.dataset,a=ds.emp;
+  switch(a){
+    case 'novo': empForm={cor:EMP_CORES[0]};keep(render);break;
+    case 'cancelar': empForm=null;keep(render);break;
+    case 'cor': empForm={...empForm,...empLerForm(),cor:ds.v};keep(render);break;
+    case 'criar': {const f=empLerForm();if(!f.nome){toast('Dê um nome ao evento');break}
+      const ref=db.collection('empresas').doc();
+      try{await ref.set({dono:myId,...f,cor:empForm.cor||EMP_CORES[0],pago:false,sorteado:false,regras:[],porSetor:false,setores:[],criado:Date.now()});empForm=null;toast('Evento criado! Agora convide a equipe.');empAbrir(ref.id)}catch(e){toast('Não foi possível criar.')}break}
+    case 'abrir': empAbrir(ds.id);break;
+    case 'voltar': if(empDoc&&empDoc.dono===myId){empFechar();render();window.scrollTo(0,0)}else{empFechar();setTab('mural')}break;
+    case 'compartilhar': {const e=empDoc;const l=empLink(empAberto);const txt=`Vem aí o ${e.nome||'amigo secreto'}! 🎁 Entre pelo link, confirme sua participação e preencha sua ficha de presentes (leva 1 minuto):`;
+      if(navigator.share)navigator.share({title:e.nome||'Amigo secreto',text:txt,url:l}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt+'\n'+l),'_blank','noopener');break}
+    case 'ativar': {toast('Ativando…');try{const {r,j}=await empApi({id:empAberto,acao:'ativar',plano:ds.v});toast(r.ok&&j.ok?'Plano ativado! Já pode sortear quando quiser.':j.erro==='sem_credito'?'Ainda não encontramos seu pagamento.':j.erro==='email_nao_verificado'?'Confirme o e-mail da sua conta primeiro.':'Não foi possível ativar agora.')}catch(e){toast('Sem conexão.')}break}
+    case 'lembrar': {toast('Enviando lembretes…');try{const {r,j}=await empApi({id:empAberto,acao:'lembrar'});toast(r.ok&&j.ok?(j.alvo?`Lembrete enviado para quem tem avisos ligados (${j.enviados}). Para os outros, mande o link de novo no grupo.`:'Todos que confirmaram já preencheram a ficha.'):'Não foi possível enviar agora.')}catch(e){toast('Sem conexão.')}break}
+    case 'sortear': {const n=Object.values(empParts).filter(p=>p.vai!==false).length;if(n<3){toast('São precisos pelo menos 3 participantes.');break}
+      if(!confirm(`Fazer o sorteio com ${n} participantes? Depois disso ninguém entra nem muda a ficha.`))break;
+      toast('Sorteando…');try{const {r,j}=await empApi({id:empAberto,acao:'sortear'});
+        toast(r.ok&&j.ok?'Sorteio feito! Cada pessoa já pode ver quem tirou.':j.erro==='limite'?`Passou do limite do plano (${j.limite}). Remova pessoas ou escolha um plano maior.`:j.erro==='regras_impossiveis'?'Com essas regras não dá para sortear. Tire alguma regra e tente de novo.':j.erro==='setor_pequeno'?'Algum setor tem só 1 pessoa. Ajuste os setores ou desligue o sorteio por setor.':j.erro==='nao_pago'?'Escolha um plano para poder sortear.':'Não foi possível sortear agora.')}catch(e){toast('Sem conexão.')}break}
+    case 'addConv': {const linhas=val('emConv').split(/\n+/).map(l=>l.trim()).filter(Boolean);let n=0;const bt=db.batch();
+      for(const l of linhas.slice(0,300)){const partes=l.split(/[;\t,]+/).map(x=>x.trim());const email=partes.find(x=>/^\S+@\S+\.\S+$/.test(x));if(!email)continue;const resto=partes.filter(x=>x!==email);
+        bt.set(db.doc(`empresas/${empAberto}/convites/${empChaveEmail(email)}`),{email:email.toLowerCase(),nome:(resto[0]||'').slice(0,60),setor:(resto[1]||'').slice(0,40)});n++}
+      if(!n){toast('Nenhum e-mail encontrado. Use um por linha.');break}
+      bt.commit().then(()=>toast(`${n} convidado${n>1?'s':''} adicionado${n>1?'s':''}`)).catch(()=>toast('Não foi possível salvar.'));break}
+    case 'tirarConv': db.doc(`empresas/${empAberto}/convites/${ds.id}`).delete().catch(()=>toast(failMsg));break;
+    case 'tirar': if(confirm('Remover esta pessoa do sorteio?'))db.doc(`empresas/${empAberto}/participantes/${ds.id}`).delete().catch(()=>toast(failMsg));break;
+    case 'addRegra': {const x=val('emRa'),y=val('emRb');if(!x||!y||x===y){toast('Escolha duas pessoas diferentes');break}
+      const rg=[...(empDoc.regras||[])];if(rg.some(r=>(r.a===x&&r.b===y)||(r.a===y&&r.b===x))){toast('Essa regra já existe');break}rg.push({a:x,b:y});
+      db.doc('empresas/'+empAberto).update({regras:rg.slice(0,100)}).catch(()=>toast(failMsg));break}
+    case 'tirarRegra': {const rg=[...(empDoc.regras||[])];rg.splice(+ds.i,1);db.doc('empresas/'+empAberto).update({regras:rg}).catch(()=>toast(failMsg));break}
+    case 'salvarSetores': {const st=[...new Set(val('emSetores').split(',').map(x=>x.trim()).filter(Boolean))].slice(0,30);const ps=!!app.querySelector('#emPorSetor')?.checked;
+      db.doc('empresas/'+empAberto).update({setores:st,porSetor:ps&&empDoc.plano==='grande'}).then(()=>toast('Setores salvos')).catch(()=>toast(failMsg));break}
+    case 'logo': fotoTarget=empLogoKey(empAberto);document.getElementById('fotoInput').click();break;
+    case 'salvarFicha': {const nome=val('epNome');if(!nome){toast('Escreva seu nome');break}
+      const ideias=[0,1,2].map(i=>val('epId'+i).slice(0,80)).filter(Boolean);if(!ideias.length){toast('Coloque pelo menos 1 ideia de presente');break}
+      const novo=!empParts[myId];
+      try{await db.doc(`empresas/${empAberto}/participantes/${myId}`).set({nome:nome.slice(0,60),email:(myEmail||'').toLowerCase(),setor:val('epSetor').slice(0,40),vai:true,em:Date.now(),
+        ficha:{camiseta:val('epCam').slice(0,10),calcado:val('epCal').slice(0,10),gostos:val('epGos').slice(0,150),ideias,naoGosta:val('epNao').slice(0,100)}});
+        toast(novo?'Pronto! Você está no sorteio.':'Ficha atualizada');if(novo&&!empPartsOk){const id=empAberto;empAbrir(id)}}catch(e){toast('Não foi possível salvar. O sorteio pode já ter sido feito.')}break}
+    case 'naoVou': try{await db.doc(`empresas/${empAberto}/participantes/${myId}`).set({nome:(val('epNome')||myName||'').slice(0,60),email:(myEmail||'').toLowerCase(),vai:false,em:Date.now()});toast('Avisamos o RH que você não vai.');if(!empPartsOk)empAbrir(empAberto)}catch(e){toast(failMsg)}break;
+    case 'vou': try{await db.doc(`empresas/${empAberto}/participantes/${myId}`).set({...empParts[myId],vai:true,em:Date.now()});}catch(e){toast(failMsg)}break;
+    case 'excluir': if(confirm('Excluir este evento? Isso não pode ser desfeito.')){const id=empAberto;db.doc('empresas/'+id).delete().then(()=>{empFechar();toast('Evento excluído');render()}).catch(()=>toast(failMsg))}break;
+    case 'salvarCfg': {const lk=id=>{let x=val(id).replace(/\s+/g,'');if(x&&!/^https?:\/\//i.test(x))x='https://'+x;return x.slice(0,300)};
+      saveConfig({...config,empLinks:{pequeno:lk('emLkP'),medio:lk('emLkM'),grande:lk('emLkG')}},'Links do amigo secreto de empresa salvos');break}
+  }
+});
+function empresasAdmin(){const L=config.empLinks||{};
+  return `<section class="panel"><h2>Amigo Secreto para Empresas</h2><p class="lede" style="margin:0">Crie na Kiwify 3 produtos de pagamento único com “amigo secreto” no nome e o tamanho: <b>Amigo Secreto Empresas Pequeno</b> (R$ 49), <b>Amigo Secreto Empresas Médio</b> (R$ 99) e <b>Amigo Secreto Empresas Grande</b> (R$ 149). O webhook já cadastrado dá o crédito sozinho.</p>
+   <label class="f">Link Pequeno (até 30)<input id="emLkP" autocapitalize="off" value="${esc(L.pequeno||'')}" placeholder="pay.kiwify.com.br/..."></label>
+   <label class="f">Link Médio (até 100)<input id="emLkM" autocapitalize="off" value="${esc(L.medio||'')}" placeholder="pay.kiwify.com.br/..."></label>
+   <label class="f">Link Grande (até 300)<input id="emLkG" autocapitalize="off" value="${esc(L.grande||'')}" placeholder="pay.kiwify.com.br/..."></label>
+   <div class="row"><button class="btn small ghost" data-emp="salvarCfg">Salvar</button></div></section>`}
+
 /* ---------- botão + do menu de baixo ---------- */
 (function(){
   const btn=document.getElementById('maisBtn'),ov=document.getElementById('maisOv');if(!btn||!ov)return;
@@ -2314,6 +2523,7 @@ function eventosAdmin(){
     if(k==='desejo'||k==='precisa'){const n=k==='desejo'?PASSOS.indexOf('Lista de desejos'):PASSOS.indexOf('Precisando');if(tab==='perfil'&&!viewing&&fichaEditando){irPasso(n)}else{fichaStep=n;setTab('perfil',true)}}
     else if(k==='sorteio')setTab('sorteio');
     else if(k==='evento'){evFechar();setTab('eventos')}
+    else if(k==='empresa'){empFechar();setTab('empresa')}
     else if(k==='convidar'){const txt=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${location.origin}`;
       if(navigator.share)navigator.share({title:'PresenteCerto',text:txt}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
   });
@@ -2858,6 +3068,7 @@ async function start(){
   db.doc(`data/users/${myId}/notificacoes`).onSnapshot(s=>{if(s.exists){const d=s.data();notifEstado={lidoAte:d.lidoAte||0,lidos:[...(d.lidos||[])],desligados:[...(d.desligados||[])]}}else if(!notifEstado.lidoAte){notifEstado={...notifEstado,lidoAte:Date.now()-7*864e5};salvarNotif()}atualizarSino();if(notifAberto)renderSino()},()=>{});
   render();
   if(pendingEv){const pe=pendingEv;pendingEv=null;try{history.replaceState(null,'',location.pathname)}catch(e){}evAbrir(pe)}
+  if(pendingEmp){const pe=pendingEmp;pendingEmp=null;try{history.replaceState(null,'',location.pathname)}catch(e){}empAbrir(pe)}
   claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
   const err=()=>toast('Conexão perdida. Recarregue a página.');
   const coll=(path,setter)=>db.collection(path).onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});setter(n);refresh(Object.keys(n))},err);
@@ -2872,6 +3083,7 @@ async function start(){
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
   db.doc(`data/users/${myId}/listasRecebidas`).onSnapshot(s=>{listasRec=s.exists&&s.data().lista&&typeof s.data().lista==='object'?{...s.data().lista}:{};if(tab==='eventos'&&!evAberto)softRender()},()=>{});
+  db.collection('empresas').where('dono','==',myId).onSnapshot(sn=>{empMeus={};sn.docs.forEach(d=>{empMeus[d.id]=d.data()});if(tab==='empresa'&&!empAberto)softRender()},()=>{});
   db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});meusEvOk=true;if((tab==='eventos'&&!evAberto)||(tab==='mural'&&!viewing))softRender()},()=>{});
   if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});

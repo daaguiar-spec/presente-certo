@@ -68,6 +68,22 @@ module.exports = async (req, res) => {
 
     // 3b. Compra da LISTA DE EVENTO (R$ 9,90): soma 1 crédito para o e-mail e termina aqui.
     // O produto é reconhecido pelo nome (padrão: contém "lista de evento") ou por EVENTO_PRODUTO_ID.
+    // 3. Amigo Secreto para Empresas (nome contém "amigo secreto"): 1 crédito do tamanho comprado
+    if (nomeProd.includes('amigo secreto')) {
+      const campo = nomeProd.includes('grande') ? 'empGrande' : (nomeProd.includes('medio') || nomeProd.includes('médio')) ? 'empMedio' : 'empPequeno';
+      const pedido = String(b.order_id || '');
+      const r = await R.transacao(async (get) => {
+        const cr = await get('creditos/' + emailKey); const c = cr ? cr.data : {};
+        const pedidos = Array.isArray(c.pedidos) ? c.pedidos : [];
+        const ja = !!pedido && pedidos.includes(pedido);
+        if (acao === 'ativar' && !ja) return { writes: [R.W.set('creditos/' + emailKey, { email, [campo]: (c[campo] || 0) + 1, pedidos: pedido ? [...pedidos, pedido].slice(-50) : pedidos, atualizado: new Date() }, { merge: true, pre: cr })], result: campo + ' +1' };
+        if (acao === 'desligar' && ja) return { writes: [R.W.set('creditos/' + emailKey, { [campo]: Math.max(0, (c[campo] || 0) - 1), pedidos: pedidos.filter((x) => x !== pedido), atualizado: new Date() }, { merge: true, pre: cr })], result: campo + ' -1' };
+        return { result: 'nada' };
+      });
+      console.log('[kiwify] amigo secreto empresa: ' + r);
+      return res.status(200).json({ ok: true, empresa: r });
+    }
+
     // 3a. Compra da LISTA DE EVENTO PREMIUM (nome contém "premium"): soma 1 crédito Premium.
     //     Se o nome também tiver "upgrade", é o upgrade de uma lista já publicada (crédito premiumUp).
     if (nomeProd.includes('premium')) {
