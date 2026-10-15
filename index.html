@@ -86,12 +86,13 @@ h3{font-size:16px;font-weight:600}
 .view{display:flex;flex-direction:column;gap:18px;padding-top:20px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:14px}
 .panel.hl{background:var(--accent-soft);border-color:transparent}
-.panel.ad{background:var(--gold-soft);border-color:transparent;flex-direction:row;align-items:center;gap:12px;padding:10px 14px}
+.panel.ad{background:var(--gold-soft);border-color:transparent}
+.panel.ad-card{flex-direction:row;align-items:center;gap:12px;padding:10px 14px}
 .panel.ad .ad-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.panel.ad .eyebrow{font-size:10px;margin:0}
-.panel.ad h3{font-size:15px;line-height:1.25;margin:0}
-.panel.ad .muted{font-size:13px;line-height:1.3}
-.panel.ad .btn{flex:none;white-space:nowrap}
+.panel.ad-card .eyebrow{font-size:10px;margin:0}
+.panel.ad-card h3{font-size:15px;line-height:1.25;margin:0}
+.panel.ad-card .muted{font-size:13px;line-height:1.3}
+.panel.ad-card .btn{flex:none;white-space:nowrap}
 .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
 label.f,.flabel{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
@@ -741,7 +742,7 @@ function adCard(seed,ctx,n){
   const ads=adsElegiveis(ctx);if(!ads.length)return '';
   const a=ads[((seed||0)+(n||0))%ads.length];
   trackView(a.id);
-  return `<section class="panel ad"><div class="ad-txt"><div class="eyebrow">Oferta de parceiro</div><h3>${esc(a.titulo)}</h3>${a.texto?`<div class="muted">${esc(a.texto)}</div>`:''}</div>${safeLink(a.link)?`<a class="btn small" href="${esc(affiliate(a.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(a.id)}">Ver oferta</a>`:''}</section>`;
+  return `<section class="panel ad ad-card"><div class="ad-txt"><div class="eyebrow">Oferta de parceiro</div><h3>${esc(a.titulo)}</h3>${a.texto?`<div class="muted">${esc(a.texto)}</div>`:''}</div>${safeLink(a.link)?`<a class="btn small" href="${esc(affiliate(a.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(a.id)}">Ver oferta</a>`:''}</section>`;
 }
 function patrocinioCategoria(cat){
   const ad=(config.anuncios||[]).find(a=>adElegivel(a,{cat}));
@@ -1157,7 +1158,7 @@ function renderMural(){
     if(restAll.length>restShown.length)h+=`<div class="row" style="justify-content:center"><button class="btn ghost" data-act="feedMais">Ver mais novidades (${restAll.length-restShown.length})</button></div>`;
   }
   if(!ofPosto)h+=ofH;
-  if(!h.includes('class="panel ad"')){const n2=Math.min(adsElegiveis().length,2);for(let i=0;i<n2;i++)h+=adCard(0,null,i)}
+  if(!h.includes('class="panel ad ad-card"')){const n2=Math.min(adsElegiveis().length,2);for(let i=0;i<n2;i++)h+=adCard(0,null,i)}
   app.innerHTML=h+'</div>';
 }
 function muralParabens(id){
@@ -2436,7 +2437,7 @@ function adminBlock(){
    ${form&&form.type==='novoAd'?`<div class="inline-form"><b>Novo anúncio</b>${adForm('ad',{})}<div class="row"><button class="btn small" data-act="addAd">Publicar anúncio</button><button class="link" data-act="cancel">Cancelar</button></div></div>`:`<div class="row"><button class="btn small ghost" data-act="novoAd">Criar anúncio</button></div>`}</section>`;
   // lojas parceiras (plano lojista)
   const lojas=config.lojas||[];
-  h+=`<section class="panel ad"><h2>Lojas parceiras (Plano Lojista)</h2><p class="lede" style="margin:0">Cada loja ganha uma página no PresenteCerto, aparece na aba Encontrar → Lojas e no patrocínio da categoria dela.</p>
+  h+=`<section class="panel ad"><h2>Lojas parceiras (Plano Lojista)</h2><p class="lede" style="margin:0">Cada loja ganha uma página no PresenteCerto, aparece no botão Lojas parceiras do Mural e no patrocínio da categoria dela.</p>
    ${lojas.map((l,i)=>form&&form.type==='editLoja'&&form.i===i?lojaForm(l,i):`<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(l.nome)}</b><span class="when ${l.ativo?'soon':''}">${l.ativo?'no ar':'pausada'}</span></div><span class="small" style="color:var(--muted)">${esc([l.categoria,l.cidade,(l.cupons||[]).length?(l.cupons.length+' cupom(ns)'):''].filter(Boolean).join(' · '))}</span><span class="small"><b>${sumAd('lj:'+l.id,'v')}</b> visitas à página · <b>${sumLoja('lj:'+l.id)}</b> cliques em contato e site</span>
      <div class="item-actions"><button class="link" data-act="editLoja" data-i="${i}">Editar</button><button class="link alt" data-act="toggleLoja" data-i="${i}">${l.ativo?'Pausar':'Ativar'}</button><button class="link alt" data-act="copy" data-text="${esc(`Relatório PresenteCerto – ${l.nome}\nVisitas à página: ${sumAd('lj:'+l.id,'v')}\nCliques em WhatsApp, site e Instagram: ${sumLoja('lj:'+l.id)}\nGerado em ${new Date().toLocaleDateString('pt-BR')}`)}">Copiar relatório</button><button class="link" data-act="delLoja" data-i="${i}">Excluir</button></div></div>`).join('')||'<div class="muted">Nenhuma loja parceira ainda.</div>'}
    ${form&&form.type==='novaLoja'?lojaForm({},-1):`<div class="row"><button class="btn small ghost" data-act="novaLoja">Cadastrar loja</button></div>`}</section>`;
