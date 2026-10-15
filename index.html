@@ -371,7 +371,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .marca-grupo .chips{margin-top:8px}
 .marca-outra{margin-top:8px}
 .marca-outra input{flex:1;min-width:0}
-.pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b));color:#fff;border-radius:22px;padding:18px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+.pf-head{background:#7b4fd1;background:linear-gradient(135deg,var(--accent),#b04fb8);background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b));color:#fff;border-radius:22px;padding:18px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
 .pf-head:after{content:"";position:absolute;right:-50px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.13);pointer-events:none}
 .pf-head.clara{color:var(--fg)}.pf-head.clara .pf-pill{background:rgba(255,255,255,.6)}
 .pf-top{display:flex;gap:14px;align-items:center}
@@ -392,7 +392,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-gifts{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;margin:0 -2px;align-items:flex-start}
 .pf-gift{flex:0 0 min(46%,190px);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:4px;min-width:0;box-shadow:0 2px 10px rgba(80,40,140,.06)}
 .pf-gift:has(.inline-form),.pf-gift:has(.status .msg){flex-basis:min(82%,300px)}
-.pf-gimg{position:relative;height:110px;border-radius:12px;background:color-mix(in srgb,var(--c) 13%,var(--surface));display:flex;align-items:center;justify-content:center;font-size:50px;overflow:hidden;margin-bottom:4px}
+.pf-gimg{position:relative;height:110px;border-radius:12px;background:var(--sunk);background:color-mix(in srgb,var(--c) 13%,var(--surface));display:flex;align-items:center;justify-content:center;font-size:50px;overflow:hidden;margin-bottom:4px}
 .pf-gimg img{width:100%;height:100%;object-fit:cover}
 .pf-n{position:absolute;left:6px;top:6px;background:var(--surface);color:var(--accent);font-size:12px;font-weight:800;border-radius:999px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0 6px}
 .pf-gt{font-weight:700;font-size:14px;overflow-wrap:anywhere}
@@ -401,10 +401,10 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-gift .status{grid-column:auto;margin-top:4px}
 .pf-gift .status .row{flex-direction:column;align-items:stretch}
 .pf-need .pf-gimg{--c:#e8890c!important}
-.pf-need .pf-gift{background:color-mix(in srgb,#e8890c 7%,var(--surface))}
+.pf-need .pf-gift{background:var(--warn-soft);background:color-mix(in srgb,#e8890c 7%,var(--surface))}
 .pf-sizes,.pf-ints{display:flex;flex-wrap:wrap;gap:8px}
 .pf-sizes>*,.pf-ints>*{flex:1 1 calc((100% - (var(--cols,4) - 1) * 8px) / var(--cols,4));min-width:0;box-sizing:border-box}
-.pf-size{background:color-mix(in srgb,var(--c) 14%,var(--surface));border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pf-size{background:var(--sunk);background:color-mix(in srgb,var(--c) 14%,var(--surface));border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
 .pf-size .e,.pf-int .e{font-size:28px;line-height:1.2}
 .pf-size .l,.pf-int .l{font-size:12px;font-weight:600;color:var(--fg);overflow-wrap:anywhere}
 .pf-size b{font-family:var(--display);font-size:19px;color:color-mix(in srgb,var(--c) 70%,var(--fg));overflow-wrap:anywhere}
@@ -416,11 +416,11 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .mural-lojas-seta{margin-left:auto;color:var(--accent);font-size:22px;line-height:1}
 .pf-capa-btns{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:2}
 .pf-capa-btn{border:0;background:rgba(0,0,0,.32);color:#fff;font:inherit;font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;cursor:pointer;backdrop-filter:blur(4px)}
-.pf-head.com-foto{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)}.pf-head.com-foto:after{display:none}
-.pf-head.com-foto::before{content:"";position:absolute;inset:0;background:var(--capa) center/cover no-repeat;opacity:.7;mix-blend-mode:multiply;pointer-events:none}
+.pf-head.com-foto{color:#fff;background:#3b2470;text-shadow:0 1px 4px rgba(0,0,0,.45)}.pf-head.com-foto:after{display:none}
+.pf-head.com-foto::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(84,48,170,.74),rgba(160,60,140,.58)),var(--capa) center/cover no-repeat;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 74%,rgba(20,10,40,.8)),color-mix(in srgb,var(--accent) 48%,rgba(170,50,120,.56))),var(--capa) center/cover no-repeat}
 .pf-head.com-foto>*:not(.pf-capa-btns){position:relative;z-index:1}
 .pf-head.com-foto .pf-acts .btn,.pf-head.com-foto .when{text-shadow:none}
-.pf-head:has(.pf-capa-btns) .pf-top{padding-top:22px}
+.pf-head.tem-btns .pf-top{padding-top:22px}
 </style>
 
 </head>
@@ -1268,7 +1268,7 @@ function renderPerson(id,aba){
   const fundo=fotoOf(id,'_capa');
   const headSty=fundo?`style="--capa:url(&quot;${esc(fundo)}&quot;)"`:capa;
   const capaBtns=self?`<div class="pf-capa-btns">${fundo?'<button class="pf-capa-btn" data-act="capaTirar" aria-label="Remover foto de fundo">✕</button>':''}<button class="pf-capa-btn" data-act="capaFoto">📷 ${fundo?'Trocar fundo':'Foto de fundo'}</button></div>`:'';
-  h+=`<div class="pf-head ${fundo?'com-foto':capa?(capaEsc?'escura':'clara'):''}" ${headSty}>${capaBtns}<div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(self?(myName||nm(id)):nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
+  h+=`<div class="pf-head ${self?'tem-btns ':''}${fundo?'com-foto':capa?(capaEsc?'escura':'clara'):''}" ${headSty}>${capaBtns}<div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(self?(myName||nm(id)):nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
   h+=`<div class="pf-body">`;
   if(self){
     h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="compartilhar">Compartilhar</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
