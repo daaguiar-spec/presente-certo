@@ -421,6 +421,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-head.com-foto>*:not(.pf-capa-btns){position:relative;z-index:1}
 .pf-head.com-foto .pf-acts .btn,.pf-head.com-foto .when{text-shadow:none}
 .pf-head.tem-btns .pf-top{padding-top:22px}
+.pf-aniv{background:#fff6d6;color:#5a4300;border:1.5px solid #f2cf4a;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px}.pf-aniv b{font-size:15px}.pf-aniv .btn{align-self:flex-start;margin-top:4px}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -885,7 +886,7 @@ function sugestoes(){
 function shareBox(){
   const link=profileLink(myId);
   const msg=`Essa é a minha ficha de presentes no PresenteCerto: meus tamanhos, gostos e a minha lista de desejos. Me segue lá: ${link}`;
-  return `<section class="panel hl"><h2>Compartilhar meu perfil</h2><span class="muted">Mande seu link para amigos e família. Quem abrir já cai na sua ficha, com o botão Seguir.</span>
+  return `<section class="panel hl"><h2>Enviar meu perfil para amigos</h2><span class="muted">Mande seu link para amigos e família. Quem abrir já cai na sua ficha, com o botão Seguir.</span>
    <div class="pix-code" style="user-select:all">${esc(link)}</div>
    <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="shareNative" data-text="${esc(msg)}" data-url="${esc(link)}">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(link)}">Copiar link</button></div></section>`;
 }
@@ -981,7 +982,7 @@ function renderMenu(){
    <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
-   <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
+   <button class="menu-item" data-menu="enviar">📲 Enviar meu perfil para amigos</button>
    ${(config.lojas||[]).some(l=>l.ativo)?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
@@ -1004,7 +1005,8 @@ document.addEventListener('click',e=>{
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
   if(a==='sugestao'){fbDraft=null;setTab('sugestao')}
-  if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil')}
+  if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil',true)}
+  if(a==='enviar'){const link=profileLink(myId),msg=`Essa é a minha ficha de presentes no PresenteCerto: meus tamanhos, gostos e a minha lista de desejos. Me segue lá: ${link}`;if(navigator.share)navigator.share({title:'PresenteCerto',text:msg}).catch(()=>{});else{fichaStep=PASSOS.length-1;setTab('perfil',true)}}
 });
 
 /* ---------- Mural ---------- */
@@ -1282,9 +1284,11 @@ function renderPerson(id,aba){
   h+=`<div class="pf-head ${self?'tem-btns ':''}${fundo?'com-foto':capa?(capaEsc?'escura':'clara'):''}" ${headSty}>${capaBtns}<div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(self?(myName||nm(id)):nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
   h+=`<div class="pf-body">`;
   if(self){
-    h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="compartilhar">Compartilhar</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
+    const dn=bdayDays(p);
+    if(dn!==null&&dn<=30)h+=`<div class="pf-aniv"><b>🎂 ${dn===0?'Hoje é o seu aniversário!':dn===1?'Seu aniversário é amanhã!':'Seu aniversário é em '+dn+' dias.'}</b><span>Mande sua lista para a família e os amigos acertarem no presente.</span><button class="btn small" data-menu="enviar">📲 Enviar minha lista</button></div>`;
+    h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="enviar">📲 Enviar para amigos</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
     if(completude(p).pct<100)h+=completudeHtml(p,true).replace('data-act="tab" data-id="perfil"','data-act="editarFicha"');
-    h+=`<div class="small" style="color:var(--muted)">É assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
+    h+=`<div class="small" style="color:var(--muted)">Mande para a família e acabe com os presentes errados. Abaixo, é assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
   }
   else if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
   h+=sec('🎁','Lista de desejos',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
