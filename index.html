@@ -437,6 +437,13 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .ev-quem-l .av{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
 .ev-quem-l .small{display:block;color:var(--muted)}.ev-quem-l a.btn{color:#fff!important;text-decoration:none}.ev-ok{color:#1f8a5b;font-weight:800;font-size:13px;white-space:nowrap}
 .ev-qr{display:flex;gap:14px;align-items:center}.ev-qr-box{width:120px;height:120px;flex:none;background:#fff;padding:6px;border-radius:10px;border:1px solid var(--line)}.ev-qr-box canvas,.ev-qr-box img{width:100%!important;height:100%!important}
+.ev-planos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ev-plano{position:relative;border:1.5px solid var(--line);border-radius:16px;padding:14px 12px 12px;display:flex;flex-direction:column;gap:4px;background:var(--surface)}
+.ev-plano.top{border-color:#f2cf4a;background:#fffaf0;color:#2a2230}.ev-plano ul{margin:6px 0 0;padding-left:16px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.ev-plano-p{font-size:20px;font-weight:800;color:var(--accent)}.ev-plano.top .ev-plano-p{color:#7b4fd1}
+.ev-plano-tag{position:absolute;top:-10px;right:10px;background:#ffd23f;color:#1d1530;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px}
+.ev-dica{background:#fffaf0;border:1px dashed #f2cf4a;border-radius:12px;padding:10px 12px;font-size:13px;color:#4a3d10}
+.ev-novo{align-self:flex-start;background:#ffd23f;color:#1d1530;font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -1140,7 +1147,7 @@ function renderMural(){
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
   if(meusEvOk&&planosOk){const cards=[];
-    if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
+    if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><span class="ev-novo">Novo: Lista Premium ⭐</span><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir. Na Premium, ainda tem capa com foto e você sabe quem deu cada presente para agradecer.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
     if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, 2 listas de evento grátis e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
   if((config.lojas||[]).some(l=>l.ativo))h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
@@ -2149,10 +2156,14 @@ function renderEventos(){
      <label class="f">Nome da lista<input id="evTit" maxlength="60" value="${esc(evForm.titulo||'')}" placeholder="${esc(T.ph)}"></label>
      <label class="f">Data do evento (opcional)<input id="evDt" type="date" value="${esc(evForm.data||'')}"></label>
      <label class="f">Mensagem para os convidados (opcional)<textarea id="evMsg" rows="3" maxlength="300" placeholder="Ex.: Nossa casa está quase pronta, só faltam estes itens.">${esc(evForm.msg||'')}</textarea></label>
-     <div class="row"><button class="btn" data-ev="criar">Criar lista</button><button class="link" data-ev="cancelar">Cancelar</button></div></section>`;
+     <div class="row"><button class="btn" data-ev="criar">Criar lista</button><button class="link" data-ev="cancelar">Cancelar</button></div>
+     <div class="ev-dica">💡 Quer capa com a sua foto, saber quem deu cada presente e QR Code para o convite? Depois de criar, escolha a <b>Lista Premium</b>.</div></section>`;
   }else h+=`<div class="row"><button class="btn" data-ev="novo">Criar lista de evento</button></div>`;
   if(!lista.length)h+=recHtml;
-  h+=`<section class="panel hl"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, o valor é <b>${esc(evPreco())}</b> por lista, em pagamento único. Assinantes do Plus ganham ${PLUS_LISTAS_GRATIS} listas grátis${isPlus(myId)?` (você já usou ${Math.min(plusGratisUsadas(),PLUS_LISTAS_GRATIS)})`:''}.${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}</span><span class="small" style="color:var(--muted)">Os convidados marcam o presente que vão dar e você vê só que ele já foi escolhido, sem saber por quem. A surpresa continua.</span></section>`;
+  h+=`<section class="panel"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, escolha um plano (pagamento único por lista):</span>
+   <div class="ev-planos"><div class="ev-plano"><b>Comum</b><span class="ev-plano-p">${esc(evPreco())}</span><ul><li>Link para os convidados</li><li>Presentes sem repetir</li><li>Até 80 itens</li></ul></div>
+   <div class="ev-plano top"><span class="ev-plano-tag">Mais completa</span><b>⭐ Premium</b><span class="ev-plano-p">${esc(evPremPreco())}</span><ul><li>Tudo da Comum</li><li>Capa com a sua foto</li><li>Quem deu cada presente + agradecer no WhatsApp</li><li>Estatísticas de visitas</li><li>QR Code para o convite</li></ul></div></div>
+   <span class="small" style="color:var(--muted)">${isPlus(myId)?`Seu Plus dá ${PLUS_LISTAS_GRATIS} listas Comuns grátis (já usou ${Math.min(plusGratisUsadas(),PLUS_LISTAS_GRATIS)}).`:`Assinantes do Plus ganham ${PLUS_LISTAS_GRATIS} listas Comuns grátis.`}${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}${(evCred.premium||0)>0?` <b>Você tem ${evCred.premium} crédito${evCred.premium>1?'s':''} Premium.</b>`:''} Você escolhe o plano depois de montar a lista.</span></section>`;
   if(!lista.length&&!rec.length&&!evForm)h+=`<div class="empty"><b>Nenhuma lista ainda</b><span>Crie a primeira e já comece com sugestões prontas para o seu tipo de evento.</span></div>`;
   lista.forEach(([id,e])=>{const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;
     h+=`<button class="ev-card" data-ev="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${T.cor}">${T.e}</span><span class="ev-info"><b>${esc(e.titulo||T.n)}</b><span class="small" style="color:var(--muted)">${esc(T.n)}${e.data?' · '+esc(evData(e.data)):''} · ${(e.itens||[]).length} ite${(e.itens||[]).length===1?'m':'ns'}</span></span><span class="when ${e.publicado?'soon':''}">${e.publicado?'Publicada':'Rascunho'}</span></button>`});
