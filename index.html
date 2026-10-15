@@ -460,6 +460,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .emp-rev-av{width:80px;height:80px;border-radius:50%;background:#fff;color:#1d1530;font-weight:900;font-size:28px;display:flex;align-items:center;justify-content:center}
 @media (max-width:380px){.emp-planos{grid-template-columns:1fr}}
 .emp-tag{left:50%;right:auto;transform:translateX(-50%);white-space:nowrap}
+.emp-mail{background:#fffaf0;border:1.5px solid #f2cf4a;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;margin:8px 0;color:#2a2230}
+.emp-gratis{background:#e6f6ee;color:#1f6b46;border-radius:12px;padding:10px 12px;font-size:14px}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -2361,9 +2363,9 @@ function renderEmpresas(){
      <div class="grid2"><label class="f">Data da troca<input id="emData" type="date" value="${esc(empForm.data||'')}"></label><label class="f">Prazo para confirmar<input id="emPrazo" type="date" value="${esc(empForm.prazo||'')}"></label></div>
      <div class="grid2"><label class="f">Valor mínimo (R$)<input id="emMin" inputmode="numeric" value="${esc(empForm.vmin||'')}" placeholder="50"></label><label class="f">Valor máximo (R$)<input id="emMax" inputmode="numeric" value="${esc(empForm.vmax||'')}" placeholder="80"></label></div>
      <div class="row"><button class="btn" data-emp="criar">Criar evento</button><button class="link" data-emp="cancelar">Cancelar</button></div>
-     <span class="small" style="color:var(--muted)">Criar e convidar é grátis. Você escolhe o plano antes de sortear.</span></section>`;
+     <div class="emp-gratis">✅ Criar e convidar é grátis. Você só paga na hora de fazer o sorteio.</div></section>`;
   }else h+=`<div class="row"><button class="btn" data-emp="novo">Criar evento da empresa</button></div>`;
-  h+=`<section class="panel"><b>Planos (pagamento único por evento)</b><div class="emp-planos">${Object.entries(EMP_PLANOS).map(([k,p])=>`<div class="emp-plano${k==='medio'?' top':''}">${k==='medio'?'<span class="ev-plano-tag emp-tag">Popular</span>':''}<b>${p.n}</b><span class="ev-plano-p">${p.preco}</span><span class="small">até ${p.lim} pessoas${p.extra?' · '+p.extra:''}</span></div>`).join('')}</div>
+  h+=`<section class="panel"><b>Planos (pagamento único por evento)</b><div class="emp-gratis">✅ <b>Criar, convidar e montar tudo é grátis.</b> Você só paga na hora de fazer o sorteio.</div><div class="emp-planos">${Object.entries(EMP_PLANOS).map(([k,p])=>`<div class="emp-plano${k==='medio'?' top':''}">${k==='medio'?'<span class="ev-plano-tag emp-tag">Popular</span>':''}<b>${p.n}</b><span class="ev-plano-p">${p.preco}</span><span class="small">até ${p.lim} pessoas${p.extra?' · '+p.extra:''}</span></div>`).join('')}</div>
    <span class="small" style="color:var(--muted)">Todos incluem: logo e cor da empresa, link de convite, ficha de presentes, regras de quem não tira quem, painel de acompanhamento, lembretes e aviso no celular.</span></section>`;
   if(!lista.length&&!empForm)h+=`<div class="empty"><b>Nenhum evento ainda</b><span>Crie o primeiro e mande o link para a equipe.</span></div>`;
   lista.forEach(([id,e])=>{h+=`<button class="ev-card" data-emp="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${esc(e.cor||EMP_CORES[0])};color:#fff">🏢</span><span class="ev-info"><b>${esc(e.nome||'Amigo secreto')}</b><span class="small" style="color:var(--muted)">${esc(e.empresa||'')}${e.data?' · '+esc(empDataTxt(e.data)):''}</span></span><span class="when ${e.sorteado?'soon':''}">${e.sorteado?'Sorteado':e.pago?'Ativo':'Rascunho'}</span></button>`});
@@ -2436,8 +2438,9 @@ function empPainelRH(e){
   // participantes
   h+=`<section class="panel"><b>👥 Participantes (${vao.length})</b>${parts.length?`<div class="emp-lista">${parts.sort((a,b)=>String(a[1].nome).localeCompare(String(b[1].nome))).map(([uid,p])=>{const ok=((p.ficha||{}).ideias||[]).filter(Boolean).length;
      return `<div class="emp-pess"><span class="av">${esc(String(p.nome||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><div style="min-width:0;flex:1"><b>${esc(p.nome||'Sem nome')}</b><span class="small">${esc(p.setor||'')}</span></div>${p.vai===false?'<span class="emp-st n">Não vai</span>':ok?'<span class="emp-st ok">✓ Ficha pronta</span>':'<span class="emp-st p">Sem ficha</span>'}${!e.sorteado?`<button class="link" data-emp="tirar" data-id="${esc(uid)}" aria-label="Remover ${esc(p.nome||'')}">✕</button>`:''}</div>`}).join('')}</div>`:'<span class="muted">Ninguém entrou ainda. Mande o link para a equipe.</span>'}
-   ${pend.length?`<div class="flabel">Convidados que ainda não entraram (${pend.length})</div><div class="emp-lista">${pend.map(c=>`<div class="emp-pess"><span class="av">✉️</span><div style="min-width:0;flex:1"><b>${esc(c.nome||c.email)}</b><span class="small">${esc(c.email)}${c.setor?' · '+esc(c.setor):''}</span></div>${!e.sorteado?`<button class="link" data-emp="tirarConv" data-id="${esc(empChaveEmail(c.email))}">✕</button>`:''}</div>`).join('')}</div>`:''}
-   ${!e.sorteado?`<details class="emp-det"><summary>+ Adicionar lista de convidados (para acompanhar quem falta)</summary><span class="small" style="color:var(--muted)">Cole os e-mails, um por linha. Pode copiar direto da planilha, no formato <b>Nome; e-mail; setor</b>.</span><textarea id="emConv" rows="5" placeholder="Mariana Souza; mariana@empresa.com; Financeiro&#10;carlos@empresa.com"></textarea><div class="row"><button class="btn small" data-emp="addConv">Adicionar</button></div></details>`:''}</section>`;
+   ${pend.length&&!e.sorteado?`<div class="emp-mail"><b>✉️ ${pend.length} convidado${pend.length>1?'s ainda não entraram':' ainda não entrou'}</b><span class="small">O convite sai do <b>seu</b> e-mail: toque abaixo e o seu aplicativo de e-mail abre com a mensagem e o link prontos. É só enviar.</span><div class="row"><a class="btn small" href="${esc(empMailto(e,pend))}">Enviar convite por e-mail</a><button class="btn small ghost" data-act="copy" data-text="${esc(pend.map(c=>c.email).join(', '))}">Copiar e-mails</button></div></div>`:''}
+   ${pend.length?`<div class="flabel">Convidados que ainda não entraram (${pend.length})</div><div class="emp-lista">${pend.map(c=>`<div class="emp-pess"><span class="av">✉️</span><div style="min-width:0;flex:1"><b>${esc(c.nome||c.email)}</b>${c.nome||c.setor?`<span class="small">${esc(c.nome?c.email:'')}${c.setor?(c.nome?' · ':'')+esc(c.setor):''}</span>`:''}</div>${!e.sorteado?`<button class="link" data-emp="tirarConv" data-id="${esc(empChaveEmail(c.email))}">✕</button>`:''}</div>`).join('')}</div>`:''}
+   ${!e.sorteado?`<details class="emp-det"><summary>+ Adicionar convidados por e-mail</summary><span class="small" style="color:var(--muted)">Cole os e-mails, um por linha. Depois toque em “Enviar convite por e-mail” para mandar o link a todos de uma vez. Pode copiar direto da planilha, no formato <b>Nome; e-mail; setor</b>.</span><textarea id="emConv" rows="5" placeholder="Mariana Souza; mariana@empresa.com; Financeiro&#10;carlos@empresa.com"></textarea><div class="row"><button class="btn small" data-emp="addConv">Adicionar</button></div></details>`:''}</section>`;
   // regras e setores
   if(!e.sorteado){
     const ops=vao.map(([uid,p])=>`<option value="${esc(uid)}">${esc(p.nome||uid)}</option>`).join('');
@@ -2449,12 +2452,18 @@ function empPainelRH(e){
      <label class="check"><input type="checkbox" id="emPorSetor" ${e.porSetor?'checked':''} ${e.plano==='grande'?'':'disabled'}><span>Cada setor sorteia entre si</span></label>
      <div class="row"><button class="btn small ghost" data-emp="salvarSetores">Salvar setores</button></div></section>`;
     h+=`<section class="panel"><b>🏷️ Logo da empresa</b><div class="row"><button class="btn small ghost" data-emp="logo">${fotoOf(e.dono,empLogoKey(empAberto))?'Trocar logo':'Enviar logo'}</button></div></section>`;
-    h+=`<section class="panel hl"><b>🎲 Sorteio</b><span class="small">${e.pago||isOwner?`Quando todos tiverem confirmado, faça o sorteio. Depois dele, ninguém entra nem muda a ficha.`:'Escolha um plano acima para liberar o sorteio.'}</span><div class="row"><button class="btn" data-emp="sortear" ${e.pago||isOwner?'':'disabled'}>Fazer o sorteio agora</button></div></section>`;
+    h+=`<section class="panel hl"><b>🎲 Sorteio</b><span class="small">${e.pago||isOwner?`Quando todos tiverem confirmado, faça o sorteio. Depois dele, ninguém entra nem muda a ficha.`:`Até aqui foi tudo grátis. Para sortear, escolha um plano no quadro amarelo acima (a partir de ${EMP_PLANOS.pequeno.preco}, pagamento único).`}</span><div class="row"><button class="btn" data-emp="sortear" ${e.pago||isOwner?'':'disabled'}>${e.pago||isOwner?'Fazer o sorteio agora':'🔒 Sorteio liberado após o plano'}</button></div></section>`;
   }
   // RH também participa?
   h+=`<details class="emp-det" ${empParts[myId]?'':''}><summary>${empParts[myId]?'Sua participação (você também está no sorteio)':'Você também vai participar? Preencha sua ficha'}</summary>${empMinhaParte(e)}</details>`;
   if(!e.sorteado)h+=`<div class="row"><button class="link" data-emp="excluir" style="color:var(--warn)">Excluir este evento</button></div>`;
   return h;
+}
+function empMailto(e,lista){
+  const l=empLink(empAberto);const assunto=`Convite: ${e.nome||'Amigo secreto'}`;
+  const corpo=`Olá!\n\nVocê foi convidado(a) para o ${e.nome||'amigo secreto'}${e.empresa?' da '+e.empresa:''}. 🎁\n\n${e.data?'Troca dos presentes: '+empDataTxt(e.data)+'\n':''}${empValor(e)?'Valor sugerido: '+empValor(e)+'\n':''}${e.prazo?'Confirme até: '+empDataTxt(e.prazo)+'\n':''}\nEntre pelo link, confirme sua participação e preencha sua ficha de presentes (leva 1 minuto):\n${l}\n\nO sorteio é automático e ninguém vê quem tirou quem.`;
+  const emails=lista.map(c=>c.email).filter(Boolean).slice(0,50).join(',');
+  return `mailto:?bcc=${encodeURIComponent(emails)}&subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
 }
 function empLerForm(){return {nome:val('emNome').slice(0,60),empresa:val('emEmp').slice(0,60),data:val('emData'),prazo:val('emPrazo'),vmin:val('emMin').replace(/[^\d]/g,'').slice(0,6),vmax:val('emMax').replace(/[^\d]/g,'').slice(0,6)}}
 app.addEventListener('click',async ev=>{
@@ -2477,7 +2486,7 @@ app.addEventListener('click',async ev=>{
       if(!confirm(`Fazer o sorteio com ${n} participantes? Depois disso ninguém entra nem muda a ficha.`))break;
       toast('Sorteando…');try{const {r,j}=await empApi({id:empAberto,acao:'sortear'});
         toast(r.ok&&j.ok?'Sorteio feito! Cada pessoa já pode ver quem tirou.':j.erro==='limite'?`Passou do limite do plano (${j.limite}). Remova pessoas ou escolha um plano maior.`:j.erro==='regras_impossiveis'?'Com essas regras não dá para sortear. Tire alguma regra e tente de novo.':j.erro==='setor_pequeno'?'Algum setor tem só 1 pessoa. Ajuste os setores ou desligue o sorteio por setor.':j.erro==='nao_pago'?'Escolha um plano para poder sortear.':'Não foi possível sortear agora.')}catch(e){toast('Sem conexão.')}break}
-    case 'addConv': {const linhas=val('emConv').split(/\n+/).map(l=>l.trim()).filter(Boolean);let n=0;const bt=db.batch();
+    case 'addConv': {setTimeout(()=>{const x=app.querySelector('.emp-mail');if(x)x.scrollIntoView({behavior:'smooth',block:'center'})},700);const linhas=val('emConv').split(/\n+/).map(l=>l.trim()).filter(Boolean);let n=0;const bt=db.batch();
       for(const l of linhas.slice(0,300)){const partes=l.split(/[;\t,]+/).map(x=>x.trim());const email=partes.find(x=>/^\S+@\S+\.\S+$/.test(x));if(!email)continue;const resto=partes.filter(x=>x!==email);
         bt.set(db.doc(`empresas/${empAberto}/convites/${empChaveEmail(email)}`),{email:email.toLowerCase(),nome:(resto[0]||'').slice(0,60),setor:(resto[1]||'').slice(0,40)});n++}
       if(!n){toast('Nenhum e-mail encontrado. Use um por linha.');break}
