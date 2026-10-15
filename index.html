@@ -159,7 +159,7 @@ button.chip{cursor:pointer}
 .ev-item{display:flex;align-items:center;gap:10px;background:var(--sunk);border-radius:12px;padding:10px 12px}
 .ev-item>div:first-child{flex:1}
 .ev-item.ev-off .t{text-decoration:line-through;color:var(--muted)}
-.ev-tag{font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.ev-tag{font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:3px 9px;white-space:nowrap}
 .ev-tag.off{background:var(--line);color:var(--muted)}
 .empty{text-align:center;color:var(--muted);padding:24px 16px;border:1.5px dashed var(--line);border-radius:var(--r);display:flex;flex-direction:column;gap:10px;align-items:center}
 .tag-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -423,6 +423,19 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-head.tem-btns .pf-top{padding-top:22px}
 .pf-aniv{background:#fff6d6;color:#5a4300;border:1.5px solid #f2cf4a;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px}.pf-aniv b{font-size:15px}.pf-aniv .btn{align-self:flex-start;margin-top:4px}
 .push-conv{display:flex;align-items:center;gap:10px;background:var(--accent-soft);border-radius:14px;padding:10px 12px;font-size:13px;margin:6px 8px}.push-conv span{flex:1}.pf-body .push-conv{margin:0;font-size:14px;padding:12px 14px}
+.ev-hero-foto{position:relative;overflow:hidden;color:#fff;background:#4a2a7a;min-height:190px;align-items:flex-end}
+.ev-hero-foto::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,15,70,.15),rgba(40,15,70,.78)),var(--capa) center/cover no-repeat}
+.ev-hero-foto>*{position:relative}.ev-hero-foto .ev-big{display:none}
+.ev-hero-foto h1,.ev-hero-foto p,.ev-hero-foto .eyebrow,.ev-hero-foto .small{color:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.ev-prem{border:1.5px solid #f2cf4a;background:#fffaf0}.ev-prem-preco{background:#ffd23f;color:#1d1530;font-weight:800;font-size:13px;border-radius:999px;padding:3px 10px}
+.ev-prem-lista{margin:0;padding-left:4px;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.ev-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ev-stats div{background:var(--accent-soft);border-radius:12px;padding:10px;text-align:center}
+.ev-stats b{display:block;font-size:22px;color:var(--accent)}.ev-stats span{font-size:12px;color:var(--muted);font-weight:600}
+.ev-barra{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.ev-barra i{display:block;height:100%;background:#2fbf71}
+.ev-quem{display:flex;flex-direction:column}.ev-quem-l{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.ev-quem-l:first-child{border-top:0}
+.ev-quem-l .av{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.ev-quem-l .small{display:block;color:var(--muted)}.ev-quem-l a.btn{color:#fff!important;text-decoration:none}.ev-ok{color:#1f8a5b;font-weight:800;font-size:13px;white-space:nowrap}
+.ev-qr{display:flex;gap:14px;align-items:center}.ev-qr-box{width:120px;height:120px;flex:none;background:#fff;padding:6px;border-radius:10px;border:1px solid var(--line)}.ev-qr-box canvas,.ev-qr-box img{width:100%!important;height:100%!important}
 @supports (color:color-mix(in srgb,red 50%,blue)){
 .pf-head{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#e0457b))}
 .pf-gimg{background:color-mix(in srgb,var(--c) 13%,var(--surface))}
@@ -2050,12 +2063,16 @@ const EV_TIPOS={
     sug:['Panela de pressão','Jogo de panelas','Frigideira antiaderente','Conjunto de facas','Tábua de corte','Jogo de potes de vidro','Escorredor de macarrão','Jogo de utensílios de silicone','Espremedor de alho','Ralador','Assadeira','Forma de bolo','Batedeira','Liquidificador','Sanduicheira','Jarra de vidro','Jogo de xícaras','Pano de prato (kit)','Porta-temperos']}
 };
 let meusEvOk=false,listasRec={},meusEv={},evAberto=null,evDoc,evMarc={},evMinhas={},evUnsubs=[],evCred={},evForm=null,evEdit=false,pendingEv=null;
+let evVisitas=null,evVisSub=false,evVisGravada={},evQuem=null,evAgrad={};
+const evPremPreco=()=>config.eventoPremiumPreco||'R$ 19,90';
+const evUpPreco=()=>config.eventoUpgradePreco||'R$ 10,00';
+const evFotoKey=id=>'ev_'+id;
 try{const e=new URLSearchParams(location.search).get('e');if(e)pendingEv=e.replace(/[^A-Za-z0-9_-]/g,'')}catch(e){}
 const evPreco=()=>config.eventoPreco||'R$ 9,90';
 const evLink=id=>`${APP_URL}/?e=${encodeURIComponent(id)}`;
 const evData=d=>{if(!d)return '';try{return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}catch(e){return ''}};
 const evFalta=d=>{if(!d)return '';const n=Math.round((new Date(d+'T12:00:00')-new Date(new Date().toDateString()+' 12:00:00'))/864e5);return n>1?`faltam ${n} dias`:n===1?'é amanhã':n===0?'é hoje!':''};
-function evFechar(){evUnsubs.forEach(f=>{try{f()}catch(e){}});evUnsubs=[];evAberto=null;evDoc=undefined;evMarc={};evMinhas={};evEdit=false}
+function evFechar(){evUnsubs.forEach(f=>{try{f()}catch(e){}});evUnsubs=[];evAberto=null;evDoc=undefined;evMarc={};evMinhas={};evEdit=false;evVisitas=null;evVisSub=false;evQuem=null}
 function evLembrar(){
   const e=evDoc;if(!e||!e.publicado||!myId||e.dono===myId||evAberto!==e.id)return;
   const a=listasRec[e.id];
@@ -2068,10 +2085,46 @@ function evAbrir(id){
   evFechar();evAberto=id;tab='eventos';viewing=null;form=null;
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected','false'));
   const d=db.doc('eventos/'+id);
-  evUnsubs.push(d.onSnapshot(s=>{evDoc=s.exists?{id:s.id,...s.data()}:null;evLembrar();if(tab==='eventos')softRender()},()=>{evDoc=null;if(tab==='eventos')softRender()}));
+  evUnsubs.push(d.onSnapshot(s=>{evDoc=s.exists?{id:s.id,...s.data()}:null;evLembrar();evExtras();if(tab==='eventos')softRender()},()=>{evDoc=null;if(tab==='eventos')softRender()}));
   evUnsubs.push(d.collection('marcados').onSnapshot(s=>{evMarc={};s.docs.forEach(x=>{evMarc[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
   evUnsubs.push(d.collection('quem').where('por','==',myId).onSnapshot(s=>{evMinhas={};s.docs.forEach(x=>{evMinhas[x.id]=1});if(tab==='eventos')softRender()},()=>{}));
   render();window.scrollTo(0,0);
+}
+function evExtras(){
+  const e=evDoc;if(!e||!evAberto)return;
+  if(e.premium)ensureFotos(e.dono);
+  if(e.dono===myId&&e.premium&&!evVisSub){evVisSub=true;const id=evAberto;
+    evUnsubs.push(db.doc('eventos/'+id).collection('visitas').onSnapshot(s=>{if(evAberto!==id)return;evVisitas=s.docs.length;if(tab==='eventos')softRender()},()=>{}))}
+  if(e.dono!==myId&&e.publicado&&!evVisGravada[evAberto]){evVisGravada[evAberto]=1;db.doc(`eventos/${evAberto}/visitas/${myId}`).set({em:Date.now()}).catch(()=>{})}
+}
+async function evApi(body){const u=window.firebase&&firebase.auth().currentUser;if(!u)throw new Error('login');const t=await u.getIdToken();
+  const r=await fetch('/api/evento-premium',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));return {r,j}}
+const evPremPode=e=>isOwner||(evCred.premium||0)>=1||(e&&e.publicado&&(evCred.premiumUp||0)>=1);
+function evPremiumPainel(e){
+  const pub=!!e.publicado,link=pub&&safeLink(config.eventoUpgradeLink)?config.eventoUpgradeLink:config.eventoPremiumLink,preco=pub&&safeLink(config.eventoUpgradeLink)?evUpPreco():evPremPreco();
+  let h=`<section class="panel ev-prem"><div class="row between"><b>⭐ Lista Premium</b><span class="ev-prem-preco">${esc(preco)}</span></div>
+   <ul class="ev-prem-lista"><li>📷 Capa com a sua foto</li><li>🎁 Veja quem deu cada presente e agradeça pelo WhatsApp</li><li>📊 Estatísticas: visitas e presentes escolhidos</li><li>🔳 QR Code para o convite impresso</li>${pub?'':'<li>🔗 Link liberado para os convidados (já incluso)</li>'}</ul>`;
+  if(evPremPode(e))h+=`<div class="row"><button class="btn" data-ev="premium">Ativar Premium nesta lista</button></div><span class="small" style="color:var(--muted)">${isOwner?'Administrador: sem custo.':'Você tem crédito Premium. Vai usar 1.'}</span>`;
+  else if(safeLink(link))h+=`<div class="row"><a class="btn" href="${esc(link)}" target="_blank" rel="noopener" data-track="loja:evento-premium">${pub?'Fazer upgrade':'Quero a Premium'} · ${esc(preco)}</a><button class="link" data-ev="credito">Já paguei, atualizar</button></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}.</span>`;
+  else h+=`<span class="small" style="color:var(--muted)">Em breve.</span>`;
+  return h+'</section>';
+}
+function evPremiumDono(e){
+  const itens=e.itens||[],esc2=itens.filter(i=>evMarc[i.id]).length,pct=itens.length?Math.round(esc2/itens.length*100):0,l=evLink(evAberto);
+  const foto=fotoOf(e.dono,evFotoKey(evAberto));
+  let h=`<section class="panel"><div class="row between"><b>📷 Foto de capa</b><span class="plus-badge">Premium</span></div><span class="small" style="color:var(--muted)">Aparece no topo da lista para os convidados.</span><div class="row"><button class="btn small" data-ev="capa">${foto?'Trocar foto':'Escolher foto'}</button>${foto?'<button class="link" data-ev="capaTirar">Remover</button>':''}</div></section>`;
+  h+=`<section class="panel"><b>📊 Como está a lista</b><div class="ev-stats"><div><b>${evVisitas===null?'…':evVisitas}</b><span>${evVisitas===1?'visita':'visitas'}</span></div><div><b>${esc2}</b><span>de ${itens.length} itens</span></div><div><b>${pct}%</b><span>escolhidos</span></div></div><div class="ev-barra"><i style="width:${pct}%"></i></div><span class="small" style="color:var(--muted)">Visitas contam cada convidado uma vez.</span></section>`;
+  h+=`<section class="panel"><b>🎁 Quem deu o quê</b>`;
+  if(!evQuem)h+=`<span class="small" style="color:var(--muted)">Fica liberado no dia do evento, para você agradecer cada pessoa.</span><div class="row"><button class="btn small ghost" data-ev="quem">Ver quem deu o quê</button></div>`;
+  else if(evQuem.carregando)h+=`<span class="muted">Carregando…</span>`;
+  else if(!evQuem.liberado)h+=`<span class="small" style="color:var(--muted)">${evQuem.motivo==='sem_data'?'Coloque a data do evento em “Editar detalhes” para liberar esta lista no dia.':'Libera em '+esc(evData(evQuem.data))+'. Até lá, a surpresa continua.'}</span>`;
+  else{const ag=evAgrad[evAberto]||[];const nomeItem=id=>((itens.find(i=>i.id===id)||{}).nome)||'presente';
+    h+=evQuem.lista.length?`<div class="ev-quem">${evQuem.lista.map(q=>{const feito=ag.includes(q.item);const txt=`Oi, ${q.nome.split(' ')[0]}! Muito obrigado pelo presente (${nomeItem(q.item)}). Ficamos muito felizes com o carinho! 💜`;
+      return `<div class="ev-quem-l"><span class="av">${esc((q.nome||'?')[0].toUpperCase())}</span><div style="min-width:0;flex:1"><b>${esc(q.nome)}</b><span class="small">${esc(nomeItem(q.item))}</span></div>${feito?'<span class="ev-ok">✓ Agradecido</span>':`<a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener" data-ev="agradeci" data-id="${esc(q.item)}">Agradecer</a>`}</div>`}).join('')}</div>`:`<span class="muted">Ninguém escolheu presente ainda.</span>`;
+    if(evQuem.ocultos)h+=`<span class="small" style="color:var(--muted)">${evQuem.ocultos} presente${evQuem.ocultos>1?'s foram escolhidos':' foi escolhido'} antes da lista virar Premium. Esses ficam em segredo, porque o convidado não foi avisado.</span>`;}
+  h+=`</section>`;
+  h+=`<section class="panel"><b>🔳 QR Code do convite</b><div class="ev-qr"><div class="ev-qr-box" data-qr="${esc(l)}"></div><div><span class="small">Coloque no convite impresso. Quem aponta a câmera do celular cai direto na lista.</span><div class="row" style="margin-top:8px"><button class="btn small" data-ev="qrBaixar">Baixar imagem</button></div></div></div></section>`;
+  return h;
 }
 const PLUS_LISTAS_GRATIS=2;
 const plusGratisUsadas=()=>Math.max(evCred.plusGratis||0,evCred.plusGratisUsado?1:0);
@@ -2112,7 +2165,8 @@ function renderEvento(){
   if(!evDoc){app.innerHTML=`<div class="view">${voltar}<div class="empty"><b>Lista não encontrada</b><span>O link pode estar errado, ou a lista ainda não foi publicada pelo dono.</span></div></div>`;return}
   const e=evDoc,T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento,dono=e.dono===myId,itens=e.itens||[];
   const escolhidos=itens.filter(i=>evMarc[i.id]).length;
-  let h=`<div class="view">${voltar}<section class="ev-hero" style="background:${T.cor}"><span class="ev-big">${T.e}</span><div><div class="eyebrow">${esc(T.n)}</div><h1 style="margin:2px 0 0">${esc(e.titulo||T.n)}</h1>${e.data?`<div class="small" style="margin-top:4px">${esc(evData(e.data))}${evFalta(e.data)?' · '+esc(evFalta(e.data)):''}</div>`:''}${e.msg?`<p style="margin:10px 0 0">${esc(e.msg)}</p>`:''}<div class="small" style="color:var(--muted);margin-top:8px">Organizada por ${esc(dono?'você':(e.donoNome||nm(e.dono)))}</div></div></section>`;
+  const capaEv=e.premium?fotoOf(e.dono,evFotoKey(evAberto)):'';
+  let h=`<div class="view">${voltar}<section class="ev-hero${capaEv?' ev-hero-foto':''}" style="${capaEv?`--capa:url(&quot;${esc(capaEv)}&quot;)`:'background:'+T.cor}"><span class="ev-big">${T.e}</span><div><div class="eyebrow">${esc(T.n)}</div><h1 style="margin:2px 0 0">${esc(e.titulo||T.n)}</h1>${e.data?`<div class="small" style="margin-top:4px">${esc(evData(e.data))}${evFalta(e.data)?' · '+esc(evFalta(e.data)):''}</div>`:''}${e.msg?`<p style="margin:10px 0 0">${esc(e.msg)}</p>`:''}<div class="small" style="color:var(--muted);margin-top:8px">Organizada por ${esc(dono?'você':(e.donoNome||nm(e.dono)))}</div></div></section>`;
 
   if(dono){
     if(!e.publicado){
@@ -2127,10 +2181,13 @@ function renderEvento(){
         h+=`<section class="panel hl"><b>Liberar o link para os convidados</b><span class="small">Pagamento único de <b>${esc(evPreco())}</b> por lista. Depois do pagamento a liberação é automática.</span>
          ${safeLink(config.eventoLink)?`<div class="row"><a class="btn" href="${esc(config.eventoLink)}" target="_blank" rel="noopener" data-track="loja:evento">Liberar o link · ${esc(evPreco())}</a><button class="link" data-ev="credito">Já paguei, atualizar</button></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o crédito aparece aqui sozinho.</span>`:`<span class="small" style="color:var(--muted)">O pagamento será liberado em breve. Você já pode montar a lista.</span>`}</section>`;
       }
+      if(!e.premium)h+=evPremiumPainel(e);
     }else{
       const l=evLink(evAberto);
       h+=`<section class="panel hl"><b>Lista publicada. Compartilhe com os convidados</b><div class="pix-code" style="user-select:all">${esc(l)}</div><div class="row"><button class="btn small" data-ev="compartilhar">Compartilhar</button><button class="btn small ghost" data-ev="copiarMsg">Copiar mensagem</button><button class="btn small ghost" data-ev="copiar">Copiar só o link</button></div><span class="small" style="color:var(--muted)">Quem abrir o link entra (ou cria a conta) e escolhe um presente. ${itens.length?`${escolhidos} de ${itens.length} já escolhidos.`:''}</span></section>`;
     }
+    if(e.publicado&&!e.premium)h+=evPremiumPainel(e);
+    if(e.premium)h+=evPremiumDono(e);
     // detalhes
     if(evEdit){
       h+=`<section class="panel"><h2>Editar detalhes</h2><label class="f">Nome da lista<input id="edTit" maxlength="60" value="${esc(e.titulo||'')}"></label><label class="f">Data do evento<input id="edDt" type="date" value="${esc(e.data||'')}"></label><label class="f">Mensagem<textarea id="edMsg" rows="3" maxlength="300">${esc(e.msg||'')}</textarea></label><div class="row"><button class="btn small" data-ev="salvarDet">Salvar</button><button class="link" data-ev="editFim">Cancelar</button></div></section>`;
@@ -2144,7 +2201,7 @@ function renderEvento(){
     if(faltam.length&&itens.length<80)h+=`<div class="flabel">Sugestões para ${esc(T.n.toLowerCase())}</div><div class="chips">${faltam.map(s=>`<button class="chip" data-ev="sug" data-v="${esc(s)}">+ ${esc(s)}</button>`).join('')}</div><div><button class="link" data-ev="sugTodas">Adicionar todas as sugestões</button></div>`;
     h+=`</section><div class="row"><button class="link" data-ev="excluir" style="color:var(--warn)">Excluir esta lista</button></div>`;
   }else{
-    h+=`<section class="panel"><h2>Escolha um presente</h2><span class="small" style="color:var(--muted)">Toque em “Vou dar este” para ninguém repetir. O dono da lista não vê quem escolheu o quê.</span>`;
+    h+=`<section class="panel"><h2>Escolha um presente</h2><span class="small" style="color:var(--muted)">Toque em “Vou dar este” para ninguém repetir. ${e.premium?'Os organizadores verão quem deu cada presente a partir do dia do evento, para agradecer.':'O dono da lista não vê quem escolheu o quê.'}</span>`;
     if(!itens.length)h+=`<div class="muted">O dono ainda não colocou itens.</div>`;
     h+=`<div class="wish">${itens.map(i=>{const meu=evMinhas[i.id],outro=evMarc[i.id]&&!meu;
       return `<div class="ev-item${outro?' ev-off':''}"><div style="min-width:0"><div class="t">${esc(i.nome)}</div>${safeLink(i.link)?`<a class="small" href="${esc(affiliate(i.link))}" target="_blank" rel="noopener sponsored" data-track="loja:evento-item">Ver na loja</a>`:(outro?'':shopLinks(i.nome))}</div>${meu?`<span class="ev-tag">✓ Você vai dar</span><button class="link" data-ev="desmarcar" data-id="${esc(i.id)}">Desfazer</button>`:outro?'<span class="ev-tag off">Já escolhido</span>':`<button class="btn small" data-ev="marcar" data-id="${esc(i.id)}">Vou dar este</button>`}</div>`}).join('')}</div></section>`;
@@ -2185,9 +2242,19 @@ app.addEventListener('click',async ev=>{
     case 'abrirLista': evFechar();setTab('eventos');break;
     case 'voltar': if(meusEv[evAberto]||(evDoc&&evDoc.dono===myId)||listasRec[evAberto]){evFechar();render();window.scrollTo(0,0)}else{evFechar();setTab('mural')}break;
     case 'publicar': evPublicar();break;
+    case 'premium': {toast('Ativando…');try{const {r,j}=await evApi({id:evAberto,acao:'ativar'});
+      if(r.ok&&j.ok){toast('Pronto! Sua lista agora é Premium.');try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():evCred}catch(e){}}
+      else toast(j.erro==='sem_credito'?'Você ainda não tem crédito Premium.':j.erro==='email_nao_verificado'?'Confirme o e-mail da sua conta primeiro.':'Não foi possível ativar agora. Tente de novo.')}catch(e){toast('Sem conexão. Tente de novo.')}break}
+    case 'quem': {evQuem={carregando:true};keep(render);try{const {r,j}=await evApi({id:evAberto,acao:'quem'});evQuem=r.ok&&j.ok?j:null;if(!evQuem)toast('Não foi possível carregar agora.');
+      if(evQuem&&evQuem.liberado){try{const s=await db.doc(`data/users/${myId}/agradecidos`).get();evAgrad=s.exists?(s.data().ev||{}):{}}catch(e){}}}catch(e){evQuem=null;toast('Sem conexão.')}keep(render);break}
+    case 'agradeci': {const l=[...new Set([...(evAgrad[evAberto]||[]),ds.id])];evAgrad={...evAgrad,[evAberto]:l};db.doc(`data/users/${myId}/agradecidos`).set({ev:evAgrad}).catch(()=>{});setTimeout(()=>keep(render),400);break}
+    case 'capa': fotoTarget=evFotoKey(evAberto);document.getElementById('fotoInput').click();break;
+    case 'capaTirar': {const k=evFotoKey(evAberto);const m={...(fotos[myId]||{})};delete m[k];fotos[myId]=m;keep(render);db.doc(`fotos/${myId}/itens/${k}`).delete().then(()=>toast('Foto retirada')).catch(()=>toast(failMsg));break}
+    case 'qrBaixar': {const box=app.querySelector('.ev-qr-box');const c=box&&box.querySelector('canvas'),im=box&&box.querySelector('img');const url=c?c.toDataURL('image/png'):im&&im.src;
+      if(!url){toast('QR Code ainda carregando');break}const a=document.createElement('a');a.href=url;a.download='qrcode-lista.png';document.body.appendChild(a);a.click();a.remove();break}
     case 'verEmail': try{await firebase.auth().currentUser.sendEmailVerification();toast('Enviamos o link para '+firebase.auth().currentUser.email+'. Veja também o spam.')}catch(e){toast(e&&e.code==='auth/too-many-requests'?'Aguarde alguns minutos e tente de novo.':'Não foi possível enviar agora.')}break;
     case 'verOk': try{await firebase.auth().currentUser.reload();await firebase.auth().currentUser.getIdToken(true);if(firebase.auth().currentUser.emailVerified){toast('E-mail confirmado!');setTimeout(()=>location.reload(),600)}else toast('Ainda não confirmou. Clique no link que enviamos ao seu e-mail.')}catch(e){toast('Não foi possível conferir agora.')}break;
-    case 'credito': try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():{};toast((evCred.saldo||0)>0?'Crédito encontrado! Já pode publicar.':'Ainda não apareceu. Pode levar alguns minutos depois do pagamento.');keep(render)}catch(e){toast(firebase.auth().currentUser&&!firebase.auth().currentUser.emailVerified?'Confirme o e-mail da sua conta primeiro (aviso acima).':'Não foi possível conferir agora.')}break;
+    case 'credito': try{const s=await db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).get();evCred=s.exists?s.data():{};toast((evCred.premium||0)+(evCred.premiumUp||0)>0?'Crédito Premium encontrado! Já pode ativar.':(evCred.saldo||0)>0?'Crédito encontrado! Já pode publicar.':'Ainda não apareceu. Pode levar alguns minutos depois do pagamento.');keep(render)}catch(e){toast(firebase.auth().currentUser&&!firebase.auth().currentUser.emailVerified?'Confirme o e-mail da sua conta primeiro (aviso acima).':'Não foi possível conferir agora.')}break;
     case 'copiar': navigator.clipboard&&navigator.clipboard.writeText(evLink(evAberto)).then(()=>toast('Link copiado'),()=>toast('Não foi possível copiar'));break;
     case 'compartilhar': evCompartilhar();break;
     case 'copiarMsg': {const T=EV_TIPOS[(evDoc&&evDoc.tipo)]||EV_TIPOS.casamento;navigator.clipboard&&navigator.clipboard.writeText(`${T.msg}\n\n${evLink(evAberto)}`).then(()=>toast('Mensagem copiada. É só colar no WhatsApp'),()=>toast('Não foi possível copiar'));break}
@@ -2207,7 +2274,7 @@ app.addEventListener('click',async ev=>{
       bt.commit().then(()=>toast('Combinado! Este presente é seu.')).catch(()=>toast('Alguém acabou de escolher este presente.'));break}
     case 'desmarcar': {const bt=db.batch();bt.delete(db.doc(`eventos/${evAberto}/marcados/${ds.id}`));bt.delete(db.doc(`eventos/${evAberto}/quem/${ds.id}`));
       bt.commit().then(()=>toast('Escolha desfeita')).catch(()=>toast('Não foi possível desfazer.'));break}
-    case 'salvarCfg': {let l=val('evLinkCfg').replace(/\s+/g,'');if(l&&!/^https?:\/\//i.test(l))l='https://'+l;saveConfig({...config,eventoLink:l.slice(0,300),eventoPreco:val('evPrecoCfg').slice(0,40)},'Dados da lista de evento salvos');break}
+    case 'salvarCfg': {let l=val('evLinkCfg').replace(/\s+/g,'');if(l&&!/^https?:\/\//i.test(l))l='https://'+l;const lk=id=>{let x=val(id).replace(/\s+/g,'');if(x&&!/^https?:\/\//i.test(x))x='https://'+x;return x.slice(0,300)};saveConfig({...config,eventoLink:l.slice(0,300),eventoPreco:val('evPrecoCfg').slice(0,40),eventoPremiumLink:lk('evPremLinkCfg'),eventoPremiumPreco:val('evPremPrecoCfg').slice(0,40),eventoUpgradeLink:lk('evUpLinkCfg'),eventoUpgradePreco:val('evUpPrecoCfg').slice(0,40)},'Dados da lista de evento salvos');break}
     case 'darCredito': {const em=val('evCredEmail').toLowerCase();if(!/^\S+@\S+\.\S+$/.test(em)){toast('Digite um e-mail válido');break}
       db.doc('creditos/'+em.replace(/\//g,'_')).set({email:em,saldo:window.firebase.firestore.FieldValue.increment(1)},{merge:true}).then(()=>toast('1 crédito dado a '+em)).catch(()=>toast('Não foi possível dar o crédito.'));break}
   }
@@ -2215,6 +2282,9 @@ app.addEventListener('click',async ev=>{
 function eventosAdmin(){
   return `<section class="panel"><h2>Listas de evento (R$ 9,90 por lista)</h2><p class="lede" style="margin:0">Casamento, chá de bebê, casa nova e chá de panela. A pessoa monta de graça e paga para liberar o link. Crie na Kiwify um produto de pagamento único chamado <b>Lista de Evento PresenteCerto</b> (o nome precisa conter “lista de evento”) e cole o link de pagamento abaixo. O webhook que você já cadastrou dá o crédito sozinho.</p>
    <div class="grid2"><label class="f">Link de pagamento da lista<input id="evLinkCfg" autocapitalize="off" value="${esc(config.eventoLink||'')}" placeholder="Ex.: pay.kiwify.com.br/..."></label><label class="f">Preço exibido<input id="evPrecoCfg" value="${esc(config.eventoPreco||'')}" placeholder="R$ 9,90"></label></div>
+   <div class="flabel">Lista Premium: crie na Kiwify o produto <b>Lista de evento Premium</b> (o nome precisa conter “premium”). Para quem já pagou a lista comum, crie também <b>Upgrade Premium</b> (nome com “premium” e “upgrade”).</div>
+   <div class="grid2"><label class="f">Link de pagamento Premium<input id="evPremLinkCfg" autocapitalize="off" value="${esc(config.eventoPremiumLink||'')}" placeholder="pay.kiwify.com.br/..."></label><label class="f">Preço Premium<input id="evPremPrecoCfg" value="${esc(config.eventoPremiumPreco||'')}" placeholder="R$ 19,90"></label></div>
+   <div class="grid2"><label class="f">Link de pagamento do upgrade<input id="evUpLinkCfg" autocapitalize="off" value="${esc(config.eventoUpgradeLink||'')}" placeholder="pay.kiwify.com.br/..."></label><label class="f">Preço do upgrade<input id="evUpPrecoCfg" value="${esc(config.eventoUpgradePreco||'')}" placeholder="R$ 10,00"></label></div>
    <div class="row"><button class="btn small ghost" data-ev="salvarCfg">Salvar</button></div>
    <div class="flabel">Dar 1 crédito de presente (cortesia ou suporte)</div>
    <div class="row" style="flex-wrap:nowrap"><input id="evCredEmail" autocapitalize="off" placeholder="email@da.pessoa.com"><button class="btn small" data-ev="darCredito">Dar crédito</button></div></section>`;
@@ -2521,7 +2591,7 @@ function compress(file,max,lim){max=max||480;lim=lim||120000;return new Promise(
 document.getElementById('fotoInput').addEventListener('change',async e=>{
   const file=e.target.files[0];e.target.value='';if(!file||!fotoTarget)return;
   const item=fotoTarget;fotoTarget=null;toast('Enviando foto…');
-  try{const img=item==='_capa'?await compress(file,900,240000):await compress(file);await db.doc(`fotos/${myId}/itens/${item}`).set({img});fotos[myId]={...(fotos[myId]||{}),[item]:img};if(dirty)toast('Foto salva. Lembre de salvar a ficha.');else toast('Foto salva');keep(render)}
+  try{const img=(item==='_capa'||String(item).startsWith('ev_'))?await compress(file,900,240000):await compress(file);await db.doc(`fotos/${myId}/itens/${item}`).set({img});fotos[myId]={...(fotos[myId]||{}),[item]:img};if(dirty)toast('Foto salva. Lembre de salvar a ficha.');else toast('Foto salva');keep(render)}
   catch(err){toast('Não foi possível usar esta foto. Tente outra imagem.')}
 });
 
