@@ -411,6 +411,16 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-int{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
 .pf-kv{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
 @media (max-width:360px){.pf-size .l,.pf-int .l{font-size:11px}.pf-size b{font-size:17px}.pf-size .e,.pf-int .e{font-size:24px}}
+.pf-meus{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:-4px}.pf-meus .btn{flex:1 1 auto}
+.mural-lojas{display:flex;align-items:center;gap:8px;width:100%;background:var(--accent-soft);color:var(--fg);border:0;box-shadow:inset 0 0 0 1.5px var(--accent);border-radius:14px;padding:12px 14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;text-align:left}
+.mural-lojas-seta{margin-left:auto;color:var(--accent);font-size:22px;line-height:1}
+.pf-capa-btns{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:2}
+.pf-capa-btn{border:0;background:rgba(0,0,0,.32);color:#fff;font:inherit;font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;cursor:pointer;backdrop-filter:blur(4px)}
+.pf-head.com-foto{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)}.pf-head.com-foto:after{display:none}
+.pf-head.com-foto::before{content:"";position:absolute;inset:0;background:var(--capa) center/cover no-repeat;opacity:.7;mix-blend-mode:multiply;pointer-events:none}
+.pf-head.com-foto>*:not(.pf-capa-btns){position:relative;z-index:1}
+.pf-head.com-foto .pf-acts .btn,.pf-head.com-foto .when{text-shadow:none}
+.pf-head:has(.pf-capa-btns) .pf-top{padding-top:22px}
 </style>
 
 </head>
@@ -423,7 +433,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 <main class="wrap" id="app">
   <div class="view">
     <h1>Carregando a sua experiência…</h1>
-    <p class="lede">Cada pessoa monta sua ficha de presentes: tamanhos, cores, estilo, o que pretende ganhar e o que está precisando com urgência. Você segue amigos e família e consulta a ficha deles perto das datas especiais.</p>
+    <p class="lede">Cada pessoa monta sua ficha de presentes: tamanhos, cores, estilo, a lista de desejos e o que está precisando com urgência. Você segue amigos e família e consulta a ficha deles perto das datas especiais.</p>
   </div>
 </main>
 <input type="file" id="fotoInput" accept="image/*" hidden>
@@ -624,7 +634,7 @@ const TAG_BEBIDAS=['Vinho tinto','Vinho branco','Vinho rosé','Espumante','Cerve
 const TAG_ALERGIAS=['Lactose','Glúten','Amendoim','Frutos do mar','Níquel','Lã','Perfume forte','Pelo de animal'];
 const TAM_TXT={camiseta:v=>'tamanho '+v,calca:v=>'nº '+v,calcado:v=>'nº '+v,vestido:v=>'tamanho '+v,anel:v=>'aro '+v,cama:v=>'cama '+v};
 const CAT_COR=new Set(['Roupas','Calçados','Joias e acessórios','Roupas do dia a dia']);
-let quickSel={},fichaStep=null;
+let quickSel={},fichaStep=null,fichaEditando=false;
 const juntar=(tags,txt)=>[...(tags||[]),...(String(txt||'').trim()?[String(txt).trim()]:[])].join(', ');
 
 const brl=v=>(+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -741,12 +751,12 @@ function completude(p){
   p=p||{};const checks=[
     ['aniversário',p.dia&&p.mes],['tamanho de camiseta',p.camiseta],['tamanho de calça',p.calca],['número do calçado',p.calcado],
     ['cores que você gosta',(p.cores||[]).length],['seu estilo',(p.estilos||[]).length],['do que você gosta',String(p.gosta||'').trim()||(p.gostosTags||[]).length],
-    ['hobbies ou marcas',String(p.hobbies||'').trim()||String(p.marcas||'').trim()||(p.marcasTags||[]).length],['algo em Pretendo ganhar',(p.desejos||[]).length],['algo em Precisando com urgência',(p.precisa||[]).length]];
+    ['hobbies ou marcas',String(p.hobbies||'').trim()||String(p.marcas||'').trim()||(p.marcasTags||[]).length],['algo em Lista de desejos',(p.desejos||[]).length],['algo em Precisando com urgência',(p.precisa||[]).length]];
   const ok=checks.filter(c=>c[1]).length;return{pct:Math.round(ok/checks.length*100),faltam:checks.filter(c=>!c[1]).map(c=>c[0])};
 }
 function completudeHtml(p,compact){
   const c=completude(p);if(c.pct===100&&compact)return '';
-  return `<section class="panel ${compact?'hl':''}" style="gap:8px"><div class="row between"><b>${c.pct===100?'Sua ficha está completa':'Sua ficha está '+c.pct+'% completa'}</b><span class="when ${c.pct===100?'':'soon'}">${c.pct}%</span></div><div class="bar"><i style="width:${c.pct}%;${c.pct<100?'background:var(--accent)':''}"></i></div>${c.faltam.length?`<span class="small" style="color:var(--muted)">Falta: ${c.faltam.slice(0,4).map(esc).join(', ')}${c.faltam.length>4?' e mais '+(c.faltam.length-4):''}. Fichas completas ajudam seus amigos a acertar.</span>`:''}${compact?`<div><button class="btn small" data-act="tab" data-id="perfil">Completar minha ficha</button></div>`:''}</section>`;
+  return `<section class="panel ${compact?'hl':''}" style="gap:8px"><div class="row between"><b>${c.pct===100?'Sua ficha está completa':'Sua ficha está '+c.pct+'% completa'}</b><span class="when ${c.pct===100?'':'soon'}">${c.pct}%</span></div><div class="bar"><i style="width:${c.pct}%;${c.pct<100?'background:var(--accent)':''}"></i></div>${c.faltam.length?`<span class="small" style="color:var(--muted)">Falta: ${c.faltam.slice(0,4).map(esc).join(', ')}${c.faltam.length>4?' e mais '+(c.faltam.length-4):''}. Fichas completas ajudam seus amigos a acertar.</span>`:''}${compact?`<div><button class="btn small" data-act="editarFicha">Completar minha ficha</button></div>`:''}</section>`;
 }
 
 /* ---------- datas ---------- */
@@ -799,7 +809,7 @@ function pixBox(v,valor){
 }
 
 /* ---------- render ---------- */
-function setTab(t){if(t!=='eventos'&&evAberto)evFechar();tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
+function setTab(t,editar){if(t!=='eventos'&&evAberto)evFechar();if(t==='perfil')fichaEditando=editar===true||(tab==='perfil'&&fichaEditando&&editar!==false);tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
 document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
 document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
 function keep(fn){const y=window.scrollY;const xs=[...document.querySelectorAll('.ofertas')].map(l=>l.scrollLeft);fn();window.scrollTo(0,y);if(xs.some(Boolean))document.querySelectorAll('.ofertas').forEach((l,i)=>{if(xs[i]){l.style.scrollBehavior='auto';l.scrollLeft=xs[i];l.style.scrollBehavior=''}});if(xs.length)ofSetas()}
@@ -822,6 +832,8 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='eventos')renderEventos();
   else if(tab==='aparencia')renderAparencia();
   else if(tab==='plus')renderPlus();
+  else if(tab==='lojas')renderLojasTab();
+  else if(tab==='perfil'&&!fichaEditando&&profiles[myId])renderPerson(myId,true);
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
   drawQrs();
@@ -861,7 +873,7 @@ function sugestoes(){
 }
 function shareBox(){
   const link=profileLink(myId);
-  const msg=`Essa é a minha ficha de presentes no PresenteCerto: meus tamanhos, gostos e o que pretendo ganhar. Me segue lá: ${link}`;
+  const msg=`Essa é a minha ficha de presentes no PresenteCerto: meus tamanhos, gostos e a minha lista de desejos. Me segue lá: ${link}`;
   return `<section class="panel hl"><h2>Compartilhar meu perfil</h2><span class="muted">Mande seu link para amigos e família. Quem abrir já cai na sua ficha, com o botão Seguir.</span>
    <div class="pix-code" style="user-select:all">${esc(link)}</div>
    <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="shareNative" data-text="${esc(msg)}" data-url="${esc(link)}">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(link)}">Copiar link</button></div></section>`;
@@ -957,10 +969,9 @@ function renderMenu(){
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
    <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
    <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
-   <button class="menu-item" data-menu="ficha">Minha ficha</button>
-   <button class="menu-item" data-menu="eventos">Listas de evento</button>
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    <button class="menu-item" data-menu="compartilhar">Compartilhar meu perfil</button>
+   ${(config.lojas||[]).some(l=>l.ativo)?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
@@ -974,7 +985,8 @@ document.addEventListener('click',e=>{
   menuAberto=false;renderMenu();
   if(a==='sairOk'){if(user&&user.logout)user.logout().then(()=>location.reload());return}
   if(!sairDaFicha())return;
-  if(a==='ficha')setTab('perfil');
+  if(a==='ficha')setTab('perfil',true);
+  if(a==='lojas')setTab('lojas');
   if(a==='eventos'){evFechar();setTab('eventos')}
   if(a==='plus')setTab('plus');
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
@@ -1029,7 +1041,7 @@ function buildFeed(){
   ids.forEach(id=>{const p=profiles[id];const N=`<b>${esc(nm(id))}</b>`;
     eventsFor(id).filter(e=>e.dias<=7).forEach(e=>ev.push({hot:true,kind:'datas',ord:e.dias,id,html:e.dias===0?`Hoje é dia de <b>${esc(e.label.toLowerCase())}</b> de ${N}! Veja a lista e deixe seus parabéns.`:`${esc(e.label)} de ${N} ${e.dias===1?'é amanhã':'em '+e.dias+' dias'}.`,quando:e.dias===0?'hoje':e.txt}));
     const novos=[];
-    [['desejos','Pretende ganhar'],['precisa','Precisando com urgência']].forEach(([k,l])=>(p[k]||[]).forEach(w=>{const t=Date.parse(w.criado||'');if(t>lim)novos.push({t,nome:w.t,lista:l})}));
+    [['desejos','Lista de desejos'],['precisa','Precisando com urgência']].forEach(([k,l])=>(p[k]||[]).forEach(w=>{const t=Date.parse(w.criado||'');if(t>lim)novos.push({t,nome:w.t,lista:l})}));
     if(novos.length===1){const x=novos[0];ev.push({t:x.t,kind:'listas',id,html:`${N} adicionou <b>${esc(x.nome)}</b> em ${x.lista}.`})}
     else if(novos.length>1){novos.sort((a,b)=>b.t-a.t);const nomes=novos.slice(0,2).map(x=>`<b>${esc(x.nome)}</b>`).join(', ');ev.push({t:novos[0].t,kind:'listas',id,html:`${N} adicionou ${novos.length} itens às listas: ${nomes}${novos.length>2?` e mais ${novos.length-2}`:''}.`})}
     const recs=(p.recebidos||[]).map(r=>({t:Date.parse(r.data||''),nome:r.t})).filter(r=>r.t>lim).sort((a,b)=>b.t-a.t);
@@ -1047,6 +1059,8 @@ function buildFeed(){
   const hot=ev.filter(e=>e.hot).sort((a,b)=>a.ord-b.ord),rest=ev.filter(e=>!e.hot).sort((a,b)=>b.t-a.t);
   return {hot,rest};
 }
+let destaqueVez=0;try{destaqueVez=(+(localStorage.getItem('pc_destaqueVez'))||0)+1;localStorage.setItem('pc_destaqueVez',String(destaqueVez))}catch(e){destaqueVez=Math.floor(Math.random()*2)}
+function renderLojasTab(){app.innerHTML=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div>${lojasHtml()}</div>`}
 function renderMural(){
   const fol=following();const {hot,rest}=buildFeed();
   const f=feedFiltro;
@@ -1057,21 +1071,25 @@ function renderMural(){
   let h=`<div class="view"><div><h1>Novidades</h1><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
-  if(meusEvOk)h+=Object.keys(meusEv).length?`<section class="panel hl ev-promo"><b>🎉 Suas listas de evento</b><div class="row"><button class="btn small" data-menu="eventos">Ver minhas listas</button><button class="btn small ghost" data-ev="abrirLista">Nova lista</button></div></section>`:`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`;
-  if(planosOk&&!isPlus(myId)&&!isOwner)h+=`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, listas extras e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`;
+  if(meusEvOk&&planosOk){const cards=[];
+    if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
+    if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, listas extras e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
+    if(cards.length)h+=cards[destaqueVez%cards.length];}
+  if((config.lojas||[]).some(l=>l.ativo))h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
-  h+=ofertasSemana();
+  const ofH=ofertasSemana();let ofPosto=false;
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
   else if(!hotShown.length&&!restShown.length)h+=`<div class="empty">${f==='tudo'?'Nenhuma novidade nos últimos 30 dias. Quando alguém que você segue mexer na lista ou tiver data chegando, aparece aqui.':f==='datas'?'Nenhuma data nos próximos 7 dias.':'Nada deste tipo nos últimos 30 dias.'}</div>`;
   else{
     const post=e=>`<div class="post tap ${e.hot?'hot':''}" data-act="open" data-id="${esc(e.id)}" tabindex="0" role="button"><img class="av" src="${esc(av(e.av||e.id))}" alt=""><div style="min-width:0"><div class="txt">${e.html}</div>${e.quote?`<blockquote>${esc(e.quote)}</blockquote>`:''}<div class="when2">${e.hot?esc(e.quando):ago(e.t)}</div></div></div>`;
     h+='<div class="feed">'+hotShown.map(post).join('');
     const nAds=adsElegiveis().length;let posto=0;
-    restShown.forEach((e,i)=>{h+=post(e);if(i%3===2&&posto<nAds){h+=adCard(0,null,posto);posto++}});
+    restShown.forEach((e,i)=>{h+=post(e);if(i===2&&ofH){h+=ofH;ofPosto=true}else if(i%3===2&&posto<nAds){h+=adCard(0,null,posto);posto++}});
     h+='</div>';
     for(;posto<Math.min(nAds,2);posto++)h+=adCard(0,null,posto);
     if(restAll.length>restShown.length)h+=`<div class="row" style="justify-content:center"><button class="btn ghost" data-act="feedMais">Ver mais novidades (${restAll.length-restShown.length})</button></div>`;
   }
+  if(!ofPosto)h+=ofH;
   if(!h.includes('class="panel ad"')){const n2=Math.min(adsElegiveis().length,2);for(let i=0;i<n2;i++)h+=adCard(0,null,i)}
   app.innerHTML=h+'</div>';
 }
@@ -1143,11 +1161,11 @@ function renderSearch(){
   const qq=q.replace(/^@/,'');
   const list=all.filter(id=>!q||nm(id).toLowerCase().includes(q)||(handleOf(id)&&handleOf(id).includes(qq))).sort((a,b)=>nm(a).localeCompare(nm(b)));
   const sug=q?[]:sugestoes();
-  const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e o que pretendo ganhar, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
+  const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
   const temLojas=(config.lojas||[]).some(l=>l.ativo);
-  if(!temLojas)encModo='pessoas';
+  encModo='pessoas';
   if(encModo==='lojas'){app.innerHTML=`<div class="view"><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div><div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="false">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="true">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>${lojasHtml()}</div>`;return}
-  let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>${temLojas?'<div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="true">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="false">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>':''}
+  let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>
   <section class="panel hl"><h2>Convidar amigos</h2><span class="muted">Mande o convite pelo WhatsApp. A pessoa entra com a conta Google ou com e-mail e senha e cria a ficha dela.</span>
    <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(convite)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="copy" data-text="${esc(convite)}">Copiar convite</button></div></section>
   <label class="f">Buscar pelo nome ou @usuário<input id="q" type="search" placeholder="Ex.: Mariana ou @mariana.souza" value="${esc(query)}" autocomplete="off" autocapitalize="off"></label>`;
@@ -1232,10 +1250,10 @@ Ficha: ${JSON.stringify(ficha)}`;
   catch(e){aiRes[id]={valor,erro:e&&e.code==='not_granted'?'Você não autorizou o uso da IA nesta página.':e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco e tente de novo.':'Não foi possível gerar sugestões agora. Tente de novo em instantes.'}}
   keep(render);
 }
-function renderPerson(id){
+function renderPerson(id,aba){
   const p=profiles[id];if(!p){viewing=null;return render()}
   const self=id===myId;ensureFotos(id);
-  let h=`<div class="view"><button class="back" data-act="back">← Voltar</button>`;
+  let h=`<div class="view">${aba?'':'<button class="back" data-act="back">← Voltar</button>'}`;
   if(!canSee(id)){
     h+=`<div class="tag-card"><div class="tag-head"><span class="hole" aria-hidden="true"></span><img src="${esc(av(id))}" alt=""><div><h1 style="font-size:24px">${esc(nm(id))}</h1><div class="muted">Perfil fechado</div></div></div><div class="tag-body"><p style="margin:0">Esta pessoa só mostra a ficha para quem ela aprovar.</p><div class="row">${followBtn(id)}</div></div></div></div>`;
     app.innerHTML=h;return;
@@ -1247,11 +1265,18 @@ function renderPerson(id){
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
   const sec=(ic,t,body,cls)=>`<section class="pf-sec ${cls||''}"><h3 class="pf-h"><span aria-hidden="true">${ic}</span>${t}</h3>${body}</section>`;
-  h+=`<div class="pf-head ${capa?(capaEsc?'escura':'clara'):''}" ${capa}><div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
+  const fundo=fotoOf(id,'_capa');
+  const headSty=fundo?`style="--capa:url(&quot;${esc(fundo)}&quot;)"`:capa;
+  const capaBtns=self?`<div class="pf-capa-btns">${fundo?'<button class="pf-capa-btn" data-act="capaTirar" aria-label="Remover foto de fundo">✕</button>':''}<button class="pf-capa-btn" data-act="capaFoto">📷 ${fundo?'Trocar fundo':'Foto de fundo'}</button></div>`:'';
+  h+=`<div class="pf-head ${fundo?'com-foto':capa?(capaEsc?'escura':'clara'):''}" ${headSty}>${capaBtns}<div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(self?(myName||nm(id)):nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
   h+=`<div class="pf-body">`;
-  if(self)h+=`<div class="notice">Assim os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
+  if(self){
+    h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="compartilhar">Compartilhar</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
+    if(completude(p).pct<100)h+=completudeHtml(p,true).replace('data-act="tab" data-id="perfil"','data-act="editarFicha"');
+    h+=`<div class="small" style="color:var(--muted)">É assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
+  }
   else if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
-  h+=sec('🎁','Pretende ganhar',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
+  h+=sec('🎁','Lista de desejos',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self)}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
   h+=sec('🚨','Precisando com urgência',(p.precisa||[]).length?`<div class="pf-gifts">${pfItems(id,p.precisa,!self)}</div>`:`<div class="muted">Nada listado no momento.</div>`,'pf-need');
   if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(n),`<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
   if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes" style="--cols:${pfCols(sz.length)}">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
@@ -1290,7 +1315,7 @@ function membrosPicker(){
     .sort((a,b)=>(fol.includes(b)-fol.includes(a))||nm(a).localeCompare(nm(b)));
   const shown=rest.slice(0,q?40:12);
   const nomeSorteio=(form.nome||'nosso amigo secreto').trim()||'nosso amigo secreto';
-  const convite=`Oi! Você foi chamado para o amigo secreto "${nomeSorteio}". Entre no PresenteCerto, crie sua ficha com seus tamanhos e o que pretende ganhar, e me avise para eu colocar você no sorteio: ${APP_URL}`;
+  const convite=`Oi! Você foi chamado para o amigo secreto "${nomeSorteio}". Entre no PresenteCerto, crie sua ficha com seus tamanhos e sua lista de desejos, e me avise para eu colocar você no sorteio: ${APP_URL}`;
   let h=`<div class="flabel">Participantes (você já está incluído)</div>`;
   if(sel.length)h+=`<div class="chips">${sel.map(id=>`<button class="chip style" data-act="sMembro" data-id="${esc(id)}" aria-pressed="true" aria-label="Tirar ${esc(nm(id))}">${esc(nm(id))} ×</button>`).join('')}</div>`;
   h+=`<span class="small" style="color:var(--muted)">${sel.length+1} participantes. O mínimo é 3${isPlus(myId)?'':`, e no plano grátis o máximo é ${LIMITE_SORTEIO}`}.</span>
@@ -1448,7 +1473,7 @@ function plusPanel(){
   const d=draft;
   if(isPlus(myId))return `<section class="panel hl"><h2>PresenteCerto Plus <span class="plus-badge">Ativo</span></h2><span class="muted">Seu Plus vale até <b>${esc(plusAte(myId))}</b>.</span>
    <div class="flabel">Capa da sua ficha</div><div class="chips">${Object.keys(CAPAS).map(c=>`<button class="chip" data-act="pickOne" data-key="capa" data-v="${c}" aria-pressed="${d.capa===c}"><span class="dot" style="background:${CAPAS[c]}"></span>${c[0].toUpperCase()+c.slice(1)}</button>`).join('')}</div>
-   <div class="flabel">Listas extras por ocasião (aparecem na etapa Pretendo ganhar)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
+   <div class="flabel">Listas extras por ocasião (aparecem na etapa Lista de desejos)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
    <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
    <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Listas extras: Natal, casamento, chá de bebê e casa nova</li><li>Amigo secreto sem limite de participantes</li><li>2 listas de evento grátis (casamento, chá de bebê...)</li></ul>
@@ -2146,10 +2171,10 @@ function eventosAdmin(){
     if(!db||!myId){toast('Entre na sua conta primeiro');return}
     const k=it.dataset.mais;
     if(tab==='perfil'&&!viewing&&dirty&&(k==='sorteio'||k==='convidar'||k==='evento')){toast('Salve sua ficha antes de sair');return}
-    if(k==='desejo'||k==='precisa'){const n=k==='desejo'?PASSOS.indexOf('Pretendo ganhar'):PASSOS.indexOf('Precisando');if(tab==='perfil'&&!viewing){irPasso(n)}else{fichaStep=n;setTab('perfil')}}
+    if(k==='desejo'||k==='precisa'){const n=k==='desejo'?PASSOS.indexOf('Lista de desejos'):PASSOS.indexOf('Precisando');if(tab==='perfil'&&!viewing&&fichaEditando){irPasso(n)}else{fichaStep=n;setTab('perfil',true)}}
     else if(k==='sorteio')setTab('sorteio');
     else if(k==='evento'){evFechar();setTab('eventos')}
-    else if(k==='convidar'){const txt=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e o que pretendo ganhar, e vejo os seus também. Entra e cria a sua ficha: ${location.origin}`;
+    else if(k==='convidar'){const txt=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${location.origin}`;
       if(navigator.share)navigator.share({title:'PresenteCerto',text:txt}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
   });
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ov.hidden)abrir(false)});
@@ -2334,7 +2359,7 @@ function lerLoja(){
 const ESTADOS=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
 const ufSelect=(id,v)=>`<select id="${id}"><option value="">Escolha o estado</option>${ESTADOS.map(([s,n])=>`<option value="${s}" ${v===s?'selected':''}>${n}</option>`).join('')}</select>`;
 const CIDADES=['Fortaleza','São Paulo','Rio de Janeiro','Brasília','Salvador','Belo Horizonte','Recife','Curitiba','Porto Alegre','Manaus','Belém','Goiânia'];
-const PASSOS=['Datas','Tamanhos','Cores e estilo','Gostos','Pretendo ganhar','Precisando','Mais opções'];
+const PASSOS=['Datas','Tamanhos','Cores e estilo','Gostos','Lista de desejos','Precisando','Mais opções'];
 function renderMine(){
   if(!draft){draft={...blank(),...JSON.parse(JSON.stringify(profiles[myId]||{}))};['desejos','precisa'].forEach(k=>(draft[k]||[]).forEach((w,i)=>{if(!w.id)w.id='i'+i}));['recebidos','gostosTags','marcasTags','alergiasTags','bebidas','datas','cores','evitarCores','estilos','perfume','desejos','precisa','listasAtivas',...Object.keys(LISTAS_EXTRA)].forEach(k=>{draft[k]=draft[k]||[]});Object.keys(LISTAS_EXTRA).forEach(k=>draft[k].forEach((w,i)=>{if(!w.id)w.id=k+i}));dirty=false}
   if(fichaStep===null)fichaStep=profiles[myId]&&completude(profiles[myId]).pct>=80?4:0;
@@ -2389,7 +2414,7 @@ function renderMine(){
     <label class="f">Outras alergias<input id="alergias" value="${esc(d.alergias)}" placeholder="Ex.: corante"></label>
     <label class="f">Observações<textarea id="obs" placeholder="Ex.: estou de mudança, prefiro coisas pequenas">${esc(d.obs)}</textarea></label>
    </div></details></section>`;
-  if(st===4){h+=listEditor('desejos','Pretendo ganhar','O que você gostaria de ganhar. Escolha a categoria e toque nos presentes. Até 10 itens.','Ex.: Fone sem fio');
+  if(st===4){h+=listEditor('desejos','Lista de desejos','O que você gostaria de ganhar. Escolha a categoria e toque nos presentes. Até 10 itens.','Ex.: Fone sem fio');
     if(isPlus(myId))(d.listasAtivas||[]).filter(k=>LISTAS_EXTRA[k]).forEach(k=>{h+=listEditor(k,'Lista de '+LISTAS_EXTRA[k],'Lista extra do seu Plus. Até 10 itens.','Ex.: Panetone artesanal')});
     else h+=`<div class="notice">Quer listas separadas para Natal, casamento, chá de bebê ou casa nova? Elas fazem parte do PresenteCerto Plus, em Mais opções.</div>`;}
   if(st===5)h+=listEditor('precisa','Precisando com urgência','Coisas úteis que estão fazendo falta no dia a dia. Até 10 itens.','Ex.: Jogo de toalhas','need');
@@ -2397,7 +2422,7 @@ function renderMine(){
   <section class="panel"><h2>Nome de usuário</h2><span class="muted">Seu @ é único. Com ele, as pessoas acham você na busca mesmo que exista alguém com o mesmo nome.</span>
    <div class="row" style="flex-wrap:nowrap"><span style="font-weight:700;color:var(--accent)">@</span><input id="uHandle" maxlength="20" autocapitalize="off" autocomplete="off" value="${esc(handleOf(myId)||'')}" placeholder="${esc(sugereHandle())}"><button class="btn small" data-act="saveHandle">${handleOf(myId)?'Trocar':'Salvar'}</button></div>
    <span class="small" style="color:var(--muted)">De 3 a 20 caracteres: letras minúsculas, números, ponto e sublinhado.</span></section>
-  <div class="row"><button class="btn ghost small" data-act="preview">Ver como os outros veem minha ficha</button></div>
+  <div class="row"><button class="btn ghost small" data-act="verMeuPerfil">Ver meu perfil</button></div>
   ${recebidosBlock()}
   <section class="panel"><h2>Privacidade e lembretes</h2>
    <label class="check"><input type="checkbox" id="fechado" ${d.fechado?'checked':''}><span><b>Perfil fechado</b><br><span style="color:var(--muted)">Só quem você aprovar vê sua ficha. Os pedidos aparecem na aba Datas.</span></span></label>
@@ -2433,11 +2458,11 @@ async function saveMine(){
 }
 
 /* ---------- fotos ---------- */
-function compress(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=480;let w=img.width,h=img.height;const s=Math.min(1,max/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);let q=.75,out=c.toDataURL('image/jpeg',q);while(out.length>120000&&q>.35){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
+function compress(file,max,lim){max=max||480;lim=lim||120000;return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{let w=img.width,h=img.height;const s=Math.min(1,max/Math.max(w,h));w=Math.round(w*s);h=Math.round(h*s);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);let q=.75,out=c.toDataURL('image/jpeg',q);while(out.length>lim&&q>.35){q-=.1;out=c.toDataURL('image/jpeg',q)}res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
 document.getElementById('fotoInput').addEventListener('change',async e=>{
   const file=e.target.files[0];e.target.value='';if(!file||!fotoTarget)return;
   const item=fotoTarget;fotoTarget=null;toast('Enviando foto…');
-  try{const img=await compress(file);await db.doc(`fotos/${myId}/itens/${item}`).set({img});fotos[myId]={...(fotos[myId]||{}),[item]:img};if(dirty)toast('Foto salva. Lembre de salvar a ficha.');else toast('Foto salva');keep(render)}
+  try{const img=item==='_capa'?await compress(file,900,240000):await compress(file);await db.doc(`fotos/${myId}/itens/${item}`).set({img});fotos[myId]={...(fotos[myId]||{}),[item]:img};if(dirty)toast('Foto salva. Lembre de salvar a ficha.');else toast('Foto salva');keep(render)}
   catch(err){toast('Não foi possível usar esta foto. Tente outra imagem.')}
 });
 
@@ -2467,6 +2492,8 @@ app.addEventListener('click',e=>{
   switch(a){
     case 'open': viewing=ds.id;form=null;render();window.scrollTo(0,0);break;
     case 'back': viewing=null;form=null;render();break;
+    case 'editarFicha': if(viewing===myId)viewing=null;setTab('perfil',true);break;
+    case 'verMeuPerfil': if(dirty){toast('Salve primeiro para ver a versão final');break}setTab('perfil',false);break;
     case 'tab': setTab(ds.id);break;
     case 'copy': copyText(ds.text);break;
     case 'follow': toggleFollow(ds.id);break;
@@ -2508,7 +2535,7 @@ app.addEventListener('click',e=>{
     case 'contaSenha': if(user&&user.redefinirSenha)user.redefinirSenha().then(()=>toast('Enviamos o link para '+myEmail)).catch(()=>toast('Não foi possível enviar agora. Tente de novo.'));break;
     case 'fStep': irPasso(+ds.i);break;
     case 'fPrev': irPasso(fichaStep-1);break;
-    case 'fNext': if(fichaStep<PASSOS.length-1)irPasso(fichaStep+1);else if(dirty)saveMine();else{toast('Ficha pronta! Compartilhe seu perfil com os amigos.');setTab('mural')}break;
+    case 'fNext': if(fichaStep<PASSOS.length-1)irPasso(fichaStep+1);else if(dirty)saveMine();else{toast('Ficha pronta! Compartilhe seu perfil com os amigos.');setTab('perfil',false)}break;
     case 'qCat': quickSel[ds.key]={...(quickSel[ds.key]||{}),cat:(quickSel[ds.key]||{}).cat===ds.v?'':ds.v};keep(renderMine);break;
     case 'qPreco': {const q=quickSel[ds.key]||{};quickSel[ds.key]={...q,preco:q.preco===ds.v?'':ds.v};keep(renderMine);break}
     case 'qGrau': {const q=quickSel[ds.key]||{};quickSel[ds.key]={...q,grau:q.grau===ds.v?'':ds.v};keep(renderMine);break}
@@ -2606,6 +2633,8 @@ app.addEventListener('click',e=>{
       const was=agrad[myId];agrad[myId]={lista};form=null;keep(renderMine);
       db.doc('agradecimentos/'+myId).set({lista}).then(()=>toast('Agradecimento enviado')).catch(()=>{agrad[myId]=was;keep(renderMine);toast(failMsg)});break}
     case 'foto': fotoTarget=ds.item;document.getElementById('fotoInput').click();break;
+    case 'capaFoto': fotoTarget='_capa';document.getElementById('fotoInput').click();break;
+    case 'capaTirar': {const m={...(fotos[myId]||{})};delete m._capa;fotos[myId]=m;keep(render);db.doc(`fotos/${myId}/itens/_capa`).delete().then(()=>toast('Foto de fundo retirada')).catch(()=>toast(failMsg));break}
     case 'delFoto': {const m={...(fotos[myId]||{})};delete m[ds.item];fotos[myId]=m;keep(renderMine);db.doc(`fotos/${myId}/itens/${ds.item}`).delete().then(()=>toast('Foto retirada')).catch(()=>toast(failMsg));break}
     case 'addItem': {const k=ds.key,t=val(k+'T');if(!t){toast('Escreva o item');app.querySelector('#'+k+'T').focus();break}
       const link=val(k+'L');draft[k].push({id:uid(),criado:new Date().toISOString(),t:t.slice(0,120),preco:val(k+'P').slice(0,60),grau:val(k+'G'),link:safeLink(link)?link.slice(0,500):'',obs:val(k+'O').slice(0,120)});
