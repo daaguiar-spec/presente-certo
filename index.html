@@ -247,6 +247,95 @@ button.chip{cursor:pointer}
 .lj-pf-foto{all:unset;cursor:pointer;width:104px;height:104px;border-radius:14px;border:1.5px dashed var(--lc);background:var(--sunk);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;overflow:hidden;flex:none}
 .lj-pf-foto img{width:100%;height:100%;object-fit:cover}
 @media (max-width:380px){.lj-grid{grid-template-columns:1fr 1fr}.lj-up{flex-direction:column}}
+/* cabeçalho Plus */
+.pf-head.cab{background:#6a2fd0;background:var(--cab-bg);color:#fff}
+.pf-head.cab:after{display:none}
+.pf-head.cab.clara{color:#3b2a00}
+.pf-head.cab>*:not(.cab-fx):not(.pf-capa-btns){position:relative;z-index:1}
+.cab-fx{position:absolute;inset:0;pointer-events:none;z-index:0}
+.cab-fx.confete{background-image:radial-gradient(circle,#ffd23f 0 2.5px,transparent 3px),radial-gradient(circle,#ff7ab6 0 2.5px,transparent 3px),radial-gradient(circle,#7af0d0 0 2px,transparent 2.5px),radial-gradient(circle,#fff 0 1.5px,transparent 2px);background-size:90px 80px,120px 110px,70px 95px,55px 60px;background-position:10px 5px,40px 30px,25px 50px,5px 15px;animation:cabCai 10s linear infinite}
+.cab-fx.neve{background-image:radial-gradient(circle,#fff 0 2.5px,transparent 3px),radial-gradient(circle,rgba(255,255,255,.8) 0 1.6px,transparent 2px),radial-gradient(circle,rgba(255,255,255,.6) 0 1.2px,transparent 1.6px);background-size:80px 90px,55px 60px,35px 40px;background-position:10px 0,30px 20px,5px 10px;animation:cabNeve 12s linear infinite}
+.cab-fx.estrelas{background-image:radial-gradient(circle,#fff 0 1.4px,transparent 2px),radial-gradient(circle,rgba(255,240,180,.9) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.2px);background-size:70px 60px,45px 50px,30px 33px;background-position:0 0,20px 15px,8px 22px;animation:cabPisca 3.5s ease-in-out infinite alternate}
+.cab-fx.coracoes{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70'%3E%3Cpath d='M20 30c-6-6-12-1-8 5l8 8 8-8c4-6-2-11-8-5z' fill='%23ffffff' fill-opacity='.35'/%3E%3Cpath d='M52 12c-3-3-7 0-5 3l5 5 5-5c2-3-2-6-5-3z' fill='%23ffd1e1' fill-opacity='.6'/%3E%3C/svg%3E");background-size:70px 70px;animation:cabSobe 9s linear infinite}
+.cab-fx.bolhas{background-image:radial-gradient(circle,transparent 0 4px,rgba(255,255,255,.45) 4.5px 5.5px,transparent 6px),radial-gradient(circle,transparent 0 2px,rgba(255,255,255,.5) 2.5px 3.2px,transparent 3.6px);background-size:90px 100px,50px 60px;background-position:10px 10px,30px 40px;animation:cabSobe 10s linear infinite}
+.cab-fx.brilho{background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1.5px,transparent 2px),radial-gradient(circle,rgba(255,255,255,.5) 0 3px,transparent 3.5px);background-size:60px 55px,110px 90px;background-position:5px 5px,40px 30px;animation:cabPisca 3s ease-in-out infinite alternate}
+@keyframes cabCai{to{background-position:10px 85px,40px 140px,25px 145px,5px 75px}}
+@keyframes cabNeve{to{background-position:10px 90px,30px 80px,5px 50px}}
+@keyframes cabSobe{to{background-position:0 -70px,30px -20px}}
+@keyframes cabPisca{from{opacity:.45}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.cab-fx{animation:none}}
+.cab-stk{position:absolute;z-index:1;font-size:24px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));pointer-events:none}
+.cab-stk.s0{right:-8px;bottom:-4px}
+.cab-stk.s1{left:-10px;bottom:2px;font-size:20px}
+.cab-stk.s2{right:-12px;top:18px;font-size:18px}
+.pf-ring{position:relative;flex:none;border-radius:50%;padding:4px;background:var(--ring,transparent);display:inline-flex}
+.pf-ring.sem{padding:0}
+.pf-ring .pf-av{border-width:3px}
+.pf-topo{position:absolute;top:-17px;left:50%;transform:translateX(-50%) rotate(-10deg);font-size:28px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));z-index:2}
+.pf-head.cab-nome-neon .pf-nm{text-shadow:0 0 6px #fff,0 0 14px #ff4fd8,0 0 24px #7b2ff7}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+ .pf-head.cab-nome-ouro .pf-nm{background:linear-gradient(90deg,#fff6c9,#ffd23f 40%,#fff3b0 60%,#e8b923);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+ .pf-head.cab-nome-arco .pf-nm{background:linear-gradient(90deg,#ffd23f,#ff7ab6,#7af0d0,#8fb3ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+}
+.cab-frase{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:9px 12px;font-weight:600}
+.pf-head.clara .cab-frase{background:rgba(255,255,255,.45)}
+.cab-cd{display:flex;gap:6px}
+.cab-cd div{flex:1;background:rgba(0,0,0,.22);border-radius:12px;text-align:center;padding:6px 0;display:flex;flex-direction:column}
+.cab-cd b{font-size:20px;line-height:1.2}.cab-cd span{font-size:10px;opacity:.85;font-weight:700;text-transform:uppercase}
+.cab-btn{background:rgba(255,255,255,.92)!important;color:#5b2bb5!important}
+.cab-vis{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 12px;font-size:14px}
+.cab-faces{display:flex;flex:none}
+.cab-faces img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--surface);margin-left:-8px;background:#fff}
+.cab-faces img:first-child{margin-left:0}
+.cab-vis.bloq .cab-faces img{filter:blur(3px)}
+.cab-prev{position:sticky;top:64px;z-index:5;padding-bottom:4px;background:var(--bg)}
+.cab-temas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cab-tema{all:unset;cursor:pointer;box-sizing:border-box;position:relative;height:78px;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end;padding:7px;color:#fff;font-size:12px;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.cab-tema.claro{color:#3b2a00;text-shadow:none}
+.cab-tema[aria-pressed="true"]{outline:3px solid var(--fg);outline-offset:2px}
+.cab-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;text-shadow:none}
+.cab-lock{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.5);border-radius:99px;font-size:10px;padding:2px 5px;text-shadow:none;line-height:1.3}
+.cab-free{position:absolute;top:5px;right:5px;background:#fff;color:#1f8a5b;border-radius:99px;font-size:10px;font-weight:800;padding:2px 6px;text-shadow:none}
+.cab-row{display:flex;gap:10px;flex-wrap:wrap}
+.cab-mold{all:unset;cursor:pointer;position:relative;width:46px;height:46px;border-radius:50%;padding:3px;box-sizing:border-box;background:var(--sunk);box-shadow:0 0 0 1px var(--line)}
+.cab-mold i{display:block;width:100%;height:100%;border-radius:50%;background:var(--accent-soft);border:2px solid var(--surface);box-sizing:border-box}
+.cab-mold[aria-pressed="true"],.cab-emo[aria-pressed="true"]{box-shadow:0 0 0 3px var(--fg)}
+.cab-mold .cab-lock,.cab-emo .cab-lock{top:auto;bottom:-4px;right:-4px;font-size:9px}
+.cab-emo{all:unset;cursor:pointer;position:relative;width:44px;height:44px;border-radius:12px;background:var(--sunk);display:flex;align-items:center;justify-content:center;font-size:22px;box-sizing:border-box}
+.cab-sw{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.cab-sw input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.cab-salvar{display:flex;flex-direction:column;gap:8px;background:var(--bg);padding:8px 0}
+.cab-salvar .btn{justify-content:center}
+.cab-teste{background:#fff7e0;color:#4a3a10;border:1px solid #f3d9a6;border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.4}
+.cab-btn-plus{background:#7b2ff7;background:linear-gradient(90deg,#7b2ff7,#f107a3);color:#fff;border:0;box-shadow:0 6px 16px rgba(160,40,200,.3);text-align:center;justify-content:center}
+.cab-pw{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.cab-pw[hidden]{display:none}
+.cab-pw-bg{position:absolute;inset:0;background:rgba(30,10,60,.45)}
+.cab-pw-sheet{position:relative;width:100%;max-width:480px;max-height:92vh;overflow:auto;background:var(--surface);color:var(--fg);border-radius:26px 26px 0 0;padding:14px 18px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:11px;box-shadow:0 -8px 24px rgba(40,10,80,.18)}
+.cab-pw-grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:0 auto}
+.cab-pw-sheet h2{margin:0;font-size:22px;line-height:1.15}
+.cab-ba{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cab-ba>div>span{display:block;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:4px}
+.cab-ba-f{height:66px;border-radius:12px;background:linear-gradient(135deg,#7b4fd1,#a77be6);display:flex;align-items:center;padding:8px;gap:6px;color:#fff;font-size:12px;font-weight:800;position:relative;overflow:hidden}
+.cab-ba-f i{width:30px;height:30px;border-radius:50%;background:#f2e9ff;border:2px solid #fff;flex:none}
+.cab-ba-f.p{background:linear-gradient(150deg,#2b1055,#7b2ff7 50%,#f107a3)}
+.cab-ba-f.p i{border:none;box-shadow:0 0 0 3px #ffd23f}
+.cab-ba-f em{position:absolute;right:8px;top:6px;font-style:normal}
+.cab-li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.35}
+.cab-li>span{font-size:20px;width:26px;text-align:center;flex:none}
+.cab-preco{display:flex;align-items:baseline;justify-content:center;gap:6px}
+.cab-preco b{font-size:30px}.cab-preco span{font-size:13px;color:var(--muted)}
+.pend{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:16px;padding:12px 14px;position:relative}
+.pend-ic{font-size:26px;line-height:1.1;flex:none}
+.pend b{display:block;font-size:15px;line-height:1.3}
+.pend span.small{color:var(--muted);display:block}
+.pend-eb{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:2px}
+.pend-acts{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.pend-bar{height:7px;border-radius:9px;background:var(--sunk);overflow:hidden;margin-top:8px}
+.pend-bar i{display:block;height:100%;background:var(--accent);border-radius:9px}
+.pend.ok{border-left-color:#1f8a5b}
+.pend-x{all:unset;cursor:pointer;position:absolute;top:8px;right:12px;color:var(--muted);font-size:14px;padding:4px}
+.cab-cafe{text-align:center;font-size:13px;color:var(--accent);font-weight:700;background:var(--accent-soft);border-radius:99px;padding:6px}
 .secret{background:var(--accent-soft);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .secret b.big{font-family:var(--display);font-size:22px}
 .idea{background:var(--sunk);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
@@ -835,7 +924,7 @@ function adCard(seed,ctx,n){
 }
 function patrocinioCategoria(cat){
   const ad=(config.anuncios||[]).find(a=>adElegivel(a,{cat}));
-  const lj=lojasAtivas().filter(l=>l.categoria===cat);
+  const lj=lojasVisiveis().filter(l=>l.categoria===cat);
   if(!ad&&!lj.length)return '';
   let h='<div class="spons">';
   if(ad){trackView(ad.id);h+=`<span class="eyebrow">Oferta de parceiro</span> <b>${esc(ad.titulo)}</b>${ad.texto?' · '+esc(ad.texto):''}${safeLink(ad.link)?` · <a href="${esc(affiliate(ad.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(ad.id)}">Ver oferta</a>`:''}`}
@@ -949,6 +1038,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='plus')renderPlus();
   else if(tab==='lojas')renderLojasTab();
   else if(tab==='minhaloja')renderMinhaLoja();
+  else if(tab==='cabecalho')renderCabecalho();
   else if(tab==='perfil'&&!fichaEditando&&profiles[myId])renderPerson(myId,true);
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
@@ -1129,7 +1219,7 @@ function renderMenu(){
    ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
    <button class="menu-item" data-menu="enviar">📲 Enviar meu perfil para amigos</button>
    ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
-   ${lojasAtivas().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
+   ${lojasVisiveis().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
@@ -1237,9 +1327,10 @@ function renderMural(){
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
   if(meusEvOk&&planosOk){const cards=[];
     if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><span class="ev-novo">Novo: Lista Premium ⭐</span><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir. Na Premium, ainda tem capa com foto e você sabe quem deu cada presente para agradecer.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
-    if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, 2 listas de evento grátis e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
+    if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ Deixe seu perfil com a sua cara</b><span class="small">Com o Plus, o topo do seu perfil ganha temas, moldura, enfeites e vira festa no mês do seu aniversário. E você vê quem visitou seu perfil.</span><div class="row"><button class="btn small" data-act="cabAbrir">🎨 Testar grátis</button><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
-  if(lojasAtivas().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
+  h+=pendCard();
+  if(lojasVisiveis().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   const ofH=ofertasSemana();let ofPosto=false;
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
@@ -1326,7 +1417,7 @@ function renderSearch(){
   const list=all.filter(id=>!q||nm(id).toLowerCase().includes(q)||(handleOf(id)&&handleOf(id).includes(qq))).sort((a,b)=>nm(a).localeCompare(nm(b)));
   const sug=q?[]:sugestoes();
   const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
-  const temLojas=lojasAtivas().length>0;
+  const temLojas=lojasVisiveis().length>0;
   encModo='pessoas';
   if(encModo==='lojas'){app.innerHTML=`<div class="view"><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div><div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="false">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="true">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>${lojasHtml()}</div>`;return}
   let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>
@@ -1432,13 +1523,14 @@ function renderPerson(id,aba){
   const fundo=fotoOf(id,'_capa');
   const headSty=fundo?`style="--capa:url(&quot;${esc(fundo)}&quot;)"`:capa;
   const capaBtns=self?`<div class="pf-capa-btns">${fundo?'<button class="pf-capa-btn" data-act="capaTirar" aria-label="Remover foto de fundo">✕</button>':''}<button class="pf-capa-btn" data-act="capaFoto">📷 ${fundo?'Trocar fundo':'Foto de fundo'}</button></div>`:'';
-  h+=`<div class="pf-head ${self?'tem-btns ':''}${fundo?'com-foto':capa?(capaEsc?'escura':'clara'):''}" ${headSty}>${capaBtns}<div class="pf-top"><img class="pf-av" src="${esc(av(id))}" alt=""><div style="min-width:0"><h1 class="pf-nome">${esc(self?(myName||nm(id)):nm(id))}${selo(id)}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase">${esc(p.frase)}</div>`:''}<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
+  h+=pfHeadHtml(id,p,self);if(!self)cabRegistrarVisita(id);
   h+=`<div class="pf-body">`;
   if(self){
     const dn=bdayDays(p);
     if(dn!==null&&dn<=30)h+=`<div class="pf-aniv"><b>🎂 ${dn===0?'Hoje é o seu aniversário!':dn===1?'Seu aniversário é amanhã!':'Seu aniversário é em '+dn+' dias.'}</b><span>Mande sua lista para a família e os amigos acertarem no presente.</span><button class="btn small" data-menu="enviar">📲 Enviar minha lista</button></div>`;
     if(pushConvite())h+=`<div class="push-conv"><span>🔔 Ative os avisos e não esqueça nenhum aniversário de quem você segue.</span><button class="btn small" data-menu="pushOn">Ativar avisos</button></div>`;
     h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="enviar">📲 Enviar para amigos</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
+    h+=cabVisitasHtml();
     if(completude(p).pct<100)h+=completudeHtml(p,true).replace('data-act="tab" data-id="perfil"','data-act="editarFicha"');
     h+=`<div class="small" style="color:var(--muted)">Mande para a família e acabe com os presentes errados. Abaixo, é assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
   }
@@ -1622,7 +1714,8 @@ const isoDia=d=>{d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+
 const diaBR=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:''};
 const ljDiasAte=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;const a=new Date(+m[1],+m[2]-1,+m[3]);const h=new Date();h.setHours(0,0,0,0);return Math.round((a-h)/864e5)};
 function ljMaisMes(s){const base=(s&&ljDiasAte(s)>=0)?s:isoDia();const [y,m,d]=base.split('-').map(Number);const dt=new Date(y,m,d);if(dt.getDate()!==d)dt.setDate(0);return isoDia(dt)}
-function lojasTodas(){return Object.entries(lojasDb).map(([id,d])=>({...d,id}))}
+function lojasTodas(){const out=Object.entries(lojasDb).map(([id,d])=>({...d,id}));if(!config.lojasMigradas)(config.lojas||[]).forEach(l=>{if(l&&l.id&&!lojasDb[l.id])out.push({...l,legado:true})});return out}
+const ljDoc=id=>lojasDb[id]||(!config.lojasMigradas&&(config.lojas||[]).find(l=>l&&l.id===id))||null;
 function lojaVencida(l){const n=ljDiasAte(l.pagoAte);return n!==null&&n< -LJ_TOLERANCIA}
 function lojaNoAr(l){return !!l&&!!l.ativo&&!lojaVencida(l)}
 function lojasAtivas(){return lojasTodas().filter(lojaNoAr)}
@@ -1662,7 +1755,7 @@ function ljMigrar(){
 }
 
 function lojasHtml(){
-  const me=profiles[myId]||{};const lj=lojasAtivas().sort((a,b)=>(normCid(b.cidade)===normCid(me.cidade))-(normCid(a.cidade)===normCid(me.cidade))||String(a.nome).localeCompare(b.nome));
+  const me=profiles[myId]||{};const lj=lojasVisiveis().sort((a,b)=>(normCid(b.cidade)===normCid(me.cidade))-(normCid(a.cidade)===normCid(me.cidade))||String(a.nome).localeCompare(b.nome));
   if(!lj.length)return '<div class="empty">Ainda não há lojas parceiras.</div>';
   return `<div class="list">${lj.map(l=>`<div class="person tap" data-act="openLoja" data-id="${esc(l.id)}" tabindex="0" role="button"><img src="${esc(l.logo||initialsAvatar(l.nome))}" alt=""><div style="min-width:0"><div class="nm">${esc(l.nome)}</div><div class="meta">${esc([l.categoria,l.cidade,l.nProdutos?(l.nProdutos===1?'1 produto':l.nProdutos+' produtos'):'',(l.cupons||[]).length?(l.cupons.length===1?'1 cupom':l.cupons.length+' cupons'):''].filter(Boolean).join(' · '))}</div></div><span class="when">Ver loja</span></div>`).join('')}</div>`;
 }
@@ -1671,8 +1764,8 @@ function ljCard(l,p){
   return `<div class="lj-card"><button class="lj-pimg" data-act="ljProd" data-id="${esc(p.id)}" aria-label="Ver ${esc(p.nome)}">${p.foto?`<img src="${esc(p.foto)}" alt="" loading="lazy">`:`<span>${pfIcone(p.nome)}</span>`}</button><div class="lj-pb"><button class="lj-pn" data-act="ljProd" data-id="${esc(p.id)}">${esc(p.nome)}</button>${p.desc?`<div class="lj-pd">${esc(p.desc)}</div>`:''}${preco?`<div class="lj-pp">${preco}</div>`:''}<div class="lj-pa">${wa?`<a class="lj-pedir" href="${esc(wa)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(l.id)}">Pedir</a>`:`<button class="lj-pedir" data-act="ljProd" data-id="${esc(p.id)}">Ver</button>`}<button class="lj-quero" data-act="ljDesejo" data-id="${esc(p.id)}" aria-label="Pôr na minha lista de desejos" title="Pôr na minha lista de desejos">♡</button></div></div></div>`;
 }
 function renderLoja(id){
-  const l0=lojasDb[id];const l=l0?{...l0,id}:null;
-  if(!l||!(lojaNoAr(l)||isOwner||souDonoLoja(l))){if(!lojasOk){app.innerHTML='<div class="view"><h1>Carregando a loja…</h1></div>';return}if(l0||lojasOk)toast('Esta loja não está disponível agora');viewing=null;ljProd=null;return render()}
+  const l0=ljDoc(id);const l=l0?{...l0,id}:null;
+  if(!l||!((lojaNoAr(l)&&config.lojasOn)||isOwner||souDonoLoja(l))){if(!lojasOk){app.innerHTML='<div class="view"><h1>Carregando a loja…</h1></div>';return}if(l0||lojasOk)toast('Esta loja não está disponível agora');viewing=null;ljProd=null;return render()}
   trackView('lj:'+id);ljCarregar(id);
   const cor=LJ_CORES.includes(l.cor)?l.cor:LJ_CORES[0];
   const prods=ljProdutos[id]||[];
@@ -1823,7 +1916,7 @@ app.addEventListener('click',async e=>{
     case 'ljProdFechar': ljProd=null;render();window.scrollTo(0,0);break;
     case 'ljPixProd': ljPixProd=!ljPixProd;keep(render);break;
     case 'ljDesejo': {const lid=String(viewing||'').startsWith('loja:')?viewing.slice(5):'';if(lid)ljDesejo(lid,ds.id);break}
-    case 'ljShare': {const l=lojasDb[ds.id];if(!l)break;const url=ljLink(ds.id,ds.p);const p=ds.p&&(ljProdutos[ds.id]||[]).find(x=>x.id===ds.p);
+    case 'ljShare': {const l=ljDoc(ds.id);if(!l)break;const url=ljLink(ds.id,ds.p);const p=ds.p&&(ljProdutos[ds.id]||[]).find(x=>x.id===ds.p);
       const txt=p?`Olha que presente legal: ${p.nome}${ljPreco(p.preco)?' por '+ljPreco(p.preco):''}, da ${l.nome}.`:`Conheça a ${l.nome} no PresenteCerto 🎁`;
       if(navigator.share)navigator.share({title:l.nome,text:txt,url}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt+'\n'+url),'_blank','noopener');break}
     case 'ljPainel': ljPainel=ds.id;ljDraft=null;ljPForm=null;ljPagAberto=false;ljProd=null;setTab('minhaloja');break;
@@ -1863,6 +1956,7 @@ app.addEventListener('click',async e=>{
   }
 });
 function ljAdmCard(l){
+  if(l.legado)return `<div class="inline-form" style="gap:4px"><b>${esc(l.nome)}</b><span class="small" style="color:var(--warn)">Loja do formato antigo. Ela passa para o formato novo sozinha assim que as regras novas do Firebase forem publicadas.</span></div>`;
   const st=!l.ativo?['','pausada']:lojaVencida(l)?['','fora do ar · atraso']:!l.pagoAte?['soon','no ar · cortesia']:ljDiasAte(l.pagoAte)<0?['','vencida · tolerância']:['soon','no ar'];
   return `<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(l.nome)}</b><span class="when ${st[0]}">${st[1]}</span></div>
    <span class="small" style="color:var(--muted)">${esc([l.categoria,l.cidade].filter(Boolean).join(' · '))}${l.donoEmail?' · dono: '+esc(l.donoEmail):' · sem dono cadastrado'}</span>
@@ -1881,7 +1975,7 @@ function ljAdmFormHtml(l){
 let sumAd=()=>0,sumLoja=()=>0;
 function ljAdminHtml(sA,sL){sumAd=sA;sumLoja=sL;
   const lojas=lojasTodas().sort((a,b)=>(!!b.avisoPag-!!a.avisoPag)||String(a.nome).localeCompare(String(b.nome)));const cb=config.lojaCobranca||{};
-  return `<section class="panel ad"><h2>Lojas parceiras (Plano Lojista)</h2><p class="lede" style="margin:0">Cada loja ganha uma página com produtos, Pix e contatos. Cadastre a loja com o e-mail do dono: ele entra no PresenteCerto com esse e-mail e edita tudo em Menu › Minha loja.</p>
+  return `<section class="panel ad"><h2>Lojas parceiras (Plano Lojista)</h2><label class="cab-sw"><input type="checkbox" id="ljLigadas" ${config.lojasOn?'checked':''}><span><b>Mostrar as Lojas parceiras para os usuários</b><span class="small" style="color:var(--muted);display:block">Desligado: o botão some do Mural, do menu e das fichas. As lojas ficam guardadas e os lojistas ainda podem editar.</span></span></label><p class="lede" style="margin:0">Cada loja ganha uma página com produtos, Pix e contatos. Cadastre a loja com o e-mail do dono: ele entra no PresenteCerto com esse e-mail e edita tudo em Menu › Minha loja.</p>
    ${lojas.map(l=>ljAdmForm&&ljAdmForm.id===l.id?ljAdmFormHtml(l):ljAdmCard(l)).join('')||'<div class="muted">Nenhuma loja parceira ainda.</div>'}
    ${ljAdmForm&&!ljAdmForm.id?ljAdmFormHtml({}):'<div class="row"><button class="btn small ghost" data-act="ljANova">Cadastrar loja</button></div>'}
    <div class="flabel">Cobrança da mensalidade (Pix)</div>
@@ -1897,7 +1991,174 @@ function ljMuralAvisos(){
   minhasLojas().forEach(l=>{const n=ljDiasAte(l.pagoAte);if(l.ativo&&n!==null&&n<=3&&!l.avisoPag)h+=`<div class="notice">🏪 A mensalidade da <b>${esc(l.nome)}</b> ${n<0?'venceu em '+diaBR(l.pagoAte):n===0?'vence hoje':'vence em '+n+(n===1?' dia':' dias')}. <button class="link" data-act="ljPainel" data-id="${esc(l.id)}">Pagar agora</button></div>`});
   return h;
 }
-const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
+/* ---------- Cabeçalho Plus: temas, moldura, enfeite, nome, adesivos, modo aniversário e visitas ---------- */
+const CAB_TEMAS={
+  aniversario:{n:'Aniversário',ic:'🎉',bg:'linear-gradient(150deg,#2b1055 0%,#7b2ff7 45%,#f107a3 100%)',fx:'confete'},
+  natal:{n:'Natal',ic:'🎄',bg:'linear-gradient(160deg,#0b3d2e,#14674a 55%,#b3202b)',fx:'neve'},
+  namorados:{n:'Namorados',ic:'💘',bg:'linear-gradient(160deg,#ff6f91,#c2185b)',fx:'coracoes'},
+  galaxia:{n:'Galáxia',ic:'🌌',bg:'linear-gradient(160deg,#0f2027,#203a43 50%,#2c5364)',fx:'estrelas'},
+  girassol:{n:'Girassol',ic:'🌻',bg:'linear-gradient(160deg,#f7971e,#ffd200)',fx:'brilho',claro:true},
+  oceano:{n:'Oceano',ic:'🌊',bg:'linear-gradient(160deg,#0052d4,#4364f7 50%,#6fb1fc)',fx:'bolhas'},
+  dourado:{n:'Dourado',ic:'✨',bg:'linear-gradient(150deg,#1d1530,#3a2a12 50%,#b8860b)',fx:'estrelas'},
+  rosa:{n:'Rosa chá',ic:'🌸',bg:'linear-gradient(160deg,#f8a5c2,#e56b9f)',fx:'brilho'},
+  festa:{n:'Balada',ic:'🪩',bg:'linear-gradient(150deg,#12002b,#3d0066 50%,#00b3b3)',fx:'confete'},
+};
+const CAB_MOLD={arco:['Arco-íris','conic-gradient(#ffd23f,#ff7ab6,#7af0d0,#7b9bff,#ffd23f)'],ouro:['Dourada','linear-gradient(135deg,#fff3b0,#d4a017,#8a6d12,#f5d77a)'],neon:['Neon','conic-gradient(#00f5ff,#7b2ff7,#f107a3,#00f5ff)'],natal:['Natal','conic-gradient(#e33,#fff,#2a2,#fff,#e33)'],rosa:['Rosa','linear-gradient(135deg,#ff9a9e,#fecfef,#ff9a9e)']};
+const CAB_TOPO=['👑','🎀','🎅','😎','🌸','⭐','🎓','🐰'];
+const CAB_NOME={ouro:'Dourado',arco:'Arco-íris',neon:'Neon'};
+const CAB_ADES=['🎈','✨','🎁','💜','🌟','🎂','🍾','🌈','🦋','🔥','⚽','🎮','📚','☕','🌴','🐶'];
+let cabDraft=null,cabVisitas=null,cabVisitasEm=0,cabVerQuem=false,cabPriv=null,cabVisitados={};
+function cabNorm(c){c=c&&typeof c==='object'?c:{};return{tema:CAB_TEMAS[c.tema]?c.tema:'',moldura:CAB_MOLD[c.moldura]?c.moldura:'',topo:CAB_TOPO.includes(c.topo)?c.topo:'',nome:CAB_NOME[c.nome]?c.nome:'',ades:(Array.isArray(c.ades)?c.ades:[]).filter(a=>CAB_ADES.includes(a)).slice(0,3),aniv:c.aniv!==false}}
+function cabProxAniv(p){const d=+p.dia,m=+p.mes;if(!d||!m)return null;const h=new Date();let a=new Date(h.getFullYear(),m-1,d);if(a<new Date(h.getFullYear(),h.getMonth(),h.getDate()))a=new Date(h.getFullYear()+1,m-1,d);return a}
+// visual que vale para o cabeçalho: só Plus (ou o próprio dono testando no editor)
+function cabEfetivo(id,p,teste){
+  if(!teste&&!isPlus(id))return null;
+  const c=cabNorm(teste||p.cab);const dn=bdayDays(p);
+  const aniv=c.aniv&&dn!==null&&dn!==undefined&&dn<=30;
+  if(aniv&&!teste)c.tema='aniversario';
+  if(aniv&&teste&&!c.tema)c.tema='aniversario';
+  c.contagem=aniv;
+  if(!c.tema&&!c.moldura&&!c.topo&&!c.nome&&!c.ades.length&&!c.contagem)return null;
+  return c;
+}
+function cabContagem(p){const a=cabProxAniv(p);if(!a)return '';const ms=Math.max(0,a-new Date());if(ms===0||bdayDays(p)===0)return `<div class="cab-cd hoje"><div><b>🎂 É hoje!</b><span>dia do aniversário</span></div></div>`;
+  const d=Math.floor(ms/864e5),hh=Math.floor(ms%864e5/36e5),mm=Math.floor(ms%36e5/6e4);
+  return `<div class="cab-cd"><div><b>${d}</b><span>${d===1?'dia':'dias'}</span></div><div><b>${String(hh).padStart(2,'0')}</b><span>horas</span></div><div><b>${String(mm).padStart(2,'0')}</b><span>min</span></div></div>`}
+// monta o cabeçalho do perfil (usado no perfil e na prévia do editor)
+function pfHeadHtml(id,p,self,opt){
+  opt=opt||{};
+  const cab=opt.cab!==undefined?opt.cab:cabEfetivo(id,p);
+  const capa=isPlus(id)&&CAPAS[p.capa]?`background:${CAPAS[p.capa]}`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
+  const fundo=fotoOf(id,'_capa');const tema=cab&&cab.tema?CAB_TEMAS[cab.tema]:null;
+  let cls='pf-head',sty='';
+  if(tema){cls+=' cab'+(tema.claro?' clara':'');sty=`--cab-bg:${tema.bg}`}
+  else if(fundo){cls+=' com-foto';sty=`--capa:url(&quot;${esc(fundo)}&quot;)`}
+  else if(capa){cls+=capaEsc?' escura':' clara';sty=capa}
+  if(cab&&cab.nome)cls+=' cab-nome-'+cab.nome;
+  const btns=self&&!opt.preview?`<div class="pf-capa-btns">${!tema&&fundo?'<button class="pf-capa-btn" data-act="capaTirar" aria-label="Remover foto de fundo">✕</button>':''}${tema?'':`<button class="pf-capa-btn" data-act="capaFoto">📷 ${fundo?'Trocar fundo':'Foto de fundo'}</button>`}<button class="pf-capa-btn cab-btn" data-act="cabAbrir">🎨 Personalizar</button></div>`:'';
+  if(btns)cls+=' tem-btns';
+  const fx=tema&&tema.fx?`<span class="cab-fx ${tema.fx}" aria-hidden="true"></span>`:'';
+  const ades=cab&&cab.ades.length?cab.ades.map((a,i)=>`<span class="cab-stk s${i}" aria-hidden="true">${a}</span>`).join(''):'';const temAdes=!!ades;
+  const img=`<img class="pf-av" src="${esc(av(id))}" alt="">`;
+  const foto=cab&&(cab.moldura||cab.topo||temAdes)?`<span class="pf-ring${cab.moldura?'':' sem'}" style="${cab.moldura?'--ring:'+CAB_MOLD[cab.moldura][1]:''}">${cab.topo?`<span class="pf-topo" aria-hidden="true">${cab.topo}</span>`:''}${img}${ades}</span>`:img;
+  const nomeTxt=esc(self?(myName||nm(id)):nm(id));
+  let h=`<div class="${cls}" style="${sty}">${fx}${btns}<div class="pf-top">${foto}<div style="min-width:0"><h1 class="pf-nome"><span class="pf-nm">${nomeTxt}</span>${selo(id)||(opt.preview?' <span class="plus-badge">Plus</span>':'')}</h1>${handleOf(id)?`<div class="pf-at">@${esc(handleOf(id))}</div>`:''}</div></div>${p.frase?`<div class="pf-frase${tema?' cab-frase':''}">${esc(p.frase)}</div>`:''}`;
+  if(cab&&cab.contagem)h+=cabContagem(p);
+  h+=`<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self||opt.preview?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
+  return h;
+}
+/* visitas ao perfil */
+function cabDiscreto(){return !!(cabPriv&&cabPriv.discreto)}
+function cabRegistrarVisita(id){
+  if(!myId||id===myId||cabVisitados[id]||cabDiscreto()||cabPriv===null)return;cabVisitados[id]=1;
+  db.doc(`visitas/${id}/de/${myId}`).set({em:Date.now()}).catch(()=>{});
+}
+function cabCarregarVisitas(){
+  if(Date.now()-cabVisitasEm<5*60e3)return;cabVisitasEm=Date.now();
+  db.collection(`visitas/${myId}/de`).get().then(s=>{const lim=Date.now()-7*864e5;cabVisitas=s.docs.map(d=>({id:d.id,em:+(d.data()||{}).em||0})).filter(v=>v.em>=lim&&v.id!==myId).sort((a,b)=>b.em-a.em);softRender()}).catch(()=>{cabVisitas=[]});
+}
+function cabVisitasHtml(){
+  cabCarregarVisitas();if(!cabVisitas||!cabVisitas.length)return '';
+  const n=cabVisitas.length,plus=isPlus(myId)||isOwner;
+  const faces=cabVisitas.slice(0,4).map(v=>`<img src="${esc(av(v.id))}" alt="">`).join('');
+  let h=`<div class="cab-vis${plus?'':' bloq'}"><div class="cab-faces">${faces}</div><div style="flex:1;min-width:0"><b>${n} ${n===1?'pessoa viu':'pessoas viram'}</b> seu perfil nos últimos 7 dias</div><button class="link" data-act="${plus?'cabVerQuem':'cabPaywall'}">${plus?(cabVerQuem?'Fechar':'Ver quem'):'Ver quem 🔒'}</button></div>`;
+  if(plus&&cabVerQuem)h+=`<div class="list">${cabVisitas.map(v=>`<div class="person tap" data-act="open" data-id="${esc(v.id)}" tabindex="0" role="button"><img src="${esc(av(v.id))}" alt=""><div style="min-width:0"><div class="nm">${esc(nm(v.id))}</div><div class="meta">${esc(cabQuando(v.em))}</div></div></div>`).join('')}</div>`;
+  return h;
+}
+function cabQuando(t){const d=Math.floor((Date.now()-t)/864e5);return d<=0?'hoje':d===1?'ontem':'há '+d+' dias'}
+/* editor */
+function renderCabecalho(){
+  const p=profiles[myId];if(!p){setTab('perfil');return}
+  if(!cabDraft)cabDraft=cabNorm(p.cab);
+  const plus=isPlus(myId)||isOwner,d=cabDraft;
+  const prev=cabEfetivo(myId,p,d)||{tema:'',moldura:'',topo:'',nome:'',ades:[],contagem:false};
+  const lk=free=>plus||free?'':'<span class="cab-lock" aria-label="Plus">🔒</span>';
+  let h=`<div class="view cab-ed"><button class="back" data-act="cabFechar">← Voltar ao meu perfil</button><div><h1>Personalizar meu cabeçalho</h1><p class="lede">${plus?'Escolha o visual do topo do seu perfil. É assim que a família e os amigos vão ver.':'Teste à vontade: o topo muda na hora, mas só você vê. Para os seus amigos verem, ative o Plus.'}</p></div>
+   <div class="cab-prev">${pfHeadHtml(myId,p,true,{cab:prev,preview:true})}</div>
+   <section class="panel"><h2>🖼️ Tema</h2><div class="cab-temas"><button class="cab-tema" data-act="cabSet" data-k="tema" data-v="" aria-pressed="${!d.tema}" style="background:linear-gradient(135deg,var(--accent),#b04fb8)"><span class="cab-free">grátis</span><b>Padrão</b></button>${Object.entries(CAB_TEMAS).map(([k,t])=>`<button class="cab-tema${t.claro?' claro':''}" data-act="cabSet" data-k="tema" data-v="${k}" aria-pressed="${d.tema===k}" style="background:${t.bg}"><span class="cab-ic">${t.ic}</span>${lk()}<b>${t.n}</b></button>`).join('')}</div></section>
+   <section class="panel"><h2>⭕ Moldura da foto</h2><div class="cab-row"><button class="cab-mold" data-act="cabSet" data-k="moldura" data-v="" aria-pressed="${!d.moldura}" aria-label="Sem moldura"><i></i></button>${Object.entries(CAB_MOLD).map(([k,[n,bg]])=>`<button class="cab-mold" data-act="cabSet" data-k="moldura" data-v="${k}" aria-pressed="${d.moldura===k}" aria-label="${n}" style="background:${bg}"><i></i>${lk()}</button>`).join('')}</div></section>
+   <section class="panel"><h2>👑 Enfeite em cima da foto</h2><div class="cab-row"><button class="cab-emo" data-act="cabSet" data-k="topo" data-v="" aria-pressed="${!d.topo}">—</button>${CAB_TOPO.map(e=>`<button class="cab-emo" data-act="cabSet" data-k="topo" data-v="${e}" aria-pressed="${d.topo===e}">${e}${lk()}</button>`).join('')}</div></section>
+   <section class="panel"><h2>✍️ Efeito no nome</h2><div class="chips"><button class="chip" data-act="cabSet" data-k="nome" data-v="" aria-pressed="${!d.nome}">Normal</button>${Object.entries(CAB_NOME).map(([k,n])=>`<button class="chip" data-act="cabSet" data-k="nome" data-v="${k}" aria-pressed="${d.nome===k}">${n}${plus?'':' 🔒'}</button>`).join('')}</div></section>
+   <section class="panel"><h2>🎈 Adesivos <span class="small" style="font-weight:600;color:var(--muted)">· até 3</span></h2><div class="cab-row">${CAB_ADES.map(e=>`<button class="cab-emo" data-act="cabAdes" data-v="${e}" aria-pressed="${d.ades.includes(e)}">${e}${lk()}</button>`).join('')}</div></section>
+   <section class="panel"><label class="cab-sw"><input type="checkbox" id="cabAniv" ${d.aniv?'checked':''}><span><b>🎂 Modo aniversário automático</b><span class="small" style="color:var(--muted);display:block">Faltando 30 dias para o seu aniversário, o topo vira festa com confete e contagem regressiva.</span></span></label>
+    <label class="cab-sw"><input type="checkbox" id="cabDisc" ${cabDiscreto()?'checked':''}><span><b>🕶️ Visitar perfis em modo discreto</b><span class="small" style="color:var(--muted);display:block">Quando ligado, você não aparece na lista de quem visitou o perfil dos outros.</span></span></label></section>`;
+  if(plus)h+=`<div class="cab-salvar"><button class="btn" data-act="cabSalvar">Salvar meu visual</button><button class="link" data-act="cabPadrao">Voltar ao padrão</button></div>`;
+  else h+=`<div class="cab-salvar"><div class="cab-teste">👀 <b>Você está testando.</b> Só você está vendo. Para seus amigos verem, ative o Plus.</div><button class="btn cab-btn-plus" data-act="cabPaywall">Usar este visual · Plus ${esc(config.plusPreco||'R$ 9,90')}</button></div>`;
+  app.innerHTML=h+'</div>';
+}
+function cabPaywall(){
+  let el=document.getElementById('cabPw');if(!el){el=document.createElement('div');el.id='cabPw';el.className='cab-pw';document.body.appendChild(el)}
+  const preco=config.plusPreco||'R$ 9,90';const link=safeLink(config.plusLink)?config.plusLink:'';
+  const B=[['🎨','Temas de cabeçalho','para cada época: aniversário, Natal, Namorados, Galáxia e mais.'],['🎂','Modo aniversário automático:','no seu mês, o perfil vira festa com confete e contagem regressiva.'],['👀','Veja quem visitou seu perfil','nos últimos 7 dias.'],['⭕','Molduras, enfeites, adesivos e nome brilhante','no topo do perfil.'],['➕','E tudo que o Plus já tem:','menos anúncios, lista de Natal e listas de evento grátis.']];
+  el.innerHTML=`<div class="cab-pw-bg" data-cabpw="fechar"></div><div class="cab-pw-sheet" role="dialog" aria-modal="true" aria-label="PresenteCerto Plus"><span class="cab-pw-grab"></span><h2>Deixe seu perfil com a sua cara ✨</h2><span class="small" style="color:var(--muted)">É o seu perfil que a família e os amigos abrem quando vão te dar um presente.</span>
+   <div class="cab-ba"><div><span>Hoje</span><div class="cab-ba-f"><i></i>${esc(String(myName||'Você').split(' ')[0])}</div></div><div><span>Com Plus</span><div class="cab-ba-f p"><i></i>${esc(String(myName||'Você').split(' ')[0])} 👑<em>🎈</em></div></div></div>
+   ${B.map(([e,t,d])=>`<div class="cab-li"><span>${e}</span><div><b>${t}</b> ${d}</div></div>`).join('')}
+   <div class="cab-preco"><b>${esc(preco)}</b><span>por mês</span></div><div class="cab-cafe">☕ Menos que um cafezinho por semana</div>
+   ${link?`<a class="btn cab-btn-plus" href="${esc(link)}" target="_blank" rel="noopener" data-track="loja:plus-cabecalho">Quero meu perfil Plus</a><span class="small" style="color:var(--muted);text-align:center">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. O Plus liga sozinho e seu visual fica salvo.</span>`:`<button class="btn cab-btn-plus" data-cabpw="plus">Quero meu perfil Plus</button>`}
+   <button class="btn ghost" data-cabpw="fechar">Continuar testando</button></div>`;
+  el.hidden=false;
+}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-cabpw]');if(!b)return;const el=document.getElementById('cabPw');if(el)el.hidden=true;if(b.dataset.cabpw==='plus')setTab('plus')});
+app.addEventListener('change',e=>{const t=e.target;if(!t)return;
+  if(t.id==='ljLigadas'&&isOwner){saveConfig({...config,lojasOn:t.checked},t.checked?'Lojas parceiras ligadas':'Lojas parceiras desligadas')}
+  if(t.id==='cabAniv'&&cabDraft){cabDraft.aniv=t.checked;keep(render)}
+  if(t.id==='cabDisc'){cabPriv={...(cabPriv||{}),discreto:t.checked};db.doc(`data/users/${myId}/privacidade`).set({discreto:t.checked},{merge:true}).then(()=>toast(t.checked?'Modo discreto ligado':'Modo discreto desligado')).catch(()=>toast(failMsg))}});
+app.addEventListener('click',async e=>{
+  const b=e.target.closest&&e.target.closest('[data-act]');if(!b||!db||!myId)return;const ds=b.dataset,a=ds.act;if(!/^cab/.test(a))return;
+  switch(a){
+    case 'cabAbrir': cabDraft=null;setTab('cabecalho');break;
+    case 'cabFechar': cabDraft=null;setTab('perfil');break;
+    case 'cabSet': if(cabDraft){cabDraft[ds.k]=ds.v;keep(render);const pv=app.querySelector('.cab-prev');if(pv&&pv.getBoundingClientRect().bottom<60)pv.scrollIntoView({behavior:'smooth',block:'start'})}break;
+    case 'cabAdes': if(cabDraft){const s=cabDraft.ades.filter(x=>x!==ds.v);if(s.length===cabDraft.ades.length){if(s.length>=3){toast('Escolha até 3 adesivos');break}s.push(ds.v)}cabDraft.ades=s;keep(render)}break;
+    case 'cabPadrao': if(cabDraft){cabDraft={...cabNorm({}),aniv:cabDraft.aniv};keep(render)}break;
+    case 'cabSalvar': {if(!(isPlus(myId)||isOwner)){cabPaywall();break}const cab=cabNorm(cabDraft);
+      try{await db.doc('profiles/'+myId).set({cab},{merge:true});profiles[myId]={...(profiles[myId]||{}),cab};if(draft)draft.cab=cab;cabDraft=null;toast('Visual salvo! Seus amigos já veem assim ✨');setTab('perfil')}catch(err){toast(failMsg)}break}
+    case 'cabPaywall': cabPaywall();break;
+    case 'cabVerQuem': cabVerQuem=!cabVerQuem;keep(render);break;
+  }
+});
+/* ---------- Pendências do Mural: uma por vez, a próxima aparece depois de um tempo ---------- */
+const PEND_ESPERA=4*36e5;let pendIni=Date.now(),pendFeitoAgora=false;
+let pendEst=(()=>{try{return JSON.parse(localStorage.getItem('pc_pend')||'{}')||{}}catch(e){return{}}})();
+pendEst={atual:'',feitoEm:0,adiadas:{},vistos:{},...pendEst};
+const pendSalvar=()=>{try{localStorage.setItem('pc_pend',JSON.stringify(pendEst))}catch(e){}};
+function lojasVisiveis(){return config.lojasOn?lojasAtivas():[]}
+function pendLista(){
+  const me=profiles[myId];const L=[];const ano=new Date().getFullYear();
+  const req=pendingRequests();
+  if(req.length)L.push({id:'req',ic:'🙋',t:req.length===1?nm(req[0])+' quer ver sua ficha':req.length+' pessoas querem ver sua ficha',d:'Aceite para elas acertarem no seu presente.',b:'Ver pedidos',a:'data-act="tab" data-id="datas"'});
+  following().filter(id=>profiles[id]&&canSee(id)).map(id=>({id,n:bdayDays(profiles[id])})).filter(x=>x.n!==null&&x.n!==undefined&&x.n<=7).sort((a,b)=>a.n-b.n).slice(0,1).forEach(x=>{const k='aniv:'+x.id+':'+ano;if(!pendEst.vistos[k])L.push({id:k,ic:'🎂',t:x.n===0?`Hoje é aniversário de ${nm(x.id)}!`:`Faltam ${x.n} ${x.n===1?'dia':'dias'} para o aniversário de ${nm(x.id)}`,d:'Veja a lista de desejos e escolha o presente certo.',b:'Ver a lista',a:`data-act="pendAbrir" data-id="${esc(x.id)}" data-k="${esc(k)}"`})});
+  if(!me||!(me.dia&&me.mes))L.push({id:'aniv',ic:'📅',t:'Coloque a data do seu aniversário',d:'Assim seus amigos são avisados e não esquecem.',b:'Colocar a data',a:'data-act="pendFicha" data-v="0"'});
+  const fa=names[myId]&&names[myId].avatar;if(!fa||String(fa).startsWith('data:image/svg'))L.push({id:'foto',ic:'📸',t:'Coloque uma foto no seu perfil',d:'Fica mais fácil a família e os amigos te acharem.',b:'Pôr foto',a:'data-menu="conta"'});
+  const nd=((me&&me.desejos)||[]).length;
+  if(nd<3)L.push({id:'desejos',ic:'🎁',t:nd?`Sua lista de desejos tem só ${nd} ${nd===1?'item':'itens'}`:'Sua lista de desejos está vazia',d:'Adicione pelo menos 3 coisas que você gostaria de ganhar.',b:'Adicionar desejos',a:`data-act="pendFicha" data-v="${PASSOS.indexOf('Lista de desejos')}"`});
+  if(me){const c=completude(me);if(c.pct<80)L.push({id:'ficha',ic:'📝',t:`Sua ficha está ${c.pct}% pronta`,d:'Falta: '+c.faltam.slice(0,3).join(', ')+(c.faltam.length>3?'…':'.'),b:'Completar a ficha',a:'data-act="editarFicha"',pct:c.pct})}
+  if(!following().length)L.push({id:'seguir',ic:'👥',t:'Siga amigos e família',d:'Veja os aniversários e as listas de quem você gosta.',b:'Encontrar pessoas',a:'data-act="tab" data-id="pessoas"'});
+  if(pushAtivo===false&&(pushSuportado()||ehIOS))L.push({id:'push',ic:'🔔',t:'Ative os avisos no celular',d:'Receba um lembrete antes do aniversário de quem você segue.',b:'Ativar avisos',a:'data-menu="pushOn"'});
+  Object.entries(meusEv||{}).filter(([,e])=>!e.publicado).slice(0,1).forEach(([id,e])=>L.push({id:'ev:'+id,ic:'🎉',t:`Sua lista “${e.titulo||'de evento'}” ainda é rascunho`,d:'Publique para mandar o link aos convidados.',b:'Abrir a lista',a:`data-ev="abrir" data-id="${esc(id)}"`}));
+  const agora=Date.now();return L.filter(x=>!(pendEst.adiadas[x.id]>agora));
+}
+function pendCard(){
+  if(!myId||Date.now()-pendIni<4000)return '';
+  if(pendFeitoAgora)return `<section class="pend ok"><span class="pend-ic" aria-hidden="true">✅</span><div style="min-width:0"><b>Pendência resolvida!</b><span class="small">Boa! Daqui a pouco aparece a próxima dica para deixar seu perfil ainda melhor.</span></div><button class="pend-x" data-act="pendFechar" aria-label="Fechar">✕</button></section>`;
+  const L=pendLista(),agora=Date.now();let cur=L.find(x=>x.id===pendEst.atual);
+  if(!cur){
+    if(pendEst.atual){pendEst.atual='';pendEst.feitoEm=agora;pendSalvar();pendFeitoAgora=true;return pendCard()}
+    if(agora-(pendEst.feitoEm||0)<PEND_ESPERA)return '';
+    cur=L[0];if(!cur)return '';pendEst.atual=cur.id;pendSalvar();
+  }
+  const resto=L.length-1;
+  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">Para fazer${resto>0?` · mais ${resto} depois`:''}</span><b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span>${cur.pct!==undefined?`<div class="pend-bar"><i style="width:${cur.pct}%"></i></div>`:''}<div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
+}
+setTimeout(()=>{try{if(tab==='mural'&&!viewing)softRender()}catch(e){}},4300);
+app.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-act]');if(!b)return;const ds=b.dataset,a=ds.act;if(!/^pend/.test(a))return;
+  if(a==='pendFicha'){fichaStep=+ds.v||0;if(viewing===myId)viewing=null;setTab('perfil',true)}
+  if(a==='pendAbrir'){pendEst.vistos[ds.k]=Date.now();pendSalvar();viewing=ds.id;form=null;render();window.scrollTo(0,0)}
+  if(a==='pendAdiar'){if(pendEst.atual)pendEst.adiadas[pendEst.atual]=Date.now()+3*864e5;pendEst.atual='';pendEst.feitoEm=Date.now();pendSalvar();keep(render)}
+  if(a==='pendFechar'){pendFeitoAgora=false;keep(render)}
+});
+const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Modo aniversário automático','No mês do seu aniversário, o topo do perfil vira festa com confete e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
   const on=isPlus(myId);
   let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
@@ -3131,7 +3392,7 @@ async function saveMine(){
   if(!dirty)return;const b=app.querySelector('#save');if(b){b.disabled=true;b.textContent='Salvando…'}
   const cur=profiles[myId]||{};
   const data={...draft,ano:String(draft.ano||'').replace(/\D/g,'').slice(0,4),aviso:+draft.aviso||15,aprovados:cur.aprovados||[],recusados:cur.recusados||[],parabensOcultos:cur.parabensOcultos||[],usuario:cur.usuario||'',frase:cur.frase||draft.frase||'',atualizado:new Date().toISOString()};
-  delete data.jaTem;
+  delete data.jaTem;if(cur.cab)data.cab=cur.cab;else delete data.cab;
   try{await db.doc('profiles/'+myId).set(data);profiles[myId]=data;draft=null;dirty=false;toast('Ficha salva');keep(render)}
   catch(e){if(b){b.disabled=false;b.textContent='Salvar ficha'}toast(failMsg)}
 }
@@ -3412,6 +3673,7 @@ async function start(){
   db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});meusEvOk=true;if((tab==='eventos'&&!evAberto)||(tab==='mural'&&!viewing))softRender()},()=>{});
   if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
+  db.doc(`data/users/${myId}/privacidade`).onSnapshot(s=>{cabPriv=s.exists?{...s.data()}:{}},()=>{cabPriv={}});
   db.collection('lojas').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{n[d.id]=d.data()});lojasDb=n;lojasOk=true;ljMigrar();softRender();renderMenu()},()=>{lojasOk=true;softRender()});
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();ljMigrar();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});

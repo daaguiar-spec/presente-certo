@@ -157,6 +157,13 @@ service cloud.firestore {
     // Configuração (afiliados, anúncios, avisos, moderação): todos leem, só o administrador muda
     match /config/{doc} { allow read: if logado(); allow write: if admin(); }
 
+    // Visitas ao perfil: cada visitante grava só o próprio registro; só o dono do perfil lê.
+    match /visitas/{alvo}/de/{quem} {
+      allow read: if dono(alvo) || admin();
+      allow write: if dono(quem) && quem != alvo
+        && request.resource.data.keys().hasOnly(['em']) && request.resource.data.em is number;
+    }
+
     // Lojas parceiras: o administrador cria a loja e define dono, mensalidade e se está ativa.
     // O dono (pelo e-mail confirmado) edita a página, os produtos e as fotos, e avisa o pagamento.
     function donoLoja(d) {
