@@ -20,6 +20,10 @@ module.exports = async (req, res) => {
     });
     if (ja) return res.status(200).json({ ok: true, ja: true });
 
+    // ofertas automáticas da Shopee (uma vez por dia)
+    let ofertas = null;
+    try { const cfg = ((await R.getDoc('config/app')) || {}).data || {}; ofertas = await require('./_ofertas').atualizar(R, cfg); } catch (e) { ofertas = { ok: false, erro: String(e && e.message).slice(0, 120) }; }
+
     await P.preparar();
     const base = Date.UTC(Y, M, D);
     const dias = (p) => {
@@ -80,7 +84,7 @@ module.exports = async (req, res) => {
         enviados += r.enviados; lojistas++;
       }
     } catch (e) { /* lembrete das lojas não impede o resto */ }
-    return res.status(200).json({ ok: true, dia: hoje, pessoas, lojistas, enviados });
+    return res.status(200).json({ ok: true, dia: hoje, pessoas, lojistas, enviados, ofertas });
   } catch (e) {
     return res.status(500).json({ ok: false, erro: String(e && e.message).slice(0, 200) });
   }
