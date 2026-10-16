@@ -335,6 +335,10 @@ button.chip{cursor:pointer}
 .pend-bar i{display:block;height:100%;background:var(--accent);border-radius:9px}
 .pend.ok{border-left-color:#1f8a5b}
 .pend-x{all:unset;cursor:pointer;position:absolute;top:8px;right:12px;color:var(--muted);font-size:14px;padding:4px}
+.cab-festa{background:#fff3d6;background:linear-gradient(135deg,#fff3d6,#ffe6f2);color:#3a2a10;border:1px solid #f3d0b0;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.cab-festa b{font-size:16px}.cab-festa span{font-size:13.5px;line-height:1.45;color:#5a4d70}
+.cab-festa-b{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cab-festa-ok{display:flex;gap:8px;align-items:flex-start;background:#e5f6ec;border:1px solid #bfe6cf;color:#14532d;border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.45}
 .cab-cafe{text-align:center;font-size:13px;color:var(--accent);font-weight:700;background:var(--accent-soft);border-radius:99px;padding:6px}
 .secret{background:var(--accent-soft);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .secret b.big{font-family:var(--display);font-size:22px}
@@ -1329,6 +1333,7 @@ function renderMural(){
     if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><span class="ev-novo">Novo: Lista Premium ⭐</span><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir. Na Premium, ainda tem capa com foto e você sabe quem deu cada presente para agradecer.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
     if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ Deixe seu perfil com a sua cara</b><span class="small">Com o Plus, o topo do seu perfil ganha temas, moldura, enfeites e vira festa no mês do seu aniversário. E você vê quem visitou seu perfil.</span><div class="row"><button class="btn small" data-act="cabAbrir">🎨 Testar grátis</button><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
+  h+=cabFestaHtml();
   h+=pendCard();
   if(lojasVisiveis().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
@@ -1526,6 +1531,7 @@ function renderPerson(id,aba){
   h+=pfHeadHtml(id,p,self);if(!self)cabRegistrarVisita(id);
   h+=`<div class="pf-body">`;
   if(self){
+    h+=cabFestaHtml();
     const dn=bdayDays(p);
     if(dn!==null&&dn<=30)h+=`<div class="pf-aniv"><b>🎂 ${dn===0?'Hoje é o seu aniversário!':dn===1?'Seu aniversário é amanhã!':'Seu aniversário é em '+dn+' dias.'}</b><span>Mande sua lista para a família e os amigos acertarem no presente.</span><button class="btn small" data-menu="enviar">📲 Enviar minha lista</button></div>`;
     if(pushConvite())h+=`<div class="push-conv"><span>🔔 Ative os avisos e não esqueça nenhum aniversário de quem você segue.</span><button class="btn small" data-menu="pushOn">Ativar avisos</button></div>`;
@@ -2008,16 +2014,18 @@ const CAB_TOPO=['👑','🎀','🎅','😎','🌸','⭐','🎓','🐰'];
 const CAB_NOME={ouro:'Dourado',arco:'Arco-íris',neon:'Neon'};
 const CAB_ADES=['🎈','✨','🎁','💜','🌟','🎂','🍾','🌈','🦋','🔥','⚽','🎮','📚','☕','🌴','🐶'];
 let cabDraft=null,cabVisitas=null,cabVisitasEm=0,cabVerQuem=false,cabPriv=null,cabVisitados={};
-function cabNorm(c){c=c&&typeof c==='object'?c:{};return{tema:CAB_TEMAS[c.tema]?c.tema:'',moldura:CAB_MOLD[c.moldura]?c.moldura:'',topo:CAB_TOPO.includes(c.topo)?c.topo:'',nome:CAB_NOME[c.nome]?c.nome:'',ades:(Array.isArray(c.ades)?c.ades:[]).filter(a=>CAB_ADES.includes(a)).slice(0,3),aniv:c.aniv!==false}}
+function cabNorm(c){c=c&&typeof c==='object'?c:{};return{tema:CAB_TEMAS[c.tema]?c.tema:'',moldura:CAB_MOLD[c.moldura]?c.moldura:'',topo:CAB_TOPO.includes(c.topo)?c.topo:'',nome:CAB_NOME[c.nome]?c.nome:'',ades:(Array.isArray(c.ades)?c.ades:[]).filter(a=>CAB_ADES.includes(a)).slice(0,3),aniv:c.aniv!==false,festa:String(c.festa||'').slice(0,4),festaNao:String(c.festaNao||'').slice(0,4)}}
+function cabFestaChave(p){const a=cabProxAniv(p);return a?String(a.getFullYear()):''}
+function cabFestaAtiva(p,c){const dn=bdayDays(p);return dn!==null&&dn!==undefined&&dn<=30&&!!c.festa&&c.festa===cabFestaChave(p)}
 function cabProxAniv(p){const d=+p.dia,m=+p.mes;if(!d||!m)return null;const h=new Date();let a=new Date(h.getFullYear(),m-1,d);if(a<new Date(h.getFullYear(),h.getMonth(),h.getDate()))a=new Date(h.getFullYear()+1,m-1,d);return a}
 // visual que vale para o cabeçalho: só Plus (ou o próprio dono testando no editor)
 function cabEfetivo(id,p,teste){
   if(!teste&&!isPlus(id))return null;
   const c=cabNorm(teste||p.cab);const dn=bdayDays(p);
-  const aniv=c.aniv&&dn!==null&&dn!==undefined&&dn<=30;
-  if(aniv&&!teste)c.tema='aniversario';
-  if(aniv&&teste&&!c.tema)c.tema='aniversario';
-  c.contagem=aniv;
+  const perto=dn!==null&&dn!==undefined&&dn<=30;
+  // festa só quando a pessoa aceitou ("Quero!"); volta sozinha depois do aniversário
+  if(!teste&&cabFestaAtiva(p,c)){c.tema='aniversario';if(!c.moldura)c.moldura='arco';if(!c.topo)c.topo='👑'}
+  c.contagem=c.aniv&&perto;
   if(!c.tema&&!c.moldura&&!c.topo&&!c.nome&&!c.ades.length&&!c.contagem)return null;
   return c;
 }
@@ -2065,6 +2073,18 @@ function cabVisitasHtml(){
   if(plus&&cabVerQuem)h+=`<div class="list">${cabVisitas.map(v=>`<div class="person tap" data-act="open" data-id="${esc(v.id)}" tabindex="0" role="button"><img src="${esc(av(v.id))}" alt=""><div style="min-width:0"><div class="nm">${esc(nm(v.id))}</div><div class="meta">${esc(cabQuando(v.em))}</div></div></div>`).join('')}</div>`;
   return h;
 }
+
+let cabFestaOk=false;
+function cabFestaHtml(){
+  const p=profiles[myId];if(!p)return '';const dn=bdayDays(p);if(dn===null||dn===undefined||dn>30)return '';
+  const c=cabNorm(p.cab),k=cabFestaChave(p),plus=isPlus(myId)||isOwner;
+  if(c.festa===k)return cabFestaOk?`<div class="cab-festa-ok">🎉 <span><b>Pronto, seu perfil está em festa!</b> No dia seguinte ao aniversário ele volta sozinho${c.tema&&CAB_TEMAS[c.tema]?' para o tema '+esc(CAB_TEMAS[c.tema].n):' ao normal'}. Mudou de ideia? <button class="link" data-act="cabFestaDesfazer">Desfazer</button></span></div>`:'';
+  if(c.festaNao===k)return '';
+  const quando=dn===0?'É hoje!':dn===1?'É amanhã!':`Faltam ${dn} dias.`;
+  return plus?`<div class="cab-festa"><b>🎂 Seu aniversário está chegando!</b><span>${quando} Quer deixar seu perfil em clima de festa até o grande dia? Depois ele volta sozinho para o seu tema.</span><div class="cab-festa-b"><button class="btn small cab-btn-plus" data-act="cabFestaSim">🎉 Quero!</button><button class="link" data-act="cabFestaNao">Agora não</button></div></div>`
+   :`<div class="cab-festa"><b>🎂 Seu aniversário está chegando!</b><span>${quando} Que tal seu perfil em clima de festa, com confete, coroa e contagem regressiva para os amigos verem? É do Plus: teste grátis e veja como fica.</span><div class="cab-festa-b"><button class="btn small cab-btn-plus" data-act="cabFestaVer">🎉 Ver como fica</button><button class="link" data-act="cabFestaNao">Agora não</button></div></div>`;
+}
+async function cabSalvarCampos(m){const p=profiles[myId]||{};const cab={...cabNorm(p.cab),...m};try{await db.doc('profiles/'+myId).set({cab},{merge:true});profiles[myId]={...p,cab};if(draft)draft.cab=cab;return true}catch(e){toast(failMsg);return false}}
 function cabQuando(t){const d=Math.floor((Date.now()-t)/864e5);return d<=0?'hoje':d===1?'ontem':'há '+d+' dias'}
 /* editor */
 function renderCabecalho(){
@@ -2074,13 +2094,14 @@ function renderCabecalho(){
   const prev=cabEfetivo(myId,p,d)||{tema:'',moldura:'',topo:'',nome:'',ades:[],contagem:false};
   const lk=free=>plus||free?'':'<span class="cab-lock" aria-label="Plus">🔒</span>';
   let h=`<div class="view cab-ed"><button class="back" data-act="cabFechar">← Voltar ao meu perfil</button><div><h1>Personalizar meu cabeçalho</h1><p class="lede">${plus?'Escolha o visual do topo do seu perfil. É assim que a família e os amigos vão ver.':'Teste à vontade: o topo muda na hora, mas só você vê. Para os seus amigos verem, ative o Plus.'}</p></div>
+   ${cabFestaAtiva(p,cabNorm(p.cab))?`<div class="cab-festa-ok">🎉 <span><b>Seu perfil está em festa até o aniversário.</b> Os amigos veem o tema Aniversário; depois volta para o tema que você escolher aqui. <button class="link" data-act="cabFestaDesfazer">Desfazer a festa</button></span></div>`:''}
    <div class="cab-prev">${pfHeadHtml(myId,p,true,{cab:prev,preview:true})}</div>
    <section class="panel"><h2>🖼️ Tema</h2><div class="cab-temas"><button class="cab-tema" data-act="cabSet" data-k="tema" data-v="" aria-pressed="${!d.tema}" style="background:linear-gradient(135deg,var(--accent),#b04fb8)"><span class="cab-free">grátis</span><b>Padrão</b></button>${Object.entries(CAB_TEMAS).map(([k,t])=>`<button class="cab-tema${t.claro?' claro':''}" data-act="cabSet" data-k="tema" data-v="${k}" aria-pressed="${d.tema===k}" style="background:${t.bg}"><span class="cab-ic">${t.ic}</span>${lk()}<b>${t.n}</b></button>`).join('')}</div></section>
    <section class="panel"><h2>⭕ Moldura da foto</h2><div class="cab-row"><button class="cab-mold" data-act="cabSet" data-k="moldura" data-v="" aria-pressed="${!d.moldura}" aria-label="Sem moldura"><i></i></button>${Object.entries(CAB_MOLD).map(([k,[n,bg]])=>`<button class="cab-mold" data-act="cabSet" data-k="moldura" data-v="${k}" aria-pressed="${d.moldura===k}" aria-label="${n}" style="background:${bg}"><i></i>${lk()}</button>`).join('')}</div></section>
    <section class="panel"><h2>👑 Enfeite em cima da foto</h2><div class="cab-row"><button class="cab-emo" data-act="cabSet" data-k="topo" data-v="" aria-pressed="${!d.topo}">—</button>${CAB_TOPO.map(e=>`<button class="cab-emo" data-act="cabSet" data-k="topo" data-v="${e}" aria-pressed="${d.topo===e}">${e}${lk()}</button>`).join('')}</div></section>
    <section class="panel"><h2>✍️ Efeito no nome</h2><div class="chips"><button class="chip" data-act="cabSet" data-k="nome" data-v="" aria-pressed="${!d.nome}">Normal</button>${Object.entries(CAB_NOME).map(([k,n])=>`<button class="chip" data-act="cabSet" data-k="nome" data-v="${k}" aria-pressed="${d.nome===k}">${n}${plus?'':' 🔒'}</button>`).join('')}</div></section>
    <section class="panel"><h2>🎈 Adesivos <span class="small" style="font-weight:600;color:var(--muted)">· até 3</span></h2><div class="cab-row">${CAB_ADES.map(e=>`<button class="cab-emo" data-act="cabAdes" data-v="${e}" aria-pressed="${d.ades.includes(e)}">${e}${lk()}</button>`).join('')}</div></section>
-   <section class="panel"><label class="cab-sw"><input type="checkbox" id="cabAniv" ${d.aniv?'checked':''}><span><b>🎂 Modo aniversário automático</b><span class="small" style="color:var(--muted);display:block">Faltando 30 dias para o seu aniversário, o topo vira festa com confete e contagem regressiva.</span></span></label>
+   <section class="panel"><label class="cab-sw"><input type="checkbox" id="cabAniv" ${d.aniv?'checked':''}><span><b>🎂 Contagem regressiva do aniversário</b><span class="small" style="color:var(--muted);display:block">Faltando 30 dias para o seu aniversário, aparece a contagem no topo do perfil. Na época, o app também pergunta se você quer o perfil em clima de festa.</span></span></label>
     <label class="cab-sw"><input type="checkbox" id="cabDisc" ${cabDiscreto()?'checked':''}><span><b>🕶️ Visitar perfis em modo discreto</b><span class="small" style="color:var(--muted);display:block">Quando ligado, você não aparece na lista de quem visitou o perfil dos outros.</span></span></label></section>`;
   if(plus)h+=`<div class="cab-salvar"><button class="btn" data-act="cabSalvar">Salvar meu visual</button><button class="link" data-act="cabPadrao">Voltar ao padrão</button></div>`;
   else h+=`<div class="cab-salvar"><div class="cab-teste">👀 <b>Você está testando.</b> Só você está vendo. Para seus amigos verem, ative o Plus.</div><button class="btn cab-btn-plus" data-act="cabPaywall">Usar este visual · Plus ${esc(config.plusPreco||'R$ 9,90')}</button></div>`;
@@ -2089,7 +2110,7 @@ function renderCabecalho(){
 function cabPaywall(){
   let el=document.getElementById('cabPw');if(!el){el=document.createElement('div');el.id='cabPw';el.className='cab-pw';document.body.appendChild(el)}
   const preco=config.plusPreco||'R$ 9,90';const link=safeLink(config.plusLink)?config.plusLink:'';
-  const B=[['🎨','Temas de cabeçalho','para cada época: aniversário, Natal, Namorados, Galáxia e mais.'],['🎂','Modo aniversário automático:','no seu mês, o perfil vira festa com confete e contagem regressiva.'],['👀','Veja quem visitou seu perfil','nos últimos 7 dias.'],['⭕','Molduras, enfeites, adesivos e nome brilhante','no topo do perfil.'],['➕','E tudo que o Plus já tem:','menos anúncios, lista de Natal e listas de evento grátis.']];
+  const B=[['🎨','Temas de cabeçalho','para cada época: aniversário, Natal, Namorados, Galáxia e mais.'],['🎂','Perfil em festa no aniversário:','confete, coroa e contagem regressiva para os amigos verem.'],['👀','Veja quem visitou seu perfil','nos últimos 7 dias.'],['⭕','Molduras, enfeites, adesivos e nome brilhante','no topo do perfil.'],['➕','E tudo que o Plus já tem:','menos anúncios, lista de Natal e listas de evento grátis.']];
   el.innerHTML=`<div class="cab-pw-bg" data-cabpw="fechar"></div><div class="cab-pw-sheet" role="dialog" aria-modal="true" aria-label="PresenteCerto Plus"><span class="cab-pw-grab"></span><h2>Deixe seu perfil com a sua cara ✨</h2><span class="small" style="color:var(--muted)">É o seu perfil que a família e os amigos abrem quando vão te dar um presente.</span>
    <div class="cab-ba"><div><span>Hoje</span><div class="cab-ba-f"><i></i>${esc(String(myName||'Você').split(' ')[0])}</div></div><div><span>Com Plus</span><div class="cab-ba-f p"><i></i>${esc(String(myName||'Você').split(' ')[0])} 👑<em>🎈</em></div></div></div>
    ${B.map(([e,t,d])=>`<div class="cab-li"><span>${e}</span><div><b>${t}</b> ${d}</div></div>`).join('')}
@@ -2115,12 +2136,16 @@ app.addEventListener('click',async e=>{
       try{await db.doc('profiles/'+myId).set({cab},{merge:true});profiles[myId]={...(profiles[myId]||{}),cab};if(draft)draft.cab=cab;cabDraft=null;toast('Visual salvo! Seus amigos já veem assim ✨');setTab('perfil')}catch(err){toast(failMsg)}break}
     case 'cabPaywall': cabPaywall();break;
     case 'cabVerQuem': cabVerQuem=!cabVerQuem;keep(render);break;
+    case 'cabFestaSim': {const k=cabFestaChave(profiles[myId]||{});if(await cabSalvarCampos({festa:k,festaNao:''})){cabFestaOk=true;keep(render)}break}
+    case 'cabFestaNao': {const k=cabFestaChave(profiles[myId]||{});if(await cabSalvarCampos({festaNao:k,festa:''})){cabFestaOk=false;toast('Tudo bem! Seu perfil continua como está.');keep(render)}break}
+    case 'cabFestaDesfazer': {const k=cabFestaChave(profiles[myId]||{});if(await cabSalvarCampos({festa:'',festaNao:k})){cabFestaOk=false;toast('Pronto, seu perfil voltou ao tema de antes.');keep(render)}break}
+    case 'cabFestaVer': cabDraft={...cabNorm((profiles[myId]||{}).cab),tema:'aniversario',moldura:'arco',topo:'👑'};tab='cabecalho';viewing=null;form=null;render();window.scrollTo(0,0);break;
   }
 });
 /* ---------- Pendências do Mural: uma por vez, a próxima aparece depois de um tempo ---------- */
-const PEND_ESPERA=4*36e5;let pendIni=Date.now(),pendFeitoAgora=false;
+const PEND_ESPERA=4*36e5,PEND_TROCA=3*864e5;let pendIni=Date.now(),pendFeitoAgora=false;
 let pendEst=(()=>{try{return JSON.parse(localStorage.getItem('pc_pend')||'{}')||{}}catch(e){return{}}})();
-pendEst={atual:'',feitoEm:0,adiadas:{},vistos:{},...pendEst};
+pendEst={atual:'',desde:0,feitoEm:0,adiadas:{},vistos:{},...pendEst};
 const pendSalvar=()=>{try{localStorage.setItem('pc_pend',JSON.stringify(pendEst))}catch(e){}};
 function lojasVisiveis(){return config.lojasOn?lojasAtivas():[]}
 function pendLista(){
@@ -2140,12 +2165,15 @@ function pendLista(){
 }
 function pendCard(){
   if(!myId||Date.now()-pendIni<4000)return '';
-  if(pendFeitoAgora)return `<section class="pend ok"><span class="pend-ic" aria-hidden="true">✅</span><div style="min-width:0"><b>Pendência resolvida!</b><span class="small">Boa! Daqui a pouco aparece a próxima dica para deixar seu perfil ainda melhor.</span></div><button class="pend-x" data-act="pendFechar" aria-label="Fechar">✕</button></section>`;
-  const L=pendLista(),agora=Date.now();let cur=L.find(x=>x.id===pendEst.atual);
+  if(pendFeitoAgora)return `<section class="pend ok"><span class="pend-ic" aria-hidden="true">✅</span><div style="min-width:0"><b>Pendência resolvida!</b><span class="small">Boa! A próxima dica aparece daqui a umas 4 horas, quando você abrir o app de novo.</span></div><button class="pend-x" data-act="pendFechar" aria-label="Fechar">✕</button></section>`;
+  let L=pendLista(),agora=Date.now();let cur=L.find(x=>x.id===pendEst.atual);
+  // 3 dias sem resolver: troca sozinha pela próxima (se houver outra)
+  if(cur&&pendEst.desde&&agora-pendEst.desde>PEND_TROCA&&L.length>1){pendEst.adiadas[cur.id]=agora+PEND_TROCA;L=L.filter(x=>x.id!==cur.id);cur=L[0];pendEst.atual=cur.id;pendEst.desde=agora;pendSalvar()}
+  if(cur&&!pendEst.desde){pendEst.desde=agora;pendSalvar()}
   if(!cur){
     if(pendEst.atual){pendEst.atual='';pendEst.feitoEm=agora;pendSalvar();pendFeitoAgora=true;return pendCard()}
     if(agora-(pendEst.feitoEm||0)<PEND_ESPERA)return '';
-    cur=L[0];if(!cur)return '';pendEst.atual=cur.id;pendSalvar();
+    cur=L[0];if(!cur)return '';pendEst.atual=cur.id;pendEst.desde=agora;pendSalvar();
   }
   const resto=L.length-1;
   return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">Para fazer${resto>0?` · mais ${resto} depois`:''}</span><b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span>${cur.pct!==undefined?`<div class="pend-bar"><i style="width:${cur.pct}%"></i></div>`:''}<div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
@@ -2158,7 +2186,7 @@ app.addEventListener('click',e=>{
   if(a==='pendAdiar'){if(pendEst.atual)pendEst.adiadas[pendEst.atual]=Date.now()+3*864e5;pendEst.atual='';pendEst.feitoEm=Date.now();pendSalvar();keep(render)}
   if(a==='pendFechar'){pendFeitoAgora=false;keep(render)}
 });
-const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Modo aniversário automático','No mês do seu aniversário, o topo do perfil vira festa com confete e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
+const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Perfil em festa no aniversário','Faltando um mês, seu perfil pode virar festa com confete, coroa e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
   const on=isPlus(myId);
   let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
