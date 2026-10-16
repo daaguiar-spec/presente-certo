@@ -156,6 +156,8 @@ service cloud.firestore {
 
     // Configuração (afiliados, anúncios, avisos, moderação): todos leem, só o administrador muda
     match /config/{doc} { allow read: if logado(); allow write: if admin(); }
+    // Ofertas automáticas (gravadas pelo robô do servidor a partir da API da Shopee)
+    match /ofertasauto/{doc} { allow read: if logado(); allow write: if robo() || admin(); }
 
     // Visitas ao perfil: cada visitante grava só o próprio registro; só o dono do perfil lê.
     match /visitas/{alvo}/de/{quem} {

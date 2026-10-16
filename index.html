@@ -325,6 +325,13 @@ button.chip{cursor:pointer}
 .cab-li>span{font-size:20px;width:26px;text-align:center;flex:none}
 .cab-preco{display:flex;align-items:baseline;justify-content:center;gap:6px}
 .cab-preco b{font-size:30px}.cab-preco span{font-size:13px;color:var(--muted)}
+.md-lista{display:flex;flex-direction:column;gap:8px}
+.md-item{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.md-ic{font-size:26px;line-height:1.2;flex:none;width:40px;height:40px;border-radius:12px;background:var(--sunk);display:flex;align-items:center;justify-content:center}
+.md-item b{display:block;font-size:15px}
+.md-item .shop{margin-top:8px;gap:6px;align-items:center}
+.md-item .shop>span{display:none}
+.md-item .shop a{background:var(--accent-soft);color:var(--accent);font-weight:700;text-decoration:none;padding:5px 10px;border-radius:99px;font-size:12.5px}
 .pend{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:16px;padding:12px 14px;position:relative}
 .pend-ic{font-size:26px;line-height:1.1;flex:none}
 .pend b{display:block;font-size:15px;line-height:1.3}
@@ -1262,12 +1269,28 @@ document.addEventListener('click',e=>{
 // "66,49" -> "R$ 66,49"; "199" -> "R$ 199,00"; texto livre fica como está
 function precoBR(p){p=String(p||'').trim();if(!p)return '';const t=p.replace(/^R\$\s*/i,'');if(/^\d{1,3}(\.\d{3})*(,\d{1,2})?$|^\d+([.,]\d{1,2})?$/.test(t)){let n=t;if(/,\d{1,2}$/.test(n))n=n.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(n))n=n.replace(/\./g,'');const v=parseFloat(n);if(isFinite(v))return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}return p}
 const ofCard=o=>`<a class="oferta" href="${esc(affiliate(o.link))}" target="_blank" rel="noopener sponsored" data-track="ad:of:${esc(o.id)}">${/^https:\/\//i.test(o.imagem||'')?`<span class="of-img"><img src="${esc(o.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>`:''}<b class="of-tit">${esc(o.titulo)}</b>${precoBR(o.preco)?`<span class="preco">${esc(precoBR(o.preco))}</span>`:''}<span class="of-btn">Ver ${o.loja?'na '+esc(o.loja):'na loja'}</span></a>`;
-const ofertasAtivas=()=>(config.ofertas||[]).filter(o=>o.titulo&&safeLink(o.link)).slice(0,12);
+let ofAuto=[],ofAutoEm=null,ofAutoMsg='';
+const ofertasAuto=()=>{const c=config.shopeeAuto||{};if(!c.ligado)return [];const oc=new Set((c.ocultos||[]).map(String));return ofAuto.filter(o=>o&&o.titulo&&safeLink(o.link)&&!oc.has(String(o.itemId)))};
+const ofertasAtivas=()=>[...(config.ofertas||[]).filter(o=>o.titulo&&safeLink(o.link)),...ofertasAuto()].slice(0,12);
+/* mais desejados: o que mais aparece nas listas de desejos (só itens que 2 ou mais pessoas querem) */
+const MD_STOP=new Set(['de','da','do','das','dos','para','pra','com','e','um','uma','o','a','os','as','em','meu','minha','novo','nova','kit','um']);
+const mdNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const MD_GEN=new Set(['jogo','conjunto','caixa','capa','vale','cartao','par','maquina','aparelho','oculos']);
+const mdChave=t=>{const w=mdNorm(t).split(' ').filter(x=>x.length>1&&!MD_STOP.has(x)).map(x=>x.length>3?x.replace(/s$/,''):x);return (MD_GEN.has(w[0])?w.slice(0,2):w.slice(0,1)).join(' ')};
+let mdCache=null,mdEm=0;
+function maisDesejados(){
+  if(mdCache&&Date.now()-mdEm<60e3)return mdCache;
+  const m={};
+  Object.values(profiles).forEach(p=>{const vistos=new Set();(p&&p.desejos||[]).forEach(w=>{const k=mdChave(w&&w.t);if(!k||k.length<3||vistos.has(k))return;vistos.add(k);const e=m[k]||(m[k]={n:0,nomes:[]});e.n++;e.nomes.push(String(w.t).trim())})});
+  mdCache=Object.values(m).filter(e=>e.n>=2).sort((a,b)=>b.n-a.n).slice(0,8).map(e=>({n:e.n,t:e.nomes.sort((a,b)=>a.length-b.length)[0].slice(0,40)}));mdEm=Date.now();return mdCache;
+}
+function maisDesejadosHtml(max){const L=maisDesejados().slice(0,max||5);if(L.length<3)return '';
+  return `<section class="sec md"><div class="row between"><div class="eyebrow">🔥 Mais desejados no PresenteCerto</div><span class="small" style="color:var(--muted)">o que a galera quer ganhar</span></div><div class="md-lista">${L.map(x=>`<div class="md-item"><span class="md-ic" aria-hidden="true">${pfIcone(x.t)}</span><div style="min-width:0;flex:1"><b>${esc(x.t)}</b><span class="small" style="color:var(--muted)">${x.n} pessoas querem ganhar</span>${shopLinks(x.t,null,'Ver em:')}</div></div>`).join('')}</div></section>`}
 function ofertasSemana(){
-  const of=ofertasAtivas();if(!of.length)return '';
+  const todas=ofertasAtivas();if(!todas.length)return '';const of=todas.slice(0,6);
   of.forEach(o=>trackView('of:'+o.id));
   setTimeout(ofSetas,0);
-  return `<section class="sec"><div class="row between"><div class="eyebrow">Ofertas da semana</div>${of.length>1?`<button class="link of-todas" data-act="verOfertas">Ver todas (${of.length}) →</button>`:'<span class="small" style="color:var(--muted)">Links de parceiros</span>'}</div>
+  return `<section class="sec"><div class="row between"><div class="eyebrow">Ofertas da semana</div>${todas.length>1?`<button class="link of-todas" data-act="verOfertas">Ver todas (${todas.length}) →</button>`:'<span class="small" style="color:var(--muted)">Links de parceiros</span>'}</div>
    <div class="of-wrap"><button class="of-seta esq" data-act="ofRolar" data-dir="-1" aria-label="Ofertas anteriores" hidden>‹</button><div class="ofertas">${of.map(ofCard).join('')}</div><button class="of-seta dir" data-act="ofRolar" data-dir="1" aria-label="Mais ofertas" hidden>›</button></div></section>`;
 }
 function ofSetas(){document.querySelectorAll('.of-wrap').forEach(w=>{const l=w.querySelector('.ofertas');if(!l)return;const max=l.scrollWidth-l.clientWidth-4;
@@ -1277,7 +1300,7 @@ addEventListener('resize',()=>ofSetas());
 function renderOfertas(){
   const of=ofertasAtivas();of.forEach(o=>trackView('of:'+o.id));
   app.innerHTML=`<div class="view"><button class="back" data-act="ofVoltar">← Voltar</button><div><h1>Ofertas da semana</h1><p class="lede">Produtos selecionados de lojas parceiras. Ao comprar por estes links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais.</p></div>
-   ${of.length?`<div class="of-grade">${of.map(ofCard).join('')}</div>`:'<div class="empty">Nenhuma oferta no momento. Volte em breve!</div>'}</div>`;
+   ${of.length?`<div class="of-grade">${of.map(ofCard).join('')}</div>`:'<div class="empty">Nenhuma oferta no momento. Volte em breve!</div>'}${maisDesejadosHtml(8)}</div>`;
 }
 function ago(t){const d=Math.floor((Date.now()-t)/864e5);if(d<=0){const h=Math.floor((Date.now()-t)/36e5);return h<=0?'agora há pouco':h===1?'há 1 hora':'há '+h+' horas'}return d===1?'ontem':'há '+d+' dias'}
 const hiddenMsg=m=>(profiles[m.para]?.parabensOcultos||[]).includes(m.id)||(config.moderados||[]).includes(m.id);
@@ -1343,7 +1366,7 @@ function renderMural(){
   h+=pendCard();
   if(lojasVisiveis().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
-  const ofH=ofertasSemana();let ofPosto=false;
+  const ofH=ofertasSemana()+maisDesejadosHtml(5);let ofPosto=false;
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
   else if(!hotShown.length&&!restShown.length)h+=`<div class="empty">${f==='tudo'?'Nenhuma novidade nos últimos 30 dias. Quando alguém que você segue mexer na lista ou tiver data chegando, aparece aqui.':f==='datas'?'Nenhuma data nos próximos 7 dias.':'Nada deste tipo nos últimos 30 dias.'}</div>`;
   else{
@@ -2147,6 +2170,13 @@ app.addEventListener('click',async e=>{
     case 'cabFestaDesfazer': {const k=cabFestaChave(profiles[myId]||{});if(await cabSalvarCampos({festa:'',festaNao:k})){cabFestaOk=false;toast('Pronto, seu perfil voltou ao tema de antes.');keep(render)}break}
     case 'cabFestaVer': cabDraft={...cabNorm((profiles[myId]||{}).cab),tema:'aniversario',moldura:'arco',topo:'👑'};tab='cabecalho';viewing=null;form=null;render();window.scrollTo(0,0);break;
   }
+});
+app.addEventListener('click',async e=>{
+  const b=e.target.closest&&e.target.closest('[data-act]');if(!b||!isOwner)return;const ds=b.dataset,a=ds.act;if(!/^sa/.test(a))return;
+  const ler=()=>({...(config.shopeeAuto||{}),ligado:!!app.querySelector('#saLig')?.checked,palavras:val('saPal').split(',').map(x=>x.trim()).filter(Boolean).slice(0,6),qtd:Math.min(Math.max(parseInt(val('saQtd'))||8,1),12)});
+  if(a==='saSalvar'){await saveConfig({...config,shopeeAuto:ler()},'Ofertas automáticas salvas')}
+  if(a==='saOcultar'){const c={...(config.shopeeAuto||{})};const oc=new Set((c.ocultos||[]).map(String));oc.has(ds.id)?oc.delete(ds.id):oc.add(ds.id);c.ocultos=[...oc].slice(-200);await saveConfig({...config,shopeeAuto:c},'Oferta atualizada')}
+  if(a==='saAgora'){b.disabled=true;b.textContent='Buscando…';try{await saveConfig({...config,shopeeAuto:ler()},'Buscando ofertas na Shopee…');const t=await firebase.auth().currentUser.getIdToken();const r=await fetch('/api/ofertas-shopee',{method:'POST',headers:{Authorization:'Bearer '+t}});const j=await r.json().catch(()=>({}));ofAutoMsg=j.ok?(j.desligado?'As ofertas automáticas estão desligadas. Marque “Ligar” e salve.':`✓ ${j.n} ofertas encontradas e publicadas.`):'⚠ '+(j.erro||'Não foi possível buscar agora.');toast(j.ok?'Ofertas atualizadas':'Não deu certo. Veja a mensagem no painel.')}catch(err){ofAutoMsg='⚠ Não foi possível falar com o servidor.'}keep(render)}
 });
 /* ---------- Pendências do Mural: uma por vez, a próxima aparece depois de um tempo ---------- */
 const PEND_ESPERA=4*36e5,PEND_TROCA=3*864e5;let pendIni=Date.now(),pendFeitoAgora=false;
@@ -3318,7 +3348,13 @@ function adminBlock(){
    <div class="row"><button class="btn small" data-act="saveCfg">Salvar afiliados</button></div></section>`;
   // ofertas da semana
   const ofs=config.ofertas||[];
-  h+=`<section class="panel ad"><h2>Ofertas da semana</h2><p class="lede" style="margin:0">Até 12 produtos com link de afiliado, mostrados no Mural e na página Ofertas da semana.</p>
+  h+=`<section class="panel ad"><h2>Ofertas da semana</h2><p class="lede" style="margin:0">Até 12 produtos com link de afiliado, mostrados no Mural e na página Ofertas da semana. As suas ofertas aparecem primeiro; as automáticas da Shopee completam o resto.</p>
+   ${(()=>{const c=config.shopeeAuto||{};const L=ofAuto||[];const oc=new Set((c.ocultos||[]).map(String));return `<div class="inline-form"><b>🤖 Ofertas automáticas da Shopee</b><span class="small" style="color:var(--muted)">Todo dia de manhã o app busca na Shopee os produtos mais vendidos destas palavras e coloca nas Ofertas da semana, já com o seu link de afiliado. Precisa das chaves SHOPEE_APP_ID e SHOPEE_SECRET na Vercel.</span>
+    <label class="cab-sw"><input type="checkbox" id="saLig" ${c.ligado?'checked':''}><span><b>Ligar ofertas automáticas</b></span></label>
+    <div class="grid2"><label class="f">Palavras-chave (separe por vírgula)<input id="saPal" value="${esc((c.palavras||['presente','fone bluetooth','perfume','relógio']).join(', '))}"></label><label class="f">Quantas ofertas automáticas (até 12)<input id="saQtd" inputmode="numeric" value="${esc(String(c.qtd||8))}"></label></div>
+    <div class="row"><button class="btn small" data-act="saSalvar">Salvar</button><button class="btn small ghost" data-act="saAgora">Atualizar agora</button>${ofAutoEm?`<span class="small" style="color:var(--muted)">Última busca: ${esc(ofAutoEm.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}))}</span>`:''}</div>
+    ${ofAutoMsg?`<span class="small">${esc(ofAutoMsg)}</span>`:''}
+    ${L.length?L.map(o=>`<div class="date-row"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:32px;height:32px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}${oc.has(String(o.itemId))?'<s>':''}<b>${esc(o.titulo)}</b>${oc.has(String(o.itemId))?'</s>':''}${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.comissao?` · comissão ${esc(String(o.comissao).replace('.',','))}%`:''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><button class="link" data-act="saOcultar" data-id="${esc(o.itemId)}">${oc.has(String(o.itemId))?'Mostrar':'Ocultar'}</button></div>`).join(''):'<span class="small" style="color:var(--muted)">Nenhuma oferta automática ainda.</span>'}</div>`})()}
    ${ofs.map((o,i)=>`<div class="date-row"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:36px;height:36px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}<b>${esc(o.titulo)}</b>${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.loja?' · '+esc(o.loja):''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><button class="link" data-act="delOferta" data-i="${i}">Excluir</button></div>`).join('')||'<div class="muted">Nenhuma oferta.</div>'}
    ${ofs.length<12?`<div class="inline-form"><b>Nova oferta</b><span class="small" style="color:var(--muted)">Cole o link do produto e toque em Buscar dados: o nome, a foto e a loja vêm sozinhos.</span>
    <label class="f">Link do produto<div class="row" style="flex-wrap:nowrap"><input id="ofL" inputmode="url" autocapitalize="off" placeholder="Cole aqui o link do produto" value="${esc(ofDraft.link||'')}"><button class="btn small" data-act="buscarProduto">Buscar dados</button></div></label>
@@ -3708,6 +3744,7 @@ async function start(){
   if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
   db.doc(`data/users/${myId}/privacidade`).onSnapshot(s=>{cabPriv=s.exists?{...s.data()}:{}},()=>{cabPriv={}});
+  db.doc('ofertasauto/shopee').onSnapshot(s=>{const d=s.exists?s.data():{};ofAuto=Array.isArray(d.lista)?d.lista:[];ofAutoEm=d.em&&d.em.toDate?d.em.toDate():d.em?new Date(d.em):null;softRender()},()=>{});
   db.collection('lojas').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{n[d.id]=d.data()});lojasDb=n;lojasOk=true;ljMigrar();softRender();renderMenu()},()=>{lojasOk=true;softRender()});
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();ljMigrar();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
