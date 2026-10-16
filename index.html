@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#7b4fd1">
 <meta name="description" content="PresenteCerto: a rede social dos presentes. Saiba os tamanhos, os gostos e o que seus amigos querem ganhar.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PresenteCerto">
+<meta property="og:title" content="PresenteCerto">
+<meta property="og:description" content="Nunca mais erre no presente: tamanhos, gostos e lista de desejos de quem você ama.">
+<meta property="og:url" content="https://presente-certo-zeta.vercel.app/">
+<meta property="og:image" content="https://presente-certo-zeta.vercel.app/og.jpg">
+<meta property="og:image:secure_url" content="https://presente-certo-zeta.vercel.app/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PresenteCerto: nunca mais erre no presente">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://presente-certo-zeta.vercel.app/og.jpg">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <style>
@@ -1451,7 +1465,7 @@ function renderSearch(){
   const qq=q.replace(/^@/,'');
   const list=all.filter(id=>!q||nm(id).toLowerCase().includes(q)||(handleOf(id)&&handleOf(id).includes(qq))).sort((a,b)=>nm(a).localeCompare(nm(b)));
   const sug=q?[]:sugestoes();
-  const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
+  const convite=msgConvite(myId?profileLink(myId):APP_URL);
   const temLojas=lojasVisiveis().length>0;
   encModo='pessoas';
   if(encModo==='lojas'){app.innerHTML=`<div class="view"><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div><div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="false">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="true">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>${lojasHtml()}</div>`;return}
@@ -3198,7 +3212,7 @@ function empresasAdmin(){const L=config.empLinks||{};
     else if(k==='sorteio')setTab('sorteio');
     else if(k==='evento'){evFechar();setTab('eventos')}
     else if(k==='empresa'){empFechar();setTab('empresa')}
-    else if(k==='convidar'){const txt=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${location.origin}`;
+    else if(k==='convidar'){const txt=msgConvite(myId?profileLink(myId):location.origin);
       if(navigator.share)navigator.share({title:'PresenteCerto',text:txt}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
   });
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ov.hidden)abrir(false)});
