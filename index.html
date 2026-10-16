@@ -424,6 +424,8 @@ details summary::-webkit-details-marker{display:none}
 .menu-user{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:center;padding:10px;border-bottom:1px solid var(--line);margin-bottom:4px}
 .menu-user img{width:40px;height:40px;border-radius:50%;object-fit:cover}
 .menu-item{display:block;width:100%;text-align:left;border:0;background:none;padding:12px 10px;border-radius:10px;font:600 15px var(--body);color:var(--fg);cursor:pointer}
+.menu-item.menu-plus{background:#f4ecff;background:linear-gradient(90deg,#f4ecff,#ffeaf5);color:#5b2bb5;margin:4px 0}
+.menu-plus span{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:1px}
 .menu-item:hover{background:var(--sunk)}
 .menu-item.sair{color:#c0392b;border-top:1px solid var(--line);margin-top:4px;border-radius:0 0 10px 10px}
 .spons{background:var(--gold-soft);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.6}
@@ -876,11 +878,14 @@ const LOJAS_BASE={
 // lojas = base + lojas extras cadastradas no Painel (config.lojasAfiliadas: {id:{nome,busca,dominio,modelo}})
 function lojasAfil(){const out={};Object.entries(LOJAS_BASE).forEach(([k,v])=>out[k]={...v,...((config.lojasAfiliadas||{})[k]||{})});Object.entries(config.lojasAfiliadas||{}).forEach(([k,v])=>{if(!out[k]&&v.nome&&v.busca)out[k]=v});return out}
 function hostOk(host,dom){dom=String(dom||'').toLowerCase().replace(/^www\./,'');return !!dom&&(host===dom||host.endsWith('.'+dom))}
+const mlEtiqueta=()=>config.mlEtiqueta!==undefined?String(config.mlEtiqueta):'aguiardaniel16';
+const mlTool=()=>config.mlTool!==undefined?String(config.mlTool):'34020195';
 function affiliate(u){
   try{
     const x=new URL(u);const host=x.hostname.toLowerCase().replace(/^www\./,'');
     if(hostOk(host,'amazon.com.br')&&config.amazonTag&&!x.searchParams.get('tag')){x.searchParams.set('tag',config.amazonTag);return x.toString()}
     if(hostOk(host,'shopee.com.br')&&host!=='s.shopee.com.br'&&config.shopeeId&&!x.searchParams.get('mmp_pid')){const sid='an_'+config.shopeeId;x.searchParams.set('mmp_pid',sid);x.searchParams.set('utm_source',sid);x.searchParams.set('utm_medium','affiliates');x.searchParams.set('utm_content','presentecerto');return x.toString()}
+    if(hostOk(host,'mercadolivre.com.br')&&!/^\/social\//.test(x.pathname)&&!x.searchParams.get('matt_word')){const e=mlEtiqueta(),t=mlTool();if(e){x.searchParams.set('matt_word',e);if(t)x.searchParams.set('matt_tool',t);return x.toString()}}
     if(hostOk(host,'magazinevoce.com.br'))return u;
     for(const L of Object.values(lojasAfil())){if(L.modelo&&L.modelo.includes('{url}')&&hostOk(host,L.dominio))return L.modelo.split('{url}').join(encodeURIComponent(u))}
   }catch(e){}
@@ -1084,10 +1089,11 @@ function sugestoes(){
     return {id,txt};
   });
 }
+const msgConvite=link=>`Bora parar de errar presente? 😄 Fiz minha ficha no PresenteCerto com tamanho, gostos e lista de desejos. Me segue e faz a sua: assim eu nunca mais esqueço o seu aniversário e sempre acerto no presente. Leva 2 minutos!\n${link}`;
 function shareBox(){
   const link=profileLink(myId);
-  const msg=`Essa é a minha ficha de presentes no PresenteCerto: meus tamanhos, gostos e a minha lista de desejos. Me segue lá: ${link}`;
-  return `<section class="panel hl"><h2>Enviar meu perfil para amigos</h2><span class="muted">Mande seu link para amigos e família. Quem abrir já cai na sua ficha, com o botão Seguir.</span>
+  const msg=msgConvite(link);
+  return `<section class="panel hl"><h2>👋 Convidar amigos</h2><span class="muted">Mande seu link para amigos e família. Quem abrir já cai na sua ficha, com o botão Seguir.</span>
    <div class="pix-code" style="user-select:all">${esc(link)}</div>
    <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="shareNative" data-text="${esc(msg)}" data-url="${esc(link)}">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(link)}">Copiar link</button></div></section>`;
 }
@@ -1217,15 +1223,15 @@ function renderMenu(){
   box.hidden=false;
   box.innerHTML=menuSair?`<div class="pop-body"><b>Quer mesmo sair da conta?</b><span class="small" style="color:var(--muted)">Para voltar, é só entrar de novo com o Google ou com seu e-mail.</span><div class="row"><button class="btn small" data-menu="sairOk">Sair da conta</button><button class="link" data-menu="cancelar">Cancelar</button></div></div>`
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
-   <button class="menu-item" data-menu="plus">⭐ Benefícios do Plus</button>
-   <button class="menu-item" data-menu="conta">Editar perfil e foto</button>
-   <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
-   ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
-   <button class="menu-item" data-menu="enviar">📲 Enviar meu perfil para amigos</button>
+   <button class="menu-item" data-menu="conta">👤 Editar perfil e foto</button>
    ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
+   <button class="menu-item" data-menu="enviar">👋 Convidar amigos</button>
    ${lojasVisiveis().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
-   <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
-   ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
+   <button class="menu-item" data-menu="aparencia">🎨 Personalizar visual</button>
+   ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
+   ${isPlus(myId)?'<button class="menu-item" data-menu="plus">⭐ Meu Plus</button>':'<button class="menu-item menu-plus" data-menu="plus">⭐ Seja Plus <span>Perfil com a sua cara</span></button>'}
+   <button class="menu-item" data-menu="sugestao">💬 Enviar sugestão</button>
+   ${isOwner?'<button class="menu-item" data-menu="painel">🛠️ Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
 }
 document.addEventListener('click',e=>{
@@ -1249,7 +1255,7 @@ document.addEventListener('click',e=>{
   if(a==='painel')setTab('admin');
   if(a==='sugestao'){fbDraft=null;setTab('sugestao')}
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil',true)}
-  if(a==='enviar'){const link=profileLink(myId),msg=`Essa é a minha ficha de presentes no PresenteCerto: meus tamanhos, gostos e a minha lista de desejos. Me segue lá: ${link}`;if(navigator.share)navigator.share({title:'PresenteCerto',text:msg}).catch(()=>{});else{fichaStep=PASSOS.length-1;setTab('perfil',true)}}
+  if(a==='enviar'){const link=profileLink(myId),msg=msgConvite(link);if(navigator.share)navigator.share({title:'PresenteCerto',text:msg}).catch(()=>{});else{fichaStep=PASSOS.length-1;setTab('perfil',true)}}
 });
 
 /* ---------- Mural ---------- */
@@ -1535,7 +1541,7 @@ function renderPerson(id,aba){
     const dn=bdayDays(p);
     if(dn!==null&&dn<=30)h+=`<div class="pf-aniv"><b>🎂 ${dn===0?'Hoje é o seu aniversário!':dn===1?'Seu aniversário é amanhã!':'Seu aniversário é em '+dn+' dias.'}</b><span>Mande sua lista para a família e os amigos acertarem no presente.</span><button class="btn small" data-menu="enviar">📲 Enviar minha lista</button></div>`;
     if(pushConvite())h+=`<div class="push-conv"><span>🔔 Ative os avisos e não esqueça nenhum aniversário de quem você segue.</span><button class="btn small" data-menu="pushOn">Ativar avisos</button></div>`;
-    h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="enviar">📲 Enviar para amigos</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
+    h+=`<div class="pf-meus"><button class="btn" data-act="editarFicha">✏️ Editar minha ficha</button><button class="btn ghost" data-menu="enviar">👋 Convidar amigos</button>${meusEvOk&&Object.keys(meusEv).length?'<button class="btn ghost" data-menu="eventos">🎉 Minhas listas de evento</button>':''}</div>`;
     h+=cabVisitasHtml();
     if(completude(p).pct<100)h+=completudeHtml(p,true).replace('data-act="tab" data-id="perfil"','data-act="editarFicha"');
     h+=`<div class="small" style="color:var(--muted)">Mande para a família e acabe com os presentes errados. Abaixo, é assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
@@ -3297,7 +3303,7 @@ function adminBlock(){
   // afiliados
   const la=config.lojasAfiliadas||{};
   h+=`<section class="panel ad"><h2>Afiliados</h2><p class="lede" style="margin:0">Os botões “Procurar”, os links colados pelos usuários e as ofertas passam a levar seus códigos.</p>
-   <div class="grid2"><label class="f">Código de afiliado Amazon<input id="cfgAmz" value="${esc(config.amazonTag||'')}" placeholder="Ex.: presentecerto-20"></label><label class="f">ID de afiliado Shopee (só os números depois de an_)<input id="cfgShp" inputmode="numeric" value="${esc(config.shopeeId||'')}" placeholder="Ex.: 18376901238"></label><label class="f">Sua loja Parceiro Magalu<input id="cfgMg" value="${esc(config.magaluLoja||'')}" placeholder="Ex.: magazinepresentecerto"></label></div>
+   <div class="grid2"><label class="f">Código de afiliado Amazon<input id="cfgAmz" value="${esc(config.amazonTag||'')}" placeholder="Ex.: presentecerto-20"></label><label class="f">ID de afiliado Shopee (só os números depois de an_)<input id="cfgShp" inputmode="numeric" value="${esc(config.shopeeId||'')}" placeholder="Ex.: 18376901238"></label><label class="f">Etiqueta Mercado Livre (matt_word)<input id="cfgMlE" autocapitalize="off" value="${esc(mlEtiqueta())}" placeholder="Ex.: aguiardaniel16"></label><label class="f">Código da ferramenta Mercado Livre (matt_tool)<input id="cfgMlT" inputmode="numeric" value="${esc(mlTool())}" placeholder="Ex.: 34020195"></label><label class="f">Sua loja Parceiro Magalu<input id="cfgMg" value="${esc(config.magaluLoja||'')}" placeholder="Ex.: magazinepresentecerto"></label></div>
    <div class="flabel">Modelo de link de afiliado por loja</div>
    <span class="small" style="color:var(--muted)">Cole o modelo de link que a rede de afiliados fornece (Awin, Lomadee, Shopee, Mercado Livre e outras), trocando o endereço do produto por <b>{url}</b>. Ex.: https://www.awin1.com/cread.php?awinmid=123&awinaffid=456&ued={url}</span>
    ${Object.entries(LOJAS_BASE).filter(([k])=>k!=='amazon'&&k!=='magalu').map(([k,v])=>`<label class="f">${esc(v.nome)}<input id="mod_${k}" autocapitalize="off" value="${esc((la[k]||{}).modelo||'')}" placeholder="Modelo com {url}"></label>`).join('')}
@@ -3524,7 +3530,7 @@ app.addEventListener('click',async e=>{
     case 'criarExemplos': criarExemplos();break;
     case 'apagarEx': form={type:'apagarEx'};keep(render);break;
     case 'apagarExOk': form=null;apagarExemplos();break;
-    case 'shareNative': if(navigator.share){navigator.share({title:'Minha ficha no PresenteCerto',text:ds.text,url:ds.url}).catch(()=>{})}else copyText(ds.url);break;
+    case 'shareNative': if(navigator.share){navigator.share(String(ds.text||'').includes(ds.url)?{title:'Minha ficha no PresenteCerto',text:ds.text}:{title:'Minha ficha no PresenteCerto',text:ds.text,url:ds.url}).catch(()=>{})}else copyText(ds.url);break;
     case 'logout': if(user&&user.logout)user.logout().then(()=>location.reload());break;
     case 'importSeed': form={type:'importar'};keep(render);break;
     case 'importSeedOk': form=null;importSeed();break;
@@ -3625,7 +3631,7 @@ app.addEventListener('click',async e=>{
     case 'delData': draft.datas.splice(+ds.i,1);dirty=true;keep(renderMine);break;
     case 'saveCfg': {const la={...(config.lojasAfiliadas||{})};let erro='';Object.keys(LOJAS_BASE).filter(k=>k!=='amazon'&&k!=='magalu').forEach(k=>{const m=val('mod_'+k);if(m&&!m.includes('{url}'))erro=erro||('O modelo de '+LOJAS_BASE[k].nome+' precisa ter {url}');la[k]={...(la[k]||{}),modelo:m.slice(0,400)}});if(erro){toast(erro);break}
       const lpc={};app.querySelectorAll('.catLoja').forEach(el=>{if(el.value)lpc[el.dataset.cat]=el.value});
-      saveConfig({...config,amazonTag:val('cfgAmz').replace(/[^\w-]/g,'').slice(0,40),shopeeId:val('cfgShp').replace(/^an_/i,'').replace(/\D/g,'').slice(0,20),magaluLoja:val('cfgMg').replace(/[^\w-]/g,'').slice(0,60),lojasAfiliadas:la,lojaPorCategoria:lpc},'Afiliados salvos');break}
+      saveConfig({...config,amazonTag:val('cfgAmz').replace(/[^\w-]/g,'').slice(0,40),shopeeId:val('cfgShp').replace(/^an_/i,'').replace(/\D/g,'').slice(0,20),magaluLoja:val('cfgMg').replace(/[^\w-]/g,'').slice(0,60),mlEtiqueta:val('cfgMlE').replace(/[^\w.-]/g,'').slice(0,60),mlTool:val('cfgMlT').replace(/\D/g,'').slice(0,20),lojasAfiliadas:la,lojaPorCategoria:lpc},'Afiliados salvos');break}
     case 'addLojaAf': {const nome=val('nlNome'),dom=val('nlDom').toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/.*$/,''),busca=val('nlBusca'),mod=val('nlMod');
       if(!nome||!dom){toast('Preencha o nome e o domínio da loja');break}if(busca&&!busca.includes('{q}')){toast('Na busca, troque a palavra buscada por {q}');break}if(mod&&!mod.includes('{url}')){toast('O modelo precisa ter {url}');break}
       const id=dom.replace(/[^a-z0-9]/g,'').slice(0,30);saveConfig({...config,lojasAfiliadas:{...(config.lojasAfiliadas||{}),[id]:{nome:nome.slice(0,30),dominio:dom,busca:busca.slice(0,300),modelo:mod.slice(0,400)}}},'Loja adicionada');break}
