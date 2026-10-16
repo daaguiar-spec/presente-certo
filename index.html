@@ -325,6 +325,7 @@ button.chip{cursor:pointer}
 .cab-li>span{font-size:20px;width:26px;text-align:center;flex:none}
 .cab-preco{display:flex;align-items:baseline;justify-content:center;gap:6px}
 .cab-preco b{font-size:30px}.cab-preco span{font-size:13px;color:var(--muted)}
+.date-row.of-editando{outline:2px solid var(--accent);border-radius:10px}
 .md-lista{display:flex;flex-direction:column;gap:8px}
 .md-item{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .md-ic{font-size:26px;line-height:1.2;flex:none;width:40px;height:40px;border-radius:12px;background:var(--sunk);display:flex;align-items:center;justify-content:center}
@@ -2722,7 +2723,7 @@ async function responderSugestao(id){
 
 /* ---------- Ofertas: buscar nome e foto pelo link ---------- */
 let ofDraft={};
-function ofGuardar(){const im=val('ofImg');ofDraft={...ofDraft,link:val('ofL'),titulo:val('ofT'),loja:val('ofLoja'),preco:val('ofP'),imagem:/^https:\/\//i.test(im)?im:''}}
+function ofGuardar(){const im=val('ofImg');ofDraft={...ofDraft,editId:ofDraft.editId,link:val('ofL'),titulo:val('ofT'),loja:val('ofLoja'),preco:val('ofP'),imagem:/^https:\/\//i.test(im)?im:''}}
 async function buscarProduto(){
   ofGuardar();let l=String(ofDraft.link||'').replace(/\s+/g,'');if(!l){toast('Cole o link do produto');app.querySelector('#ofL')?.focus();return}
   if(!/^https?:\/\//i.test(l))l='https://'+l;ofDraft.link=l;
@@ -3355,14 +3356,14 @@ function adminBlock(){
     <div class="row"><button class="btn small" data-act="saSalvar">Salvar</button><button class="btn small ghost" data-act="saAgora">Atualizar agora</button>${ofAutoEm?`<span class="small" style="color:var(--muted)">Última busca: ${esc(ofAutoEm.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}))}</span>`:''}</div>
     ${ofAutoMsg?`<span class="small">${esc(ofAutoMsg)}</span>`:''}
     ${L.length?L.map(o=>`<div class="date-row"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:32px;height:32px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}${oc.has(String(o.itemId))?'<s>':''}<b>${esc(o.titulo)}</b>${oc.has(String(o.itemId))?'</s>':''}${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.comissao?` · comissão ${esc(String(o.comissao).replace('.',','))}%`:''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><button class="link" data-act="saOcultar" data-id="${esc(o.itemId)}">${oc.has(String(o.itemId))?'Mostrar':'Ocultar'}</button></div>`).join(''):'<span class="small" style="color:var(--muted)">Nenhuma oferta automática ainda.</span>'}</div>`})()}
-   ${ofs.map((o,i)=>`<div class="date-row"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:36px;height:36px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}<b>${esc(o.titulo)}</b>${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.loja?' · '+esc(o.loja):''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><button class="link" data-act="delOferta" data-i="${i}">Excluir</button></div>`).join('')||'<div class="muted">Nenhuma oferta.</div>'}
-   ${ofs.length<12?`<div class="inline-form"><b>Nova oferta</b><span class="small" style="color:var(--muted)">Cole o link do produto e toque em Buscar dados: o nome, a foto e a loja vêm sozinhos.</span>
+   ${ofs.map((o,i)=>`<div class="date-row${ofDraft.editId===o.id?' of-editando':''}"><span>${o.imagem?`<img src="${esc(o.imagem)}" alt="" referrerpolicy="no-referrer" style="width:36px;height:36px;object-fit:contain;background:#fff;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)">`:''}<b>${esc(o.titulo)}</b>${precoBR(o.preco)?' · '+esc(precoBR(o.preco)):''}${o.loja?' · '+esc(o.loja):''}<br><span class="small" style="color:var(--muted)">${sumAd('of:'+o.id,'v')} visualizações · ${sumAd('of:'+o.id,'c')} cliques</span></span><span class="row" style="gap:10px;flex-wrap:nowrap">${i?`<button class="link" data-act="ofSubir" data-i="${i}" aria-label="Subir">↑</button>`:''}<button class="link" data-act="ofEditar" data-i="${i}">Editar</button><button class="link alt" data-act="delOferta" data-i="${i}">Excluir</button></span></div>`).join('')||'<div class="muted">Nenhuma oferta.</div>'}
+   ${ofs.length<12||ofDraft.editId?`<div class="inline-form" id="ofForm"><b>${ofDraft.editId?'✏️ Editar oferta':'Nova oferta'}</b><span class="small" style="color:var(--muted)">Cole o link do produto e toque em Buscar dados: o nome, a foto e a loja vêm sozinhos.</span>
    <label class="f">Link do produto<div class="row" style="flex-wrap:nowrap"><input id="ofL" inputmode="url" autocapitalize="off" placeholder="Cole aqui o link do produto" value="${esc(ofDraft.link||'')}"><button class="btn small" data-act="buscarProduto">Buscar dados</button></div></label>
    ${ofDraft.imagem?`<div class="of-prev"><img src="${esc(ofDraft.imagem)}" alt="" referrerpolicy="no-referrer"><div class="small" style="min-width:0">Foto da oferta.<br><button class="link" data-act="ofSemFoto">Tirar a foto</button></div></div>`:''}
    <label class="f">Foto (opcional)<input id="ofImg" inputmode="url" autocapitalize="off" placeholder="Se não vier sozinha: na loja, clique com o botão direito na foto > Copiar endereço da imagem, e cole aqui" value="${esc(ofDraft.imagem||'')}"></label>
    <label class="f">Nome do produto<input id="ofT" maxlength="80" placeholder="Ex.: Fone JBL Tune 520BT" value="${esc(ofDraft.titulo||'')}"></label>
    <div class="grid2"><label class="f">Loja<input id="ofLoja" maxlength="30" placeholder="Ex.: Amazon" value="${esc(ofDraft.loja||'')}"></label><label class="f">Preço (opcional)<input id="ofP" maxlength="30" placeholder="Em branco, não aparece" value="${esc(ofDraft.preco||'')}"></label></div>
-   <div class="row"><button class="btn small" data-act="addOferta">Publicar oferta</button>${ofDraft.link||ofDraft.titulo?'<button class="link" data-act="ofLimpar">Limpar</button>':''}</div></div>`:'<span class="small" style="color:var(--muted)">Limite de 12 ofertas. Exclua uma para adicionar outra.</span>'}</section>`;
+   <div class="row"><button class="btn small" data-act="addOferta">${ofDraft.editId?'Salvar alterações':'Publicar oferta'}</button>${ofDraft.editId?'<button class="link" data-act="ofLimpar">Cancelar</button>':''}${!ofDraft.editId&&ofDraft.link||!ofDraft.editId&&ofDraft.titulo?'<button class="link" data-act="ofLimpar">Limpar</button>':''}</div></div>`:'<span class="small" style="color:var(--muted)">Limite de 12 ofertas. Exclua uma para adicionar outra.</span>'}</section>`;
   return h;
 }
 const ESTADOS=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
@@ -3674,8 +3675,12 @@ app.addEventListener('click',async e=>{
     case 'delLojaAf': {const la={...(config.lojasAfiliadas||{})};delete la[ds.id];const lpc={...(config.lojaPorCategoria||{})};Object.keys(lpc).forEach(c=>{if(lpc[c]===ds.id)delete lpc[c]});saveConfig({...config,lojasAfiliadas:la,lojaPorCategoria:lpc},'Loja removida');break}
     case 'addOferta': {const t=val('ofT');let l=val('ofL').replace(/\s+/g,'');if(!t||!l){toast('Preencha o link e o nome do produto');break}if(!/^https?:\/\//i.test(l))l='https://'+l;
       const im=val('ofImg').replace(/\s+/g,'');const img=/^https:\/\//i.test(im)?im:'';
-      const preco=precoBR(val('ofP')).slice(0,30);ofDraft={};
-      saveConfig({...config,ofertas:[...(config.ofertas||[]),{id:uid(),titulo:t.slice(0,80),preco,link:l.slice(0,500),loja:val('ofLoja').slice(0,30),imagem:img.slice(0,1000)}].slice(0,12)},'Oferta publicada no Mural');break}
+      const preco=precoBR(val('ofP')).slice(0,30);const eid=ofDraft.editId;ofDraft={};
+      const dados={titulo:t.slice(0,80),preco,link:l.slice(0,500),loja:val('ofLoja').slice(0,30),imagem:img.slice(0,1000)};
+      if(eid&&(config.ofertas||[]).some(x=>x.id===eid)){saveConfig({...config,ofertas:(config.ofertas||[]).map(x=>x.id===eid?{...x,...dados}:x)},'Oferta atualizada');break}
+      saveConfig({...config,ofertas:[...(config.ofertas||[]),{id:uid(),...dados}].slice(0,12)},'Oferta publicada no Mural');break}
+    case 'ofEditar': {const o=(config.ofertas||[])[+ds.i];if(!o)break;ofDraft={link:o.link||'',titulo:o.titulo||'',loja:o.loja||'',preco:o.preco||'',imagem:o.imagem||'',editId:o.id};keep(render);setTimeout(()=>{const f=document.getElementById('ofForm');if(f)f.scrollIntoView({behavior:'smooth',block:'center'});const t=document.getElementById('ofT');if(t)t.focus({preventScroll:true})},50);break}
+    case 'ofSubir': {const a=[...(config.ofertas||[])];const k=+ds.i;if(k<1||!a[k])break;[a[k-1],a[k]]=[a[k],a[k-1]];saveConfig({...config,ofertas:a},'Ordem atualizada');break}
     case 'buscarProduto': buscarProduto();break;
     case 'ofSemFoto': ofGuardar();ofDraft.imagem='';keep(render);break;
     case 'ofLimpar': ofDraft={};keep(render);break;
