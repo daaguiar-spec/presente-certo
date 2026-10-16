@@ -188,6 +188,65 @@ button.chip{cursor:pointer}
 .pix-code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--sunk);border-radius:8px;padding:8px;overflow-wrap:anywhere;user-select:all}
 .qr{background:#fff;padding:8px;border-radius:8px;align-self:flex-start}
 .qr img,.qr canvas{display:block;width:180px;height:180px}
+/* lojas parceiras */
+.lj{--lc:#7b4fd1}
+.lj-dono{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--accent-soft);border-radius:var(--r);padding:10px 12px;font-size:14px;font-weight:600;flex-wrap:wrap}
+.lj-head{position:relative;margin-bottom:6px}
+.lj-capa{height:170px;border-radius:20px;background:linear-gradient(135deg,var(--lc),#f3c9dc);background-size:cover;background-position:center;position:relative;overflow:hidden}
+.lj-capa:not(.foto):before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 30%,rgba(255,255,255,.28) 0 16%,transparent 17%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.2) 0 22%,transparent 23%),radial-gradient(circle at 55% 8%,rgba(255,255,255,.18) 0 12%,transparent 13%)}
+.lj-capa.foto:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(30,12,50,.45))}
+.lj-id{display:flex;gap:12px;align-items:flex-end;margin:-38px 12px 0;position:relative}
+.lj-logo{width:92px;height:92px;border-radius:22px;object-fit:cover;background:var(--surface);border:4px solid var(--surface);box-shadow:0 4px 14px rgba(40,20,80,.18);flex:none}
+.lj-nome{min-width:0;padding-bottom:2px}
+.lj-nome h1{margin:0 0 2px;font-size:23px;line-height:1.1;overflow-wrap:anywhere}
+.lj-chips{display:flex;gap:6px;flex-wrap:wrap}
+.lj-chips span{background:var(--sunk);color:var(--fg);font-weight:700;font-size:12px;padding:5px 10px;border-radius:99px}
+.lj-desc{margin:0;line-height:1.5;white-space:pre-line}
+.lj-acts{display:flex;gap:8px;flex-wrap:wrap}
+.lj-acts .btn{flex:1 1 auto;justify-content:center;text-align:center}
+.lj-cupom{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1.5px dashed var(--lc);border-radius:12px;padding:9px 12px;background:var(--surface)}
+.lj-cupom b{font-family:ui-monospace,Menlo,monospace}
+.lj-sh h2{margin:0;font-size:18px}
+.lj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.lj-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.lj-pimg{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:var(--sunk);font-size:46px;overflow:hidden}
+.lj-pimg img{width:100%;height:100%;object-fit:cover;display:block}
+.lj-pb{padding:9px 10px 10px;display:flex;flex-direction:column;gap:3px;flex:1}
+.lj-pn{all:unset;cursor:pointer;font-weight:800;font-size:14px;line-height:1.2;color:var(--fg)}
+.lj-pd{font-size:12px;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lj-pp{font-weight:900;color:#1f8a5b;font-size:15px;margin-top:2px}
+.lj-pp.big{font-size:22px}
+.lj-pa{display:flex;gap:6px;margin-top:auto;padding-top:6px}
+.lj-pedir{all:unset;cursor:pointer;flex:1;text-align:center;background:#25a35a;color:#fff;font-size:13px;font-weight:800;padding:7px;border-radius:99px}
+.lj-quero{all:unset;cursor:pointer;width:34px;text-align:center;background:var(--accent-soft);color:var(--accent);font-weight:900;padding:6px 0;border-radius:99px}
+.lj-pix-row{display:flex;gap:12px;align-items:center}
+.lj-pix .qr img,.lj-pix .qr canvas,.lj-st .qr img,.lj-st .qr canvas{width:130px;height:130px}
+.lj-loc{flex-direction:row;align-items:center;gap:10px}
+.lj-pfoto{aspect-ratio:1/1;max-height:420px;border-radius:20px;overflow:hidden;background:var(--sunk);display:flex;align-items:center;justify-content:center;font-size:110px}
+.lj-pfoto img{width:100%;height:100%;object-fit:cover;display:block}
+.lj-msg{background:var(--sunk);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.lj-st{border-left:5px solid #1f8a5b}
+.lj-st.warn{border-left-color:#d9822b}
+.lj-st.off{border-left-color:#c0392b}
+.lj-up{display:flex;gap:10px}
+.lj-upb{all:unset;cursor:pointer;box-sizing:border-box;border:1.5px dashed var(--lc);border-radius:14px;padding:10px;text-align:center;font-size:13px;font-weight:700;color:var(--fg);background:var(--sunk);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:110px}
+.lj-upb.capa{flex:1.6;background-size:cover;background-position:center}
+.lj-upb.capa.tem span{background:rgba(255,255,255,.92);color:#2e2536;padding:5px 10px;border-radius:99px}
+.lj-upb.logo{flex:1}
+.lj-upb.logo img{width:56px;height:56px;border-radius:14px;object-fit:cover}
+.lj-upi{font-size:26px}
+.lj-cores{display:flex;gap:10px;flex-wrap:wrap}
+.lj-cor{all:unset;cursor:pointer;width:32px;height:32px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.lj-cor[aria-pressed="true"]{box-shadow:0 0 0 3px var(--fg)}
+.lj-salvar{position:sticky;bottom:84px;z-index:5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg);padding:8px 0;border-radius:12px}
+.lj-er{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.lj-eimg{width:46px;height:46px;border-radius:10px;background:var(--sunk);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;overflow:hidden}
+.lj-eimg img{width:100%;height:100%;object-fit:cover}
+.lj-add{all:unset;cursor:pointer;box-sizing:border-box;text-align:center;border:1.5px dashed var(--lc);border-radius:14px;padding:12px;font-weight:700;font-size:13px;color:var(--fg);background:var(--sunk)}
+.lj-pf{display:flex;gap:10px;align-items:flex-start}
+.lj-pf-foto{all:unset;cursor:pointer;width:104px;height:104px;border-radius:14px;border:1.5px dashed var(--lc);background:var(--sunk);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;overflow:hidden;flex:none}
+.lj-pf-foto img{width:100%;height:100%;object-fit:cover}
+@media (max-width:380px){.lj-grid{grid-template-columns:1fr 1fr}.lj-up{flex-direction:column}}
 .secret{background:var(--accent-soft);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .secret b.big{font-family:var(--display);font-size:22px}
 .idea{background:var(--sunk);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
@@ -776,7 +835,7 @@ function adCard(seed,ctx,n){
 }
 function patrocinioCategoria(cat){
   const ad=(config.anuncios||[]).find(a=>adElegivel(a,{cat}));
-  const lj=(config.lojas||[]).filter(l=>l.ativo&&l.categoria===cat);
+  const lj=lojasAtivas().filter(l=>l.categoria===cat);
   if(!ad&&!lj.length)return '';
   let h='<div class="spons">';
   if(ad){trackView(ad.id);h+=`<span class="eyebrow">Oferta de parceiro</span> <b>${esc(ad.titulo)}</b>${ad.texto?' · '+esc(ad.texto):''}${safeLink(ad.link)?` · <a href="${esc(affiliate(ad.link))}" target="_blank" rel="noopener sponsored" data-track="ad:${esc(ad.id)}">Ver oferta</a>`:''}`}
@@ -863,7 +922,7 @@ function pixBox(v,valor){
 }
 
 /* ---------- render ---------- */
-function setTab(t,editar){if(t!=='eventos'&&evAberto)evFechar();if(t!=='empresa'&&empAberto)empFechar();if(t==='perfil')fichaEditando=editar===true||(tab==='perfil'&&fichaEditando&&editar!==false);tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
+function setTab(t,editar){if(tab==='minhaloja'&&t!=='minhaloja'&&ljDirty&&!confirm('Sair sem salvar as mudanças da loja?'))return;if(t!=='minhaloja')ljDirty=false;if(t!=='eventos'&&evAberto)evFechar();if(t!=='empresa'&&empAberto)empFechar();if(t==='perfil')fichaEditando=editar===true||(tab==='perfil'&&fichaEditando&&editar!==false);tab=t;viewing=null;form=null;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));render();window.scrollTo(0,0)}
 document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty&&b.dataset.tab!=='perfil'){toast('Salve sua ficha antes de sair');return}setTab(b.dataset.tab)}));
 document.getElementById('logoBtn').addEventListener('click',()=>{if(tab==='perfil'&&!viewing&&dirty){toast('Salve sua ficha antes de sair');return}setTab('mural')});
 function keep(fn){const y=window.scrollY;const xs=[...document.querySelectorAll('.ofertas')].map(l=>l.scrollLeft);fn();window.scrollTo(0,y);if(xs.some(Boolean))document.querySelectorAll('.ofertas').forEach((l,i)=>{if(xs[i]){l.style.scrollBehavior='auto';l.scrollLeft=xs[i];l.style.scrollBehavior=''}});if(xs.length)ofSetas()}
@@ -889,6 +948,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='aparencia')renderAparencia();
   else if(tab==='plus')renderPlus();
   else if(tab==='lojas')renderLojasTab();
+  else if(tab==='minhaloja')renderMinhaLoja();
   else if(tab==='perfil'&&!fichaEditando&&profiles[myId])renderPerson(myId,true);
   else renderMine();
   app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
@@ -1068,7 +1128,8 @@ function renderMenu(){
    <button class="menu-item" data-menu="aparencia">Personalizar visual</button>
    ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
    <button class="menu-item" data-menu="enviar">📲 Enviar meu perfil para amigos</button>
-   ${(config.lojas||[]).some(l=>l.ativo)?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
+   ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
+   ${lojasAtivas().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    <button class="menu-item" data-menu="sugestao">Enviar sugestão</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
@@ -1084,6 +1145,7 @@ document.addEventListener('click',e=>{
   if(!sairDaFicha())return;
   if(a==='ficha')setTab('perfil',true);
   if(a==='lojas')setTab('lojas');
+  if(a==='minhaloja'){ljPainel=null;ljDraft=null;ljPForm=null;setTab('minhaloja')}
   if(a==='pushOn'){ativarPush();return}
   if(a==='pushOff'){desativarPush();return}
   if(a==='eventos'){evFechar();setTab('eventos')}
@@ -1170,13 +1232,14 @@ function renderMural(){
   const filtros=[['tudo','Tudo'],['datas','Datas'],['listas','Listas'],['parabens','Parabéns']];
   const hr=new Date().getHours(),saud=hr<5?'Boa noite':hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite';const pn=String(myName||'').trim().split(/\s+/)[0];
   let h=`<div class="view"><div><p class="ola">${saud}${pn?', <b>'+esc(pn)+'</b>':''}! 👋</p><h2 class="mural-tit">Novidades</h2><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
+  h+=ljMuralAvisos();
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
   if(meusEvOk&&planosOk){const cards=[];
     if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><span class="ev-novo">Novo: Lista Premium ⭐</span><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir. Na Premium, ainda tem capa com foto e você sabe quem deu cada presente para agradecer.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
     if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ PresenteCerto Plus</b><span class="small">Menos anúncios, capa colorida, visual personalizado, 2 listas de evento grátis e muito mais.</span><div class="row"><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
-  if((config.lojas||[]).some(l=>l.ativo))h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
+  if(lojasAtivas().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   const ofH=ofertasSemana();let ofPosto=false;
   if(!fol.length)h+=`<div class="empty"><b>Seu mural está vazio</b><span>Siga amigos e familiares para ver aqui quando eles adicionam presentes, fazem aniversário e recebem parabéns.</span><button class="btn" data-act="tab" data-id="pessoas">Encontrar pessoas</button></div>`;
@@ -1263,7 +1326,7 @@ function renderSearch(){
   const list=all.filter(id=>!q||nm(id).toLowerCase().includes(q)||(handleOf(id)&&handleOf(id).includes(qq))).sort((a,b)=>nm(a).localeCompare(nm(b)));
   const sug=q?[]:sugestoes();
   const convite=`Oi! Estou usando o PresenteCerto para nunca mais errar no presente. Lá eu coloco meus tamanhos, gostos e a minha lista de desejos, e vejo os seus também. Entra e cria a sua ficha: ${APP_URL}`;
-  const temLojas=(config.lojas||[]).some(l=>l.ativo);
+  const temLojas=lojasAtivas().length>0;
   encModo='pessoas';
   if(encModo==='lojas'){app.innerHTML=`<div class="view"><div><h1>Lojas parceiras</h1><p class="lede">Lojas com cupons e atendimento para quem compra presentes pelo PresenteCerto.</p></div><div class="seg2"><button data-act="encModo" data-v="pessoas" aria-pressed="false">Pessoas</button><button class="seg-loja" data-act="encModo" data-v="lojas" aria-pressed="true">🛍️ Lojas parceiras <span class="seg-tag">Cupons</span></button></div>${lojasHtml()}</div>`;return}
   let h=`<div class="view"><div><h1>Encontrar pessoas</h1><p class="lede">Siga amigos e familiares para ter a ficha de presentes deles à mão.</p></div>
@@ -1548,21 +1611,291 @@ async function apagarExemplos(){
 }
 
 let encModo='pessoas';
+/* ---------- Lojas parceiras: página própria, produtos, Pix e painel do lojista ---------- */
+const LJ_CORES=['#7b4fd1','#b0566f','#d9467e','#2f8f6b','#0f4c81','#d9822b','#3d3a45'];
+const LJ_ENTREGA={cidade:'🛵 Entrega na cidade',retirada:'🏬 Retirada no local',correios:'📦 Envia pelos Correios'};
+const LJ_PIX_TIPOS={celular:'Celular',cpf:'CPF',cnpj:'CNPJ',email:'E-mail',aleatoria:'Chave aleatória'};
+const LJ_MAX_PROD=30,LJ_TOLERANCIA=3;
+let lojasDb={},lojasOk=false,ljProd=null,ljProdutos={},ljCapas={},ljSubId=null,ljSubUn=null,ljPainel=null,ljDraft=null,ljDirty=false,ljPForm=null,ljFileAlvo=null,ljMigrando=false,ljPagAberto=false,ljPixProd=false,ljAdmForm=null,pendingLoja=null,pendingLojaP=null;
+try{const q=new URLSearchParams(location.search);const l=q.get('loja');if(l){pendingLoja=l.replace(/[^A-Za-z0-9_-]/g,'');pendingLojaP=(q.get('p')||'').replace(/[^A-Za-z0-9_-]/g,'')||null}}catch(e){}
+const isoDia=d=>{d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const diaBR=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:''};
+const ljDiasAte=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;const a=new Date(+m[1],+m[2]-1,+m[3]);const h=new Date();h.setHours(0,0,0,0);return Math.round((a-h)/864e5)};
+function ljMaisMes(s){const base=(s&&ljDiasAte(s)>=0)?s:isoDia();const [y,m,d]=base.split('-').map(Number);const dt=new Date(y,m,d);if(dt.getDate()!==d)dt.setDate(0);return isoDia(dt)}
+function lojasTodas(){return Object.entries(lojasDb).map(([id,d])=>({...d,id}))}
+function lojaVencida(l){const n=ljDiasAte(l.pagoAte);return n!==null&&n< -LJ_TOLERANCIA}
+function lojaNoAr(l){return !!l&&!!l.ativo&&!lojaVencida(l)}
+function lojasAtivas(){return lojasTodas().filter(lojaNoAr)}
+function souDonoLoja(l){return !!l&&!!myEmail&&String(l.donoEmail||'').toLowerCase()===String(myEmail).toLowerCase()}
+function minhasLojas(){return lojasTodas().filter(souDonoLoja)}
+const ljWa=(l,txt)=>l.whatsapp?`https://wa.me/${l.whatsapp.length<=11?'55':''}${l.whatsapp}?text=${encodeURIComponent(txt)}`:'';
+const ljPreco=v=>{const n=+v;return isFinite(n)&&n>0?brl(n):''};
+const ljParsePreco=s=>{s=String(s||'').replace(/[^\d,.]/g,'');if(!s)return 0;if(/,/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');const v=parseFloat(s);return isFinite(v)&&v>0?Math.round(v*100)/100:0};
+const ljPrecoTxt=v=>+v>0?(+v).toFixed(2).replace('.',','):'';
+function ljPixChave(p){if(!p||!p.chave)return '';const c=String(p.chave).trim(),d=c.replace(/\D/g,'');
+  if(p.tipo==='celular')return d?('+'+(d.length<=11?'55':'')+d):'';
+  if(p.tipo==='cpf'||p.tipo==='cnpj')return d;
+  if(p.tipo==='email')return c.toLowerCase();
+  return c}
+function ljPixCode(p,valor){const k=ljPixChave(p);return k?pixPayload(k,p.nome,p.cidade,valor):''}
+function ljPixErro(p){if(!p.chave)return '';const c=String(p.chave).trim(),d=c.replace(/\D/g,'');
+  if(p.tipo==='celular'&&!(d.length===10||d.length===11||((d.length===12||d.length===13)&&d.startsWith('55'))))return 'O celular da chave Pix precisa ter DDD + número.';
+  if(p.tipo==='cpf'&&d.length!==11)return 'O CPF da chave Pix precisa ter 11 números.';
+  if(p.tipo==='cnpj'&&d.length!==14)return 'O CNPJ da chave Pix precisa ter 14 números.';
+  if(p.tipo==='email'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c))return 'O e-mail da chave Pix não parece certo.';
+  if(p.tipo==='aleatoria'&&c.length<30)return 'A chave aleatória tem 32 caracteres. Copie e cole do app do banco.';
+  return ''}
+const ljLink=(id,pid)=>location.origin+location.pathname+'?loja='+encodeURIComponent(id)+(pid?'&p='+encodeURIComponent(pid):'');
+const ljCatOpts=v=>`<option value="">—</option>${[...new Set([...Object.keys(CAT_DESEJOS),...Object.keys(CAT_PRECISA)])].map(c=>`<option ${v===c?'selected':''}>${esc(c)}</option>`).join('')}`;
+
+function ljCarregar(id){
+  if(ljSubId===id)return;if(ljSubUn){try{ljSubUn()}catch(e){}}ljSubId=id;
+  ljSubUn=db.collection('lojas/'+id+'/produtos').onSnapshot(s=>{ljProdutos[id]=s.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(a.ordem||0)-(b.ordem||0));softRender()},()=>{ljProdutos[id]=ljProdutos[id]||[]});
+  const l=lojasDb[id];
+  if(l&&l.temCapa&&!(id in ljCapas))db.doc('lojas/'+id+'/midia/capa').get().then(s=>{ljCapas[id]=s.exists?s.data().img||null:null;softRender()}).catch(()=>{ljCapas[id]=null});
+}
+function ljMigrar(){
+  if(!isOwner||ljMigrando||!lojasOk||!configOk||config.lojasMigradas)return;ljMigrando=true;
+  (async()=>{try{for(const l of (config.lojas||[])){if(!l||!l.id||lojasDb[l.id])continue;
+      await db.doc('lojas/'+l.id).set({nome:l.nome||'Loja',categoria:l.categoria||'',descricao:l.descricao||'',cidade:l.cidade||'',whatsapp:l.whatsapp||'',site:l.site||'',instagram:l.instagram||'',cupons:l.cupons||[],logo:l.logo||'',ativo:!!l.ativo,donoEmail:'',pagoAte:'',cor:LJ_CORES[0],entrega:[],nProdutos:0,criado:new Date().toISOString()})}
+    await db.doc('config/app').set({lojasMigradas:true},{merge:true})}catch(e){ljMigrando=false}})();
+}
+
 function lojasHtml(){
-  const me=profiles[myId]||{};const lj=(config.lojas||[]).filter(l=>l.ativo).sort((a,b)=>(normCid(b.cidade)===normCid(me.cidade))-(normCid(a.cidade)===normCid(me.cidade))||a.nome.localeCompare(b.nome));
+  const me=profiles[myId]||{};const lj=lojasAtivas().sort((a,b)=>(normCid(b.cidade)===normCid(me.cidade))-(normCid(a.cidade)===normCid(me.cidade))||String(a.nome).localeCompare(b.nome));
   if(!lj.length)return '<div class="empty">Ainda não há lojas parceiras.</div>';
-  return `<div class="list">${lj.map(l=>`<div class="person tap" data-act="openLoja" data-id="${esc(l.id)}" tabindex="0" role="button"><img src="${esc(l.logo||initialsAvatar(l.nome))}" alt=""><div style="min-width:0"><div class="nm">${esc(l.nome)}</div><div class="meta">${esc([l.categoria,l.cidade,(l.cupons||[]).length?(l.cupons.length===1?'1 cupom':l.cupons.length+' cupons'):''].filter(Boolean).join(' · '))}</div></div><span class="when">Ver loja</span></div>`).join('')}</div>`;
+  return `<div class="list">${lj.map(l=>`<div class="person tap" data-act="openLoja" data-id="${esc(l.id)}" tabindex="0" role="button"><img src="${esc(l.logo||initialsAvatar(l.nome))}" alt=""><div style="min-width:0"><div class="nm">${esc(l.nome)}</div><div class="meta">${esc([l.categoria,l.cidade,l.nProdutos?(l.nProdutos===1?'1 produto':l.nProdutos+' produtos'):'',(l.cupons||[]).length?(l.cupons.length===1?'1 cupom':l.cupons.length+' cupons'):''].filter(Boolean).join(' · '))}</div></div><span class="when">Ver loja</span></div>`).join('')}</div>`;
+}
+function ljCard(l,p){
+  const preco=ljPreco(p.preco);const wa=ljWa(l,`Olá! Vi “${p.nome}”${preco?' ('+preco+')':''} no PresenteCerto e quero encomendar.`);
+  return `<div class="lj-card"><button class="lj-pimg" data-act="ljProd" data-id="${esc(p.id)}" aria-label="Ver ${esc(p.nome)}">${p.foto?`<img src="${esc(p.foto)}" alt="" loading="lazy">`:`<span>${pfIcone(p.nome)}</span>`}</button><div class="lj-pb"><button class="lj-pn" data-act="ljProd" data-id="${esc(p.id)}">${esc(p.nome)}</button>${p.desc?`<div class="lj-pd">${esc(p.desc)}</div>`:''}${preco?`<div class="lj-pp">${preco}</div>`:''}<div class="lj-pa">${wa?`<a class="lj-pedir" href="${esc(wa)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(l.id)}">Pedir</a>`:`<button class="lj-pedir" data-act="ljProd" data-id="${esc(p.id)}">Ver</button>`}<button class="lj-quero" data-act="ljDesejo" data-id="${esc(p.id)}" aria-label="Pôr na minha lista de desejos" title="Pôr na minha lista de desejos">♡</button></div></div></div>`;
 }
 function renderLoja(id){
-  const l=(config.lojas||[]).find(x=>x.id===id&&(x.ativo||isOwner));if(!l){viewing=null;return render()}
-  trackView('lj:'+id);
-  const wa=l.whatsapp?`https://wa.me/${l.whatsapp.length<=11?'55':''}${l.whatsapp}?text=${encodeURIComponent('Olá! Vi a '+l.nome+' no PresenteCerto.')}`:'';
-  let h=`<div class="view"><button class="back" data-act="back">← Voltar</button><div class="tag-card"><div class="tag-head"><img src="${esc(l.logo||initialsAvatar(l.nome))}" alt=""><div style="min-width:0"><div class="eyebrow">Loja parceira</div><h1 style="font-size:24px">${esc(l.nome)}</h1><div class="muted">${esc([l.categoria,l.cidade].filter(Boolean).join(' · '))}</div></div></div><div class="tag-body">`;
-  if(l.descricao)h+=`<p style="margin:0">${esc(l.descricao)}</p>`;
-  if((l.cupons||[]).length)h+=`<section class="sec"><div class="eyebrow">Cupons</div>${l.cupons.map(c=>`<div class="date-row"><span><b style="font-family:ui-monospace,monospace">${esc(c.codigo)}</b>${c.texto?' · '+esc(c.texto):''}</span><button class="link" data-act="copy" data-text="${esc(c.codigo)}">Copiar</button></div>`).join('')}</section>`;
-  h+=`<div class="row">${wa?`<a class="btn small green" href="${esc(wa)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(id)}">Chamar no WhatsApp</a>`:''}${safeLink(l.site)?`<a class="btn small ghost" href="${esc(affiliate(l.site))}" target="_blank" rel="noopener sponsored" data-track="loja:lj:${esc(id)}">Visitar site</a>`:''}${l.instagram?`<a class="btn small ghost" href="https://instagram.com/${esc(l.instagram)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(id)}">Instagram</a>`:''}</div>`;
-  h+=`<span class="small" style="color:var(--muted)">Loja parceira do PresenteCerto. As compras são feitas direto com a loja.</span></div></div></div>`;
+  const l0=lojasDb[id];const l=l0?{...l0,id}:null;
+  if(!l||!(lojaNoAr(l)||isOwner||souDonoLoja(l))){if(!lojasOk){app.innerHTML='<div class="view"><h1>Carregando a loja…</h1></div>';return}if(l0||lojasOk)toast('Esta loja não está disponível agora');viewing=null;ljProd=null;return render()}
+  trackView('lj:'+id);ljCarregar(id);
+  const cor=LJ_CORES.includes(l.cor)?l.cor:LJ_CORES[0];
+  const prods=ljProdutos[id]||[];
+  if(ljProd){const p=prods.find(x=>x.id===ljProd);if(p)return renderLojaProduto(l,p,cor);if(ljProdutos[id])ljProd=null}
+  const capa=l.temCapa?ljCapas[id]:null;
+  const pixC=ljPixCode(l.pix);
+  let h=`<div class="view lj" style="--lc:${cor}"><button class="back" data-act="back">← Voltar</button>`;
+  if(souDonoLoja(l)||isOwner)h+=`<div class="lj-dono"><span>${lojaNoAr(l)?'✓ Esta loja está no ar':'⏸ Esta loja não aparece para os clientes agora'}</span><button class="btn small" data-act="ljPainel" data-id="${esc(id)}">✏️ Editar loja</button></div>`;
+  h+=`<div class="lj-head"><div class="lj-capa${capa?' foto':''}"${capa?` style="background-image:url('${esc(capa)}')"`:''}></div><div class="lj-id"><img class="lj-logo" src="${esc(l.logo||initialsAvatar(l.nome))}" alt=""><div class="lj-nome"><h1>${esc(l.nome)}</h1><div class="muted">${esc([l.categoria,l.cidade].filter(Boolean).join(' · '))}</div></div></div></div>`;
+  const chips=[...(l.entrega||[]).filter(k=>LJ_ENTREGA[k]).map(k=>LJ_ENTREGA[k]),pixC?'💠 Aceita Pix':''].filter(Boolean);
+  if(chips.length)h+=`<div class="lj-chips">${chips.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`;
+  if(l.descricao)h+=`<p class="lj-desc">${esc(l.descricao)}</p>`;
+  const wa=ljWa(l,'Olá! Vi a '+l.nome+' no PresenteCerto.');const site=safeLink(l.site)?l.site:'';
+  if(wa||l.instagram||site)h+=`<div class="lj-acts">${wa?`<a class="btn green" href="${esc(wa)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(id)}">💬 Chamar no WhatsApp</a>`:''}${l.instagram?`<a class="btn ghost" href="https://instagram.com/${esc(l.instagram)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(id)}">📷 Instagram</a>`:''}${site?`<a class="btn ghost" href="${esc(affiliate(site))}" target="_blank" rel="noopener sponsored" data-track="loja:lj:${esc(id)}">🌐 Site</a>`:''}</div>`;
+  (l.cupons||[]).forEach(c=>{h+=`<div class="lj-cupom"><span><b>${esc(c.codigo)}</b>${c.texto?` <span class="small">· ${esc(c.texto)}</span>`:''}</span><button class="link" data-act="copy" data-text="${esc(c.codigo)}">Copiar</button></div>`});
+  if(prods.length)h+=`<div class="row between lj-sh"><h2>🛍️ Produtos</h2><span class="small">${prods.length} ${prods.length===1?'produto':'produtos'}</span></div><div class="lj-grid">${prods.map(p=>ljCard(l,p)).join('')}</div>`;
+  else if(!ljProdutos[id]&&l.nProdutos)h+=`<div class="muted">Carregando produtos…</div>`;
+  if(pixC)h+=`<section class="panel lj-pix"><h2>💠 Pagar com Pix</h2><div class="lj-pix-row"><div class="qr" data-qr="${esc(pixC)}"></div><div style="min-width:0;display:flex;flex-direction:column;gap:4px"><span class="small" style="color:var(--muted)">Chave Pix${LJ_PIX_TIPOS[l.pix.tipo]?' ('+esc(LJ_PIX_TIPOS[l.pix.tipo])+')':''}</span><span class="pix-code">${esc(l.pix.chave)}</span>${l.pix.nome?`<span class="small">${esc(l.pix.nome)}</span>`:''}<button class="link" style="align-self:flex-start" data-act="copy" data-text="${esc(pixC)}">Copiar Pix copia e cola</button></div></div><span class="small" style="color:var(--muted)">Combine o pedido com a loja antes de pagar.</span></section>`;
+  if(l.endereco||l.horario)h+=`<section class="panel lj-loc"><span style="font-size:26px" aria-hidden="true">📍</span><div style="flex:1;min-width:0">${l.endereco?`<b>${esc(l.endereco)}</b>`:''}${l.horario?`<div class="small" style="color:var(--muted)">${esc(l.horario)}</div>`:''}</div>${l.endereco?`<a class="link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.endereco+(l.cidade?', '+l.cidade:''))}" target="_blank" rel="noopener">Como chegar ›</a>`:''}</section>`;
+  h+=`<div class="row"><button class="btn small ghost" data-act="ljShare" data-id="${esc(id)}">📤 Enviar esta loja para alguém</button></div><span class="small" style="color:var(--muted);text-align:center">Loja parceira do PresenteCerto. As compras são feitas direto com a loja.</span></div>`;
   app.innerHTML=h;
+}
+function renderLojaProduto(l,p,cor){
+  const preco=ljPreco(p.preco);const msg=`Olá! Vi “${p.nome}”${preco?' ('+preco+')':''} no PresenteCerto e quero encomendar.`;
+  const wa=ljWa(l,msg);const pixC=ljPixCode(l.pix,+p.preco>0?+p.preco:0);
+  let h=`<div class="view lj" style="--lc:${cor}"><button class="back" data-act="ljProdFechar">← ${esc(l.nome)}</button><div class="lj-pfoto">${p.foto?`<img src="${esc(p.foto)}" alt="">`:`<span>${pfIcone(p.nome)}</span>`}</div>
+   <div><div class="small" style="color:var(--muted)">${esc(l.nome)}</div><h1 style="margin:2px 0 4px">${esc(p.nome)}</h1>${preco?`<div class="lj-pp big">${preco}</div>`:''}</div>${p.desc?`<p class="lj-desc">${esc(p.desc)}</p>`:''}`;
+  if(wa)h+=`<a class="btn green" href="${esc(wa)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(l.id)}">💬 Pedir pelo WhatsApp</a><div class="lj-msg"><span class="small" style="color:var(--muted)">A mensagem já vai pronta:</span><i>“${esc(msg)}”</i></div>`;
+  else if(l.instagram)h+=`<a class="btn" href="https://instagram.com/${esc(l.instagram)}" target="_blank" rel="noopener" data-track="loja:lj:${esc(l.id)}">📷 Pedir pelo Instagram</a>`;
+  else if(safeLink(l.site))h+=`<a class="btn" href="${esc(affiliate(l.site))}" target="_blank" rel="noopener sponsored" data-track="loja:lj:${esc(l.id)}">🌐 Comprar no site da loja</a>`;
+  h+=`<button class="btn ghost" data-act="ljDesejo" data-id="${esc(p.id)}">♡ Pôr na minha lista de desejos</button><div class="row" style="flex-wrap:nowrap"><button class="btn small ghost" style="flex:1" data-act="ljShare" data-id="${esc(l.id)}" data-p="${esc(p.id)}">📤 Enviar para alguém</button>${pixC?`<button class="btn small ghost" style="flex:1" data-act="ljPixProd" aria-pressed="${ljPixProd}">💠 Pagar com Pix</button>`:''}</div>`;
+  if(pixC&&ljPixProd)h+=`<section class="panel lj-pix"><h2>💠 Pix${preco?' de '+preco:''}</h2><span class="small" style="color:var(--warn)">Combine com a loja antes de pagar.</span><div class="lj-pix-row"><div class="qr" data-qr="${esc(pixC)}"></div><div style="min-width:0;display:flex;flex-direction:column;gap:4px"><span class="small" style="color:var(--muted)">Quem recebe</span><b>${esc(l.pix.nome||l.nome)}</b><button class="link" style="align-self:flex-start" data-act="copy" data-text="${esc(pixC)}">Copiar Pix copia e cola</button></div></div></section>`;
+  app.innerHTML=h+'</div>';
+}
+async function ljDesejo(lid,pid){
+  const l=lojasDb[lid],p=(ljProdutos[lid]||[]).find(x=>x.id===pid);if(!l||!p)return;
+  if(dirty){toast('Salve sua ficha antes de adicionar');return}
+  const cur=profiles[myId]||{};const des=[...(cur.desejos||[])];const link=ljLink(lid,pid);
+  if(des.some(w=>w.link===link)){toast('Já está na sua lista de desejos');return}
+  const wid='lj'+Date.now().toString(36);
+  des.push({id:wid,t:String(p.nome).slice(0,80),preco:ljPreco(p.preco),obs:'na '+String(l.nome).slice(0,40),link});
+  try{await db.doc('profiles/'+myId).set({desejos:des,atualizado:new Date().toISOString()},{merge:true});profiles[myId]={...cur,desejos:des};draft=null;
+    if(p.foto)db.doc(`fotos/${myId}/itens/${wid}`).set({img:p.foto}).then(()=>{fotos[myId]={...(fotos[myId]||{}),[wid]:p.foto}}).catch(()=>{});
+    toast('Adicionado à sua lista de desejos 💜')}catch(e){toast(failMsg)}
+}
+
+/* painel do lojista */
+function ljDraftDe(l){return{_id:l.id,nome:l.nome||'',categoria:l.categoria||'',cidade:l.cidade||'',descricao:l.descricao||'',whatsapp:l.whatsapp||'',instagram:l.instagram?'@'+l.instagram:'',site:l.site||'',endereco:l.endereco||'',horario:l.horario||'',entrega:[...(l.entrega||[])],cor:LJ_CORES.includes(l.cor)?l.cor:LJ_CORES[0],pix:{tipo:'celular',chave:'',nome:'',cidade:'',...(l.pix||{})},cupons:(l.cupons||[]).map(c=>c.codigo+(c.texto?' - '+c.texto:'')).join('\n')}}
+function ljStatus(l){const n=ljDiasAte(l.pagoAte);
+  if(!l.ativo)return['off','⏸ Loja pausada pelo PresenteCerto'];
+  if(!l.pagoAte)return['ok','✓ Sua loja está no ar'];
+  if(n< -LJ_TOLERANCIA)return['off','⏸ Loja fora do ar: a mensalidade está em atraso'];
+  if(n<0)return['warn',`⚠ A mensalidade venceu em ${diaBR(l.pagoAte)}. Pague para a loja não sair do ar.`];
+  if(n<=5)return['warn',`A mensalidade vence ${n===0?'hoje':'em '+n+(n===1?' dia':' dias')} (${diaBR(l.pagoAte)})`];
+  return['ok',`✓ Sua loja está no ar · paga até ${diaBR(l.pagoAte)}`]}
+function ljProdFormHtml(){const f=ljPForm;return `<div class="inline-form lj-pform"><b>${f.id?'Editar produto':'Novo produto'}</b>
+   <div class="lj-pf"><button class="lj-pf-foto" data-act="ljFoto" data-v="prod">${f.foto?`<img src="${esc(f.foto)}" alt="">`:'<span>📷<br>Pôr foto</span>'}</button><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px"><label class="f">Nome<input data-ljp="nome" maxlength="60" value="${esc(f.nome||'')}" placeholder="Ex.: Cesta café da manhã"></label><label class="f">Valor (R$)<input data-ljp="precoTxt" inputmode="decimal" placeholder="Ex.: 49,90" value="${esc(f.precoTxt||'')}"></label></div></div>
+   ${f.foto?'<button class="link" style="align-self:flex-start" data-act="ljPSemFoto">Tirar a foto</button>':''}
+   <label class="f">Breve descrição<textarea data-ljp="desc" maxlength="200" placeholder="O que vem, tamanho, prazo…">${esc(f.desc||'')}</textarea></label>
+   <div class="row"><button class="btn small" data-act="ljPSalvar">${f.id?'Salvar produto':'Adicionar produto'}</button><button class="link" data-act="ljPCancelar">Cancelar</button>${f.id?'<button class="link alt" data-act="ljPExcluir">Excluir produto</button>':''}</div></div>`}
+function renderMinhaLoja(){
+  if(!lojasOk){app.innerHTML='<div class="view"><h1>Carregando…</h1></div>';return}
+  const minhas=minhasLojas();const l0=ljPainel&&lojasDb[ljPainel]&&(isOwner||souDonoLoja(lojasDb[ljPainel]))?{...lojasDb[ljPainel],id:ljPainel}:minhas[0];
+  if(!l0){app.innerHTML=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>Minha loja</h1><p class="lede">Não encontramos uma loja ligada ao e-mail <b>${esc(myEmail||'')}</b>. Fale com o PresenteCerto para criar a sua.</p></div></div>`;return}
+  const l=l0,id=l.id;ljPainel=id;ljCarregar(id);
+  const au=firebase.auth&&firebase.auth().currentUser;
+  if(!isOwner&&au&&!au.emailVerified){app.innerHTML=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>Minha loja</h1></div><section class="panel"><b>Confirme seu e-mail</b><span class="small">Para editar a loja, confirme o e-mail da sua conta (<b>${esc(au.email||'')}</b>). Enviamos um link; depois de clicar nele, volte aqui.</span><div class="row"><button class="btn small" data-ev="verEmail">Enviar link de confirmação</button><button class="link" data-ev="verOk">Já confirmei</button></div></section></div>`;return}
+  if(!ljDraft||ljDraft._id!==id){ljDraft=ljDraftDe(l);ljDirty=false}
+  const d=ljDraft,prods=ljProdutos[id]||[],st=ljStatus(l);
+  const cb=config.lojaCobranca||{},valor=+cb.valor||19.9,pixM=cb.chave?ljPixCode(cb,valor):'';
+  let h=`<div class="view lj" style="--lc:${d.cor}"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>Minha loja</h1><p class="lede">Edite a página da <b>${esc(l.nome)}</b>. O que ficar em branco não aparece para os clientes.</p></div>`;
+  if(minhas.length>1)h+=`<div class="chips">${minhas.map(x=>`<button class="chip" data-act="ljPainel" data-id="${esc(x.id)}" aria-pressed="${x.id===id}">${esc(x.nome)}</button>`).join('')}</div>`;
+  h+=`<section class="panel lj-st ${st[0]}"><b>${esc(st[1])}</b>`;
+  if(pixM&&l.pagoAte){
+    h+=`<span class="small">Mensalidade: <b>${brl(valor)}</b> por mês, paga por Pix.</span>`;
+    if(l.avisoPag)h+=`<span class="small">✓ Você avisou o pagamento em ${new Date(l.avisoPag).toLocaleDateString('pt-BR')}. Assim que confirmarmos, a nova data aparece aqui.</span>`;
+    if(ljPagAberto)h+=`<div class="lj-pix-row"><div class="qr" data-qr="${esc(pixM)}"></div><div style="min-width:0;display:flex;flex-direction:column;gap:6px"><span class="small">Abra o app do banco, escolha Pix e leia o QR code ou use o copia e cola.</span><button class="btn small ghost" data-act="copy" data-text="${esc(pixM)}">Copiar Pix copia e cola</button></div></div><div class="row"><button class="btn small" data-act="ljPaguei">Já fiz o Pix</button><button class="link" data-act="ljPagar">Fechar</button></div>`;
+    else h+=`<div class="row"><button class="btn small" data-act="ljPagar">Pagar mensalidade · ${brl(valor)}</button></div>`;
+  }
+  h+=`</section>`;
+  h+=`<div class="row"><button class="btn small ghost" data-act="ljVer">👀 Ver minha página</button><button class="btn small ghost" data-act="ljShare" data-id="${esc(id)}">📤 Divulgar minha loja</button></div>`;
+  const capa=l.temCapa?ljCapas[id]:null;
+  h+=`<section class="panel"><h2>🎨 Aparência</h2><div class="lj-up"><button class="lj-upb capa${capa?' tem':''}" data-act="ljFoto" data-v="capa"${capa?` style="background-image:url('${esc(capa)}')"`:''}><span>🖼️ ${l.temCapa?'Trocar':'Pôr'} foto do cabeçalho</span></button><button class="lj-upb logo" data-act="ljFoto" data-v="logo">${l.logo?`<img src="${esc(l.logo)}" alt="">`:'<span class="lj-upi">⭐</span>'}<span>${l.logo?'Trocar':'Pôr'} logo</span></button></div>
+   <div class="row">${l.temCapa?'<button class="link" data-act="ljTirar" data-v="capa">Tirar a foto do cabeçalho</button>':''}${l.logo?'<button class="link" data-act="ljTirar" data-v="logo">Tirar a logo</button>':''}</div>
+   <span class="small" style="color:var(--muted)">As fotos são salvas na hora. Para o cabeçalho, prefira uma foto deitada.</span>
+   <div class="flabel">Cor da página</div><div class="lj-cores">${LJ_CORES.map(c=>`<button class="lj-cor" style="background:${c}" aria-pressed="${d.cor===c}" data-act="ljCor" data-v="${c}" aria-label="Cor ${c}"></button>`).join('')}</div></section>`;
+  h+=`<section class="panel"><h2>📝 Sobre a loja</h2>
+   <div class="grid2"><label class="f">Nome da loja<input data-ljf="nome" maxlength="40" value="${esc(d.nome)}"></label><label class="f">Categoria<select data-ljf="categoria">${ljCatOpts(d.categoria)}</select></label></div>
+   <label class="f">Descrição<textarea data-ljf="descricao" maxlength="300" placeholder="O que você vende, o que tem de especial">${esc(d.descricao)}</textarea></label>
+   <div class="grid2"><label class="f">Cidade<input data-ljf="cidade" maxlength="40" value="${esc(d.cidade)}" placeholder="Ex.: Fortaleza"></label><label class="f">Horário<input data-ljf="horario" maxlength="60" value="${esc(d.horario)}" placeholder="Ex.: Seg a sáb, 9h às 19h"></label></div>
+   <label class="f">Endereço (opcional)<input data-ljf="endereco" maxlength="100" value="${esc(d.endereco)}" placeholder="Rua, número e bairro"></label>
+   <div class="flabel">Como entrega</div><div class="chips">${Object.entries(LJ_ENTREGA).map(([k,v])=>`<button class="chip" data-act="ljEntrega" data-v="${k}" aria-pressed="${d.entrega.includes(k)}">${v}</button>`).join('')}</div></section>
+  <section class="panel"><h2>📇 Contato</h2><span class="small" style="color:var(--muted)">O que ficar em branco não aparece na página.</span>
+   <div class="grid2"><label class="f">WhatsApp (com DDD)<input data-ljf="whatsapp" inputmode="tel" value="${esc(d.whatsapp)}" placeholder="85999999999"></label><label class="f">Instagram<input data-ljf="instagram" autocapitalize="off" value="${esc(d.instagram)}" placeholder="@sualoja"></label></div>
+   <label class="f">Site de vendas<input data-ljf="site" autocapitalize="off" inputmode="url" value="${esc(d.site)}" placeholder="Não tem? Deixe em branco"></label></section>
+  <section class="panel"><h2>💠 Pix para seus clientes</h2>
+   <div class="grid2"><label class="f">Tipo da chave<select data-ljf="pix.tipo">${Object.entries(LJ_PIX_TIPOS).map(([k,v])=>`<option value="${k}" ${d.pix.tipo===k?'selected':''}>${v}</option>`).join('')}</select></label><label class="f">Chave Pix<input data-ljf="pix.chave" autocapitalize="off" value="${esc(d.pix.chave)}" placeholder="Em branco, o Pix não aparece"></label></div>
+   <div class="grid2"><label class="f">Nome de quem recebe<input data-ljf="pix.nome" maxlength="25" value="${esc(d.pix.nome)}" placeholder="Como aparece no banco"></label><label class="f">Cidade de quem recebe<input data-ljf="pix.cidade" maxlength="15" value="${esc(d.pix.cidade)}" placeholder="Ex.: Fortaleza"></label></div>
+   <span class="small" style="color:var(--muted)">O QR code é criado sozinho a partir da chave. Depois de salvar, faça um teste pagando R$ 1 para conferir.</span></section>
+  <section class="panel"><h2>🏷️ Cupons</h2><label class="f">Um por linha, no formato CÓDIGO - descrição<textarea data-ljf="cupons" placeholder="PRESENTE10 - 10% na primeira compra">${esc(d.cupons)}</textarea></label></section>
+  <div class="lj-salvar"><button class="btn" data-act="ljSalvar">Salvar a página</button>${ljDirty?'<span class="small" style="color:var(--warn)">Há mudanças não salvas</span>':''}</div>`;
+  h+=`<section class="panel"><h2>🛍️ Produtos <span class="small" style="font-weight:600;color:var(--muted)">· ${prods.length} de ${LJ_MAX_PROD}</span></h2><span class="small" style="color:var(--muted)">Cada produto é salvo na hora, separado do resto da página.</span>
+   ${prods.map((p,i)=>ljPForm&&ljPForm.id===p.id?ljProdFormHtml():`<div class="lj-er"><div class="lj-eimg">${p.foto?`<img src="${esc(p.foto)}" alt="">`:pfIcone(p.nome)}</div><div style="flex:1;min-width:0"><b>${esc(p.nome)}</b><div class="small" style="color:var(--muted)">${ljPreco(p.preco)||'sem preço'}</div></div>${i?`<button class="icon-btn" data-act="ljPSubir" data-id="${esc(p.id)}" aria-label="Subir">↑</button>`:''}<button class="link" data-act="ljPEditar" data-id="${esc(p.id)}">Editar</button></div>`).join('')}
+   ${ljPForm&&!ljPForm.id?ljProdFormHtml():prods.length<LJ_MAX_PROD?`<button class="lj-add" data-act="ljPNovo">+ Adicionar produto (foto, nome, descrição e valor)</button>`:'<span class="small">Limite de produtos atingido.</span>'}</section></div>`;
+  app.innerHTML=h;
+}
+app.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset)return;
+  if(t.dataset.ljf&&ljDraft){const k=t.dataset.ljf;if(k.startsWith('pix.'))ljDraft.pix[k.slice(4)]=t.value;else ljDraft[k]=t.value;ljDirty=true}
+  if(t.dataset.ljp&&ljPForm)ljPForm[t.dataset.ljp]=t.value});
+app.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.ljf&&ljDraft&&t.tagName==='SELECT'){const k=t.dataset.ljf;if(k.startsWith('pix.'))ljDraft.pix[k.slice(4)]=t.value;else ljDraft[k]=t.value;ljDirty=true}});
+function ljEscolherFoto(alvo){ljFileAlvo=alvo;let inp=document.getElementById('ljFile');if(!inp){inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.id='ljFile';inp.hidden=true;document.body.appendChild(inp);inp.addEventListener('change',ljFotoEscolhida)}inp.value='';inp.click()}
+async function ljFotoEscolhida(e){
+  const file=e.target.files&&e.target.files[0];const id=ljPainel,alvo=ljFileAlvo;ljFileAlvo=null;if(!file||!id)return;
+  try{
+    if(alvo==='prod'){if(!ljPForm)return;ljPForm.foto=await compress(file,700,90000);keep(render);return}
+    toast('Enviando foto…');
+    if(alvo==='capa'){const img=await compress(file,1200,260000);await db.doc('lojas/'+id+'/midia/capa').set({img});await db.doc('lojas/'+id).update({temCapa:true,atualizado:new Date().toISOString()});ljCapas[id]=img;toast('Foto do cabeçalho salva')}
+    else if(alvo==='logo'){const img=await fotoQuadrada(file,320);await db.doc('lojas/'+id).update({logo:img,atualizado:new Date().toISOString()});toast('Logo salva')}
+    keep(render);
+  }catch(err){toast('Não foi possível usar esta foto. Tente outra imagem.')}
+}
+async function ljSalvar(){
+  const id=ljPainel,d=ljDraft,l=lojasDb[id];if(!id||!d||!l)return;
+  const nome=String(d.nome).trim();if(!nome){toast('Escreva o nome da loja');return}
+  const fixUrl=u=>{u=String(u||'').replace(/\s+/g,'');if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u.slice(0,300)};
+  const pix={tipo:LJ_PIX_TIPOS[d.pix.tipo]?d.pix.tipo:'celular',chave:String(d.pix.chave||'').trim().slice(0,77),nome:String(d.pix.nome||'').trim().slice(0,25),cidade:String(d.pix.cidade||d.cidade||'').trim().slice(0,15)};
+  const pe=ljPixErro(pix);if(pe){toast(pe);return}
+  const wa=String(d.whatsapp).replace(/\D/g,'').slice(0,13);if(wa&&wa.length<10){toast('Coloque o WhatsApp com DDD');return}
+  const dados={nome:nome.slice(0,40),categoria:d.categoria||'',cidade:String(d.cidade).trim().slice(0,40),descricao:String(d.descricao).trim().slice(0,300),whatsapp:wa,instagram:String(d.instagram).replace(/^@/,'').replace(/[^\w.]/g,'').slice(0,40),site:fixUrl(d.site),endereco:String(d.endereco).trim().slice(0,100),horario:String(d.horario).trim().slice(0,60),entrega:(d.entrega||[]).filter(k=>LJ_ENTREGA[k]),cor:LJ_CORES.includes(d.cor)?d.cor:LJ_CORES[0],pix:pix.chave?pix:{},
+    cupons:String(d.cupons||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,10).map(x=>{const [c,...r]=x.split(' - ');return{codigo:c.trim().slice(0,30),texto:r.join(' - ').trim().slice(0,80)}}),atualizado:new Date().toISOString()};
+  if(souDonoLoja(l))dados.donoUid=myId;
+  const b=app.querySelector('[data-act="ljSalvar"]');if(b){b.disabled=true;b.textContent='Salvando…'}
+  try{await db.doc('lojas/'+id).update(dados);lojasDb[id]={...l,...dados};ljDraft=null;ljDirty=false;toast('Página da loja salva');keep(render)}
+  catch(e){if(b){b.disabled=false;b.textContent='Salvar a página'}toast(failMsg)}
+}
+async function ljPSalvar(){
+  const id=ljPainel,f=ljPForm;if(!id||!f)return;const nome=String(f.nome||'').trim();if(!nome){toast('Escreva o nome do produto');return}
+  const prods=ljProdutos[id]||[];if(!f.id&&prods.length>=LJ_MAX_PROD){toast('Limite de '+LJ_MAX_PROD+' produtos');return}
+  const pid=f.id||uid();const antigo=prods.find(p=>p.id===f.id);
+  const data={nome:nome.slice(0,60),desc:String(f.desc||'').trim().slice(0,200),preco:ljParsePreco(f.precoTxt),foto:f.foto||'',ordem:antigo?(antigo.ordem||0):Date.now(),atualizado:new Date().toISOString()};
+  try{await db.doc(`lojas/${id}/produtos/${pid}`).set(data);if(!f.id)await db.doc('lojas/'+id).update({nProdutos:prods.length+1});ljPForm=null;toast(f.id?'Produto salvo':'Produto adicionado');keep(render)}catch(e){toast(failMsg)}
+}
+app.addEventListener('click',async e=>{
+  const b=e.target.closest&&e.target.closest('[data-act]');if(!b||!db||!myId)return;const ds=b.dataset,a=ds.act;if(!/^lj/.test(a))return;
+  const id=ljPainel;
+  switch(a){
+    case 'ljProd': ljProd=ds.id;ljPixProd=false;render();window.scrollTo(0,0);break;
+    case 'ljProdFechar': ljProd=null;render();window.scrollTo(0,0);break;
+    case 'ljPixProd': ljPixProd=!ljPixProd;keep(render);break;
+    case 'ljDesejo': {const lid=String(viewing||'').startsWith('loja:')?viewing.slice(5):'';if(lid)ljDesejo(lid,ds.id);break}
+    case 'ljShare': {const l=lojasDb[ds.id];if(!l)break;const url=ljLink(ds.id,ds.p);const p=ds.p&&(ljProdutos[ds.id]||[]).find(x=>x.id===ds.p);
+      const txt=p?`Olha que presente legal: ${p.nome}${ljPreco(p.preco)?' por '+ljPreco(p.preco):''}, da ${l.nome}.`:`Conheça a ${l.nome} no PresenteCerto 🎁`;
+      if(navigator.share)navigator.share({title:l.nome,text:txt,url}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(txt+'\n'+url),'_blank','noopener');break}
+    case 'ljPainel': ljPainel=ds.id;ljDraft=null;ljPForm=null;ljPagAberto=false;ljProd=null;setTab('minhaloja');break;
+    case 'ljVer': viewing='loja:'+id;ljProd=null;render();window.scrollTo(0,0);break;
+    case 'ljCor': if(ljDraft){ljDraft.cor=ds.v;ljDirty=true;keep(render)}break;
+    case 'ljEntrega': if(ljDraft){const s=new Set(ljDraft.entrega);s.has(ds.v)?s.delete(ds.v):s.add(ds.v);ljDraft.entrega=[...s];ljDirty=true;keep(render)}break;
+    case 'ljSalvar': ljSalvar();break;
+    case 'ljFoto': ljEscolherFoto(ds.v);break;
+    case 'ljTirar': try{if(ds.v==='capa'){await db.doc('lojas/'+id).update({temCapa:false});db.doc('lojas/'+id+'/midia/capa').delete().catch(()=>{});delete ljCapas[id]}else await db.doc('lojas/'+id).update({logo:''});toast('Foto retirada')}catch(err){toast(failMsg)}break;
+    case 'ljPagar': ljPagAberto=!ljPagAberto;keep(render);break;
+    case 'ljPaguei': try{await db.doc('lojas/'+id).update({avisoPag:Date.now(),donoUid:myId});ljPagAberto=false;toast('Aviso enviado! Assim que confirmarmos, a data é renovada.');keep(render)}catch(err){toast(failMsg)}break;
+    case 'ljPNovo': ljPForm={};keep(render);break;
+    case 'ljPEditar': {const p=(ljProdutos[id]||[]).find(x=>x.id===ds.id);if(p){ljPForm={id:p.id,nome:p.nome,desc:p.desc||'',precoTxt:ljPrecoTxt(p.preco),foto:p.foto||''};keep(render)}break}
+    case 'ljPCancelar': ljPForm=null;keep(render);break;
+    case 'ljPSemFoto': if(ljPForm){ljPForm.foto='';keep(render)}break;
+    case 'ljPSalvar': ljPSalvar();break;
+    case 'ljPExcluir': {if(!ljPForm||!ljPForm.id||!confirm('Excluir este produto?'))break;try{await db.doc(`lojas/${id}/produtos/${ljPForm.id}`).delete();await db.doc('lojas/'+id).update({nProdutos:Math.max(0,(ljProdutos[id]||[]).length-1)});ljPForm=null;toast('Produto excluído');keep(render)}catch(err){toast(failMsg)}break}
+    case 'ljPSubir': {const ps=ljProdutos[id]||[];const i=ps.findIndex(x=>x.id===ds.id);if(i<1)break;const a1=ps[i],a0=ps[i-1];let o0=a0.ordem||0,o1=a1.ordem||0;if(o0===o1)o0=o1-1;
+      try{const bt=db.batch();bt.update(db.doc(`lojas/${id}/produtos/${a1.id}`),{ordem:o0});bt.update(db.doc(`lojas/${id}/produtos/${a0.id}`),{ordem:o1});await bt.commit()}catch(err){toast(failMsg)}break}
+    /* administrador */
+    case 'ljANova': ljAdmForm={};keep(render);break;
+    case 'ljAEditar': ljAdmForm={id:ds.id};keep(render);break;
+    case 'ljACancelar': ljAdmForm=null;keep(render);break;
+    case 'ljASalvar': {if(!isOwner)break;const nome=val('ljaNome'),email=val('ljaEmail').toLowerCase(),ate=val('ljaAte');
+      if(!nome){toast('Escreva o nome da loja');break}if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('O e-mail do dono não parece certo');break}
+      const dados={nome:nome.slice(0,40),categoria:val('ljaCat'),cidade:val('ljaCid').slice(0,40),donoEmail:email,pagoAte:/^\d{4}-\d{2}-\d{2}$/.test(ate)?ate:''};
+      try{if(ljAdmForm&&ljAdmForm.id)await db.doc('lojas/'+ljAdmForm.id).update(dados);else await db.doc('lojas/'+uid()).set({...dados,ativo:true,cor:LJ_CORES[0],entrega:[],cupons:[],nProdutos:0,logo:'',criado:new Date().toISOString()});ljAdmForm=null;toast('Loja salva');keep(render)}catch(err){toast(failMsg)}break}
+    case 'ljAToggle': {const l=lojasDb[ds.id];if(!l)break;try{await db.doc('lojas/'+ds.id).update({ativo:!l.ativo})}catch(err){toast(failMsg)}break}
+    case 'ljAPago': {const l=lojasDb[ds.id];if(!l)break;const novo=ljMaisMes(l.pagoAte);if(!confirm(`Confirmar 1 mês pago da ${l.nome}? A loja fica paga até ${diaBR(novo)}.`))break;
+      try{await db.doc('lojas/'+ds.id).update({pagoAte:novo,avisoPag:null,ativo:true});toast('Pago até '+diaBR(novo))}catch(err){toast(failMsg)}break}
+    case 'ljAExcluir': {const l=lojasDb[ds.id];if(!l||!confirm(`Excluir a ${l.nome}? A página, os produtos e as fotos serão apagados.`))break;
+      try{const ps=await db.collection('lojas/'+ds.id+'/produtos').get();const bt=db.batch();ps.docs.forEach(d=>bt.delete(d.ref));bt.delete(db.doc('lojas/'+ds.id+'/midia/capa'));bt.delete(db.doc('lojas/'+ds.id));await bt.commit();toast('Loja excluída')}catch(err){toast(failMsg)}break}
+    case 'ljAConvite': {const l=lojasDb[ds.id];if(!l)break;if(!l.donoEmail){toast('Coloque antes o e-mail do dono em “Dados e dono”');break}
+      copyText(`Olá! A ${l.nome} já tem uma página no PresenteCerto 🎁\n\n1. Entre em ${location.origin} com o e-mail ${l.donoEmail} (pelo Google ou criando uma senha).\n2. Toque na sua foto, no canto de cima, e escolha “Minha loja”.\n3. Ponha a foto do cabeçalho, a logo, seus contatos, o Pix e os produtos, e toque em Salvar.\n\nQualquer dúvida, é só me chamar!`);break}
+    case 'ljCobSalvar': {if(!isOwner)break;const c={valor:ljParsePreco(val('ljcValor'))||19.9,tipo:val('ljcTipo')||'celular',chave:val('ljcChave').slice(0,77),nome:val('ljcNome').slice(0,25),cidade:val('ljcCidade').slice(0,15)};
+      const pe=ljPixErro(c);if(pe){toast(pe);break}saveConfig({...config,lojaCobranca:c},'Cobrança salva');break}
+  }
+});
+function ljAdmCard(l){
+  const st=!l.ativo?['','pausada']:lojaVencida(l)?['','fora do ar · atraso']:!l.pagoAte?['soon','no ar · cortesia']:ljDiasAte(l.pagoAte)<0?['','vencida · tolerância']:['soon','no ar'];
+  return `<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(l.nome)}</b><span class="when ${st[0]}">${st[1]}</span></div>
+   <span class="small" style="color:var(--muted)">${esc([l.categoria,l.cidade].filter(Boolean).join(' · '))}${l.donoEmail?' · dono: '+esc(l.donoEmail):' · sem dono cadastrado'}</span>
+   <span class="small">${l.pagoAte?`Paga até <b>${diaBR(l.pagoAte)}</b>`:'Sem mensalidade (cortesia)'} · <b>${l.nProdutos||0}</b> produtos · <b>${sumAd('lj:'+l.id,'v')}</b> visitas · <b>${sumLoja('lj:'+l.id)}</b> cliques</span>
+   ${l.avisoPag?`<div class="notice">💰 Avisou que pagou em ${new Date(l.avisoPag).toLocaleDateString('pt-BR')}. Confira no seu banco e confirme.</div>`:''}
+   <div class="item-actions"><button class="link" data-act="ljAPago" data-id="${esc(l.id)}">${l.avisoPag?'Confirmar pagamento (+1 mês)':'+1 mês pago'}</button><button class="link alt" data-act="ljPainel" data-id="${esc(l.id)}">Editar página</button><button class="link alt" data-act="ljAEditar" data-id="${esc(l.id)}">Dados e dono</button><button class="link alt" data-act="ljAToggle" data-id="${esc(l.id)}">${l.ativo?'Pausar':'Ativar'}</button><button class="link alt" data-act="ljAConvite" data-id="${esc(l.id)}">Copiar convite</button><button class="link alt" data-act="copy" data-text="${esc(`Relatório PresenteCerto – ${l.nome}\nVisitas à página: ${sumAd('lj:'+l.id,'v')}\nCliques em WhatsApp, site e Instagram: ${sumLoja('lj:'+l.id)}\nGerado em ${new Date().toLocaleDateString('pt-BR')}`)}">Copiar relatório</button><button class="link" data-act="ljAExcluir" data-id="${esc(l.id)}">Excluir</button></div></div>`;
+}
+function ljAdmFormHtml(l){
+  const ate=l.id?(l.pagoAte||''):ljMaisMes('');
+  return `<div class="inline-form"><b>${l.id?'Dados da loja':'Nova loja parceira'}</b>
+   <div class="grid2"><label class="f">Nome da loja<input id="ljaNome" maxlength="40" value="${esc(l.nome||'')}"></label><label class="f">Categoria<select id="ljaCat">${ljCatOpts(l.categoria)}</select></label></div>
+   <div class="grid2"><label class="f">Cidade<input id="ljaCid" maxlength="40" autocomplete="off" data-cid="*" value="${esc(l.cidade||'')}" placeholder="Ex.: Fortaleza"></label><label class="f">E-mail do dono da loja<input id="ljaEmail" type="email" autocapitalize="off" value="${esc(l.donoEmail||'')}" placeholder="O mesmo que ele usa para entrar"></label></div>
+   <label class="f">Mensalidade paga até (em branco = cortesia, sem cobrança)<input id="ljaAte" type="date" value="${esc(ate)}"></label>
+   <div class="row"><button class="btn small" data-act="ljASalvar">${l.id?'Salvar':'Cadastrar loja'}</button><button class="link" data-act="ljACancelar">Cancelar</button></div></div>`;
+}
+let sumAd=()=>0,sumLoja=()=>0;
+function ljAdminHtml(sA,sL){sumAd=sA;sumLoja=sL;
+  const lojas=lojasTodas().sort((a,b)=>(!!b.avisoPag-!!a.avisoPag)||String(a.nome).localeCompare(String(b.nome)));const cb=config.lojaCobranca||{};
+  return `<section class="panel ad"><h2>Lojas parceiras (Plano Lojista)</h2><p class="lede" style="margin:0">Cada loja ganha uma página com produtos, Pix e contatos. Cadastre a loja com o e-mail do dono: ele entra no PresenteCerto com esse e-mail e edita tudo em Menu › Minha loja.</p>
+   ${lojas.map(l=>ljAdmForm&&ljAdmForm.id===l.id?ljAdmFormHtml(l):ljAdmCard(l)).join('')||'<div class="muted">Nenhuma loja parceira ainda.</div>'}
+   ${ljAdmForm&&!ljAdmForm.id?ljAdmFormHtml({}):'<div class="row"><button class="btn small ghost" data-act="ljANova">Cadastrar loja</button></div>'}
+   <div class="flabel">Cobrança da mensalidade (Pix)</div>
+   <span class="small" style="color:var(--muted)">O lojista vê este Pix no painel dele, já com o valor. Quando ele avisar que pagou, confira no seu banco e toque em “Confirmar pagamento”. A loja sai do ar sozinha ${LJ_TOLERANCIA} dias depois do vencimento.</span>
+   <div class="grid2"><label class="f">Valor por mês (R$)<input id="ljcValor" inputmode="decimal" value="${esc(ljPrecoTxt(cb.valor||19.9))}"></label><label class="f">Tipo da sua chave<select id="ljcTipo">${Object.entries(LJ_PIX_TIPOS).map(([k,v])=>`<option value="${k}" ${(cb.tipo||'celular')===k?'selected':''}>${v}</option>`).join('')}</select></label></div>
+   <div class="grid2"><label class="f">Sua chave Pix<input id="ljcChave" autocapitalize="off" value="${esc(cb.chave||'')}"></label><label class="f">Seu nome (como no banco)<input id="ljcNome" maxlength="25" value="${esc(cb.nome||'')}"></label></div>
+   <label class="f">Sua cidade<input id="ljcCidade" maxlength="15" value="${esc(cb.cidade||'')}"></label>
+   <div class="row"><button class="btn small" data-act="ljCobSalvar">Salvar cobrança</button></div></section>`;
+}
+function ljMuralAvisos(){
+  let h='';
+  if(isOwner){const av=lojasTodas().filter(l=>l.avisoPag);if(av.length)h+=`<div class="notice">💰 <b>${av.length===1?esc(av[0].nome)+' avisou':av.length+' lojas avisaram'}</b> que pagou a mensalidade. <button class="link" data-act="tab" data-id="admin">Conferir no painel</button></div>`}
+  minhasLojas().forEach(l=>{const n=ljDiasAte(l.pagoAte);if(l.ativo&&n!==null&&n<=3&&!l.avisoPag)h+=`<div class="notice">🏪 A mensalidade da <b>${esc(l.nome)}</b> ${n<0?'venceu em '+diaBR(l.pagoAte):n===0?'vence hoje':'vence em '+n+(n===1?' dia':' dias')}. <button class="link" data-act="ljPainel" data-id="${esc(l.id)}">Pagar agora</button></div>`});
+  return h;
 }
 const PLUS_BENEF=[['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
@@ -2671,12 +3004,7 @@ function adminBlock(){
      :`<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(a.titulo)}</b><span class="when ${a.ativo?'soon':''}">${a.ativo?'no ar':'pausado'}</span></div><span class="small" style="color:var(--muted)">${esc(descr(a))}</span><span class="small"><b>${sumAd(a.id,'v')}</b> visualizações · <b>${sumAd(a.id,'c')}</b> cliques</span>
        <div class="item-actions"><button class="link" data-act="editAd" data-i="${i}">Editar</button><button class="link alt" data-act="toggleAd" data-i="${i}">${a.ativo?'Pausar':'Ativar'}</button><button class="link alt" data-act="copy" data-text="${esc(relatorioAd(a,sumAd(a.id,'v'),sumAd(a.id,'c')))}">Copiar relatório</button><button class="link" data-act="delAd" data-i="${i}">Excluir</button></div></div>`).join('')||'<div class="muted">Nenhum anúncio ainda.</div>'}
    ${form&&form.type==='novoAd'?`<div class="inline-form"><b>Novo anúncio</b>${adForm('ad',{})}<div class="row"><button class="btn small" data-act="addAd">Publicar anúncio</button><button class="link" data-act="cancel">Cancelar</button></div></div>`:`<div class="row"><button class="btn small ghost" data-act="novoAd">Criar anúncio</button></div>`}</section>`;
-  // lojas parceiras (plano lojista)
-  const lojas=config.lojas||[];
-  h+=`<section class="panel ad"><h2>Lojas parceiras (Plano Lojista)</h2><p class="lede" style="margin:0">Cada loja ganha uma página no PresenteCerto, aparece no botão Lojas parceiras do Mural e no patrocínio da categoria dela.</p>
-   ${lojas.map((l,i)=>form&&form.type==='editLoja'&&form.i===i?lojaForm(l,i):`<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(l.nome)}</b><span class="when ${l.ativo?'soon':''}">${l.ativo?'no ar':'pausada'}</span></div><span class="small" style="color:var(--muted)">${esc([l.categoria,l.cidade,(l.cupons||[]).length?(l.cupons.length+' cupom(ns)'):''].filter(Boolean).join(' · '))}</span><span class="small"><b>${sumAd('lj:'+l.id,'v')}</b> visitas à página · <b>${sumLoja('lj:'+l.id)}</b> cliques em contato e site</span>
-     <div class="item-actions"><button class="link" data-act="editLoja" data-i="${i}">Editar</button><button class="link alt" data-act="toggleLoja" data-i="${i}">${l.ativo?'Pausar':'Ativar'}</button><button class="link alt" data-act="copy" data-text="${esc(`Relatório PresenteCerto – ${l.nome}\nVisitas à página: ${sumAd('lj:'+l.id,'v')}\nCliques em WhatsApp, site e Instagram: ${sumLoja('lj:'+l.id)}\nGerado em ${new Date().toLocaleDateString('pt-BR')}`)}">Copiar relatório</button><button class="link" data-act="delLoja" data-i="${i}">Excluir</button></div></div>`).join('')||'<div class="muted">Nenhuma loja parceira ainda.</div>'}
-   ${form&&form.type==='novaLoja'?lojaForm({},-1):`<div class="row"><button class="btn small ghost" data-act="novaLoja">Cadastrar loja</button></div>`}</section>`;
+  h+=ljAdminHtml(sumAd,sumLoja);
   // afiliados
   const la=config.lojasAfiliadas||{};
   h+=`<section class="panel ad"><h2>Afiliados</h2><p class="lede" style="margin:0">Os botões “Procurar”, os links colados pelos usuários e as ofertas passam a levar seus códigos.</p>
@@ -2705,21 +3033,6 @@ function adminBlock(){
    <div class="grid2"><label class="f">Loja<input id="ofLoja" maxlength="30" placeholder="Ex.: Amazon" value="${esc(ofDraft.loja||'')}"></label><label class="f">Preço (opcional)<input id="ofP" maxlength="30" placeholder="Em branco, não aparece" value="${esc(ofDraft.preco||'')}"></label></div>
    <div class="row"><button class="btn small" data-act="addOferta">Publicar oferta</button>${ofDraft.link||ofDraft.titulo?'<button class="link" data-act="ofLimpar">Limpar</button>':''}</div></div>`:'<span class="small" style="color:var(--muted)">Limite de 12 ofertas. Exclua uma para adicionar outra.</span>'}</section>`;
   return h;
-}
-function lojaForm(l,i){
-  return `<div class="inline-form"><b>${i<0?'Nova loja parceira':'Editar loja'}</b>
-   <div class="grid2"><label class="f">Nome da loja<input id="ljNome" maxlength="40" value="${esc(l.nome||'')}"></label><label class="f">Categoria<select id="ljCat"><option value="">—</option>${[...new Set([...Object.keys(CAT_DESEJOS),...Object.keys(CAT_PRECISA)])].map(c=>`<option ${l.categoria===c?'selected':''}>${esc(c)}</option>`).join('')}</select></label></div>
-   <label class="f">Descrição<textarea id="ljDesc" maxlength="300">${esc(l.descricao||'')}</textarea></label>
-   <div class="grid2"><label class="f">Cidade<input id="ljCid" maxlength="40" autocomplete="off" data-cid="*" value="${esc(l.cidade||'')}" placeholder="Ex.: Fortaleza"></label><label class="f">WhatsApp (só números, com DDD)<input id="ljWa" inputmode="tel" value="${esc(l.whatsapp||'')}" placeholder="85999999999"></label></div>
-   <div class="grid2"><label class="f">Site<input id="ljSite" autocapitalize="off" value="${esc(l.site||'')}" placeholder="www.loja.com.br"></label><label class="f">Instagram<input id="ljInsta" autocapitalize="off" value="${esc(l.instagram||'')}" placeholder="@loja"></label></div>
-   <label class="f">Cupons (um por linha, no formato CÓDIGO - descrição)<textarea id="ljCup" placeholder="PRESENTE10 - 10% em toda a loja">${esc((l.cupons||[]).map(c=>c.codigo+(c.texto?' - '+c.texto:'')).join('\n'))}</textarea></label>
-   <div class="row"><button class="btn small" data-act="saveLoja" data-i="${i}">${i<0?'Cadastrar loja':'Salvar alterações'}</button><button class="link" data-act="cancel">Cancelar</button></div></div>`;
-}
-function lerLoja(){
-  const nome=val('ljNome');if(!nome){toast('Escreva o nome da loja');return null}
-  const fixUrl=u=>{u=u.replace(/\s+/g,'');if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u.slice(0,300)};
-  return {nome:nome.slice(0,40),categoria:val('ljCat'),descricao:val('ljDesc').slice(0,300),cidade:val('ljCid').slice(0,40),whatsapp:val('ljWa').replace(/\D/g,'').slice(0,13),site:fixUrl(val('ljSite')),instagram:val('ljInsta').replace(/^@/,'').replace(/[^\w.]/g,'').slice(0,40),
-    cupons:val('ljCup').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,10).map(x=>{const [c,...r]=x.split(' - ');return{codigo:c.trim().slice(0,30),texto:r.join(' - ').trim().slice(0,80)}})};
 }
 const ESTADOS=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
 const ufSelect=(id,v)=>`<select id="${id}"><option value="">Escolha o estado</option>${ESTADOS.map(([s,n])=>`<option value="${s}" ${v===s?'selected':''}>${n}</option>`).join('')}</select>`;
@@ -3041,12 +3354,7 @@ app.addEventListener('click',async e=>{
     case 'addAd': {const ad=lerAdForm('ad');if(!ad)break;form=null;adDraft=null;saveConfig({...config,anuncios:[...(config.anuncios||[]),{id:uid(),ativo:true,...ad}]},'Anúncio publicado');break}
     case 'editAd': adDraft=null;form={type:'editAd',i:+ds.i};keep(render);break;
     case 'saveAd': {const ad=lerAdForm('ea');if(!ad)break;form=null;adDraft=null;saveConfig({...config,anuncios:(config.anuncios||[]).map((x,i)=>i===+ds.i?{...x,...ad}:x)},'Anúncio atualizado');break}
-    case 'novaLoja': form={type:'novaLoja'};keep(render);break;
-    case 'editLoja': form={type:'editLoja',i:+ds.i};keep(render);break;
-    case 'saveLoja': {const l=lerLoja();if(!l)break;const i=+ds.i;form=null;const lojas=[...(config.lojas||[])];if(i<0)lojas.push({id:uid(),ativo:true,...l});else lojas[i]={...lojas[i],...l};saveConfig({...config,lojas},i<0?'Loja cadastrada':'Loja atualizada');break}
-    case 'toggleLoja': saveConfig({...config,lojas:(config.lojas||[]).map((x,i)=>i===+ds.i?{...x,ativo:!x.ativo}:x)},'Loja atualizada');break;
-    case 'delLoja': saveConfig({...config,lojas:(config.lojas||[]).filter((x,i)=>i!==+ds.i)},'Loja excluída');break;
-    case 'openLoja': viewing='loja:'+ds.id;form=null;render();window.scrollTo(0,0);break;
+    case 'openLoja': viewing='loja:'+ds.id;ljProd=null;form=null;render();window.scrollTo(0,0);break;
     case 'encModo': encModo=ds.v;keep(render);break;
     case 'togglePlus': {const ref=db.doc('planos/'+ds.id);const on=isPlus(ds.id);(on?ref.delete():ref.set({plus:true,ate:window.firebase.firestore.Timestamp.fromDate(new Date(Date.now()+365*864e5)),codigo:'admin'})).then(()=>toast(on?'Plus desligado':'Plus ligado por 1 ano')).catch(()=>toast('Não foi possível alterar o plano'));break}
     case 'gerarCodigos': gerarCodigos();break;
@@ -3085,6 +3393,7 @@ async function start(){
   render();
   if(pendingEv){const pe=pendingEv;pendingEv=null;try{history.replaceState(null,'',location.pathname)}catch(e){}evAbrir(pe)}
   if(pendingEmp){const pe=pendingEmp;pendingEmp=null;try{history.replaceState(null,'',location.pathname)}catch(e){}empAbrir(pe)}
+  if(pendingLoja){viewing='loja:'+pendingLoja;ljProd=pendingLojaP;pendingLoja=null;try{history.replaceState(null,'',location.pathname)}catch(e){}render()}
   claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
   const err=()=>toast('Conexão perdida. Recarregue a página.');
   const coll=(path,setter)=>db.collection(path).onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});setter(n);refresh(Object.keys(n))},err);
@@ -3103,7 +3412,8 @@ async function start(){
   db.collection('eventos').where('dono','==',myId).onSnapshot(sn=>{meusEv={};sn.docs.forEach(d=>{meusEv[d.id]=d.data()});meusEvOk=true;if((tab==='eventos'&&!evAberto)||(tab==='mural'&&!viewing))softRender()},()=>{});
   if(myEmail)db.doc('creditos/'+myEmail.toLowerCase().replace(/\//g,'_')).onSnapshot(sn=>{evCred=sn.exists?sn.data():{};if(tab==='eventos')softRender()},()=>{});
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
-  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
+  db.collection('lojas').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{n[d.id]=d.data()});lojasDb=n;lojasOk=true;ljMigrar();softRender();renderMenu()},()=>{lojasOk=true;softRender()});
+  db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();ljMigrar();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
 }
 if(window.claude&&claude.use)start();else if(!window.__semConfig)render();

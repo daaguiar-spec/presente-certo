@@ -11,6 +11,9 @@ service cloud.firestore {
         && request.auth.token.email_verified == true;
     }
     function dono(uid) { return logado() && request.auth.uid == uid; }
+    // Usuário-robô do servidor (Vercel): grava Plus, assinaturas, créditos e publicação de listas.
+    // Troque o texto abaixo pelo UID do usuário criado em Firebase > Authentication.
+    function robo() { return logado() && request.auth.uid in ['rkaagMJGkKXQZPi7583Z8we4uRS2', 'Pkvz9aMizMh1qnPqDM0y8eDUpaI2']; }
 
     // Fichas, seguidores, reservas, agradecimentos, amigo secreto, parabéns e nomes:
     // qualquer pessoa logada lê; cada um só escreve o próprio documento.
@@ -42,12 +45,110 @@ service cloud.firestore {
     // Planos Plus: o administrador liga e desliga; a pessoa só ativa com um código válido usado por ela
     match /planos/{uid} {
       allow read: if logado();
-      allow write: if admin() || (dono(uid)
+      allow write: if admin() || robo() || (dono(uid)
         && request.resource.data.keys().hasOnly(['plus','ate','codigo'])
         && request.resource.data.plus == true
         && getAfter(/databases/$(database)/documents/codigos/$(request.resource.data.codigo)).data.usadoPor == request.auth.uid
         && request.resource.data.ate <= request.time + duration.value(getAfter(/databases/$(database)/documents/codigos/$(request.resource.data.codigo)).data.dias, 'd')
         && (resource == null || resource.data.codigo != request.resource.data.codigo));
+    }
+
+    // Assinaturas recebidas da Kiwify: gravadas só pelo servidor (usuário-robô); só o administrador lê
+    match /assinaturas/{e} { allow read: if admin() || robo(); allow write: if robo(); }
+
+    // Sugestões dos usuários: qualquer pessoa logada envia; só o administrador lê, muda e apaga
+    match /feedback/{id} {
+      allow create: if logado()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid','nome','email','tipo','texto','img','data','status'])
+        && request.resource.data.status == 'nova'
+        && request.resource.data.tipo in ['ideia','problema','elogio']
+        && request.resource.data.texto is string && request.resource.data.texto.size() <= 1000
+        && (!('img' in request.resource.data) || (request.resource.data.img is string && request.resource.data.img.size() < 400000));
+      allow read, update, delete: if admin();
+    }
+
+    // Respostas do administrador às sugestões: só a própria pessoa lê; só o administrador escreve
+    match /respostas/{uid} { allow read: if dono(uid) || admin(); allow write: if admin(); }
+
+    // Listas de evento (casamento, chá de bebê, casa nova, chá de panela).
+    // A pessoa cria e edita a sua lista, mas NÃO consegue publicá-la sozinha: quem publica é o servidor (api/publicar-evento),
+    // depois de conferir o pagamento. Convidados (logados) só leem listas publicadas.
+    match /eventos/{id} {
+      allow read: if admin() || robo() || (logado() && (resource.data.dono == request.auth.uid || resource.data.publicado == true));
+      allow update: if robo();
+      allow create: if logado()
+        && request.resource.data.dono == request.auth.uid
+        && request.resource.data.publicado == false
+        && request.resource.data.tipo in ['casamento','chabebe','casanova','panela']
+        && request.resource.data.keys().hasOnly(['dono','donoNome','tipo','titulo','data','msg','itens','publicado','criado'])
+        && request.resource.data.itens.size() <= 80;
+      allow update: if logado() && resource.data.dono == request.auth.uid
+        && request.resource.data.dono == resource.data.dono
+        && request.resource.data.publicado == resource.data.publicado
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['donoNome','tipo','titulo','data','msg','itens'])
+        && request.resource.data.tipo in ['casamento','chabebe','casanova','panela']
+        && request.resource.data.itens.size() <= 80;
+      allow delete: if logado() && resource.data.dono == request.auth.uid;
+
+      // Presentes já escolhidos pelos convidados (todos veem "escolhido", ninguém vê por quem)
+      match /marcados/{item} {
+        allow read: if logado();
+        allow create: if logado()
+          && get(/databases/$(database)/documents/eventos/$(id)).data.publicado == true
+          && get(/databases/$(database)/documents/eventos/$(id)).data.dono != request.auth.uid
+          && getAfter(/databases/$(database)/documents/eventos/$(id)/quem/$(item)).data.por == request.auth.uid;
+        allow delete: if logado() && get(/databases/$(database)/documents/eventos/$(id)/quem/$(item)).data.por == request.auth.uid;
+      }
+      // Visitas à lista (estatística da lista Premium): cada convidado registra a própria visita; só o dono vê
+      match /visitas/{uid} {
+        allow create, update: if logado() && request.auth.uid == uid
+          && get(/databases/$(database)/documents/eventos/$(id)).data.publicado == true
+          && request.resource.data.keys().hasOnly(['em']);
+        allow read: if admin() || robo() || (logado() && get(/databases/$(database)/documents/eventos/$(id)).data.dono == request.auth.uid);
+      }
+      // Quem escolheu cada presente: só a própria pessoa (e o administrador) enxerga
+      match /quem/{item} {
+        allow read: if admin() || robo() || (logado() && resource.data.por == request.auth.uid);
+        allow create: if logado() && request.resource.data.por == request.auth.uid
+          && get(/databases/$(database)/documents/eventos/$(id)).data.publicado == true;
+        allow delete: if logado() && resource.data.por == request.auth.uid;
+      }
+    }
+
+    // Amigo Secreto para Empresas. O RH cria e edita; o pagamento, o plano e o sorteio só o servidor (robô) grava.
+    match /empresas/{eid} {
+      allow read: if logado();
+      allow create: if logado() && request.resource.data.dono == request.auth.uid
+        && request.resource.data.pago == false && request.resource.data.sorteado == false
+        && !('plano' in request.resource.data) && !('limite' in request.resource.data);
+      allow update: if robo() || (logado() && resource.data.dono == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['dono','pago','plano','limite','pagoEm','pagoPor','sorteado','sorteadoEm','sorteadoN']));
+      allow delete: if logado() && resource.data.dono == request.auth.uid;
+      // Lista de convidados (e-mails): só o RH vê
+      match /convites/{k} {
+        allow read, write: if logado() && get(/databases/$(database)/documents/empresas/$(eid)).data.dono == request.auth.uid;
+      }
+      // Participantes e fichas: cada um grava a própria; veem o RH e quem participa do mesmo evento
+      match /participantes/{uid} {
+        allow read: if robo() || admin() || (logado() && (get(/databases/$(database)/documents/empresas/$(eid)).data.dono == request.auth.uid
+          || exists(/databases/$(database)/documents/empresas/$(eid)/participantes/$(request.auth.uid))));
+        allow create, update: if logado() && request.auth.uid == uid
+          && get(/databases/$(database)/documents/empresas/$(eid)).data.sorteado == false;
+        allow delete: if logado() && get(/databases/$(database)/documents/empresas/$(eid)).data.sorteado == false
+          && (request.auth.uid == uid || get(/databases/$(database)/documents/empresas/$(eid)).data.dono == request.auth.uid);
+      }
+      // Resultado do sorteio: só a própria pessoa lê (nem o RH); só o servidor grava
+      match /resultado/{uid} {
+        allow read: if logado() && request.auth.uid == uid;
+        allow write: if robo();
+      }
+    }
+
+    // Créditos de lista de evento (1 por compra de R$ 9,90): gravados só pelo servidor ou pelo administrador
+    match /creditos/{e} {
+      allow read: if admin() || robo() || (logado() && request.auth.token.email_verified == true && request.auth.token.email.lower() == e);
+      allow write: if admin() || robo();
     }
 
     // Fotos dos itens das listas
@@ -56,8 +157,36 @@ service cloud.firestore {
     // Configuração (afiliados, anúncios, avisos, moderação): todos leem, só o administrador muda
     match /config/{doc} { allow read: if logado(); allow write: if admin(); }
 
+    // Lojas parceiras: o administrador cria a loja e define dono, mensalidade e se está ativa.
+    // O dono (pelo e-mail confirmado) edita a página, os produtos e as fotos, e avisa o pagamento.
+    function donoLoja(d) {
+      return logado() && request.auth.token.email_verified == true
+        && d.get('donoEmail', '') is string && d.get('donoEmail', '').size() > 3
+        && request.auth.token.email.lower() == d.get('donoEmail', '');
+    }
+    match /lojas/{id} {
+      allow read: if logado();
+      allow create, delete: if admin();
+      allow update: if admin() || (donoLoja(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'categoria', 'cidade', 'descricao', 'whatsapp', 'instagram', 'site', 'cupons', 'logo', 'temCapa', 'cor', 'pix', 'endereco', 'horario', 'entrega', 'nProdutos', 'atualizado', 'avisoPag', 'donoUid'])
+        && (!('donoUid' in request.resource.data) || request.resource.data.donoUid == request.auth.uid));
+      match /produtos/{p} {
+        allow read: if logado();
+        allow write: if admin() || donoLoja(get(/databases/$(database)/documents/lojas/$(id)).data);
+      }
+      match /midia/{m} {
+        allow read: if logado();
+        allow write: if admin() || donoLoja(get(/databases/$(database)/documents/lojas/$(id)).data);
+      }
+    }
+
     // Contadores de cliques: cada um grava o seu; só o administrador vê todos
     match /metricas/{uid} { allow read: if dono(uid) || admin(); allow write: if dono(uid); }
+
+    // Notificações no celular: cada pessoa grava os próprios aparelhos; o servidor (robô) lê para enviar os avisos
+    match /push/{uid} { allow read, write: if dono(uid) || robo(); }
+    // Chaves das notificações e controle do envio diário: só o servidor
+    match /pushchave/{doc} { allow read, write: if robo(); }
 
     // Dados privados de cada pessoa (grupos)
     match /data/users/{uid}/{doc=**} { allow read, write: if dono(uid); }
