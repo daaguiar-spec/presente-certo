@@ -63,7 +63,24 @@ module.exports = async (req, res) => {
       for (const m of msgs) { const r = await P.enviar(vivos, m); vivos = r.vivos; enviados += r.enviados; }
       if (vivos.length !== subs.length) await R.commit([R.W.set('push/' + uid, { subs: vivos }, { merge: true })]);
     }
-    return res.status(200).json({ ok: true, dia: hoje, pessoas, enviados });
+    // Lojas parceiras: lembra o lojista da mensalidade (3 dias antes, no dia e 2 dias depois)
+    let lojistas = 0;
+    try {
+      const lojas = await R.listDocs('lojas');
+      for (const l of lojas) {
+        const d = l.data || {};
+        const m = String(d.pagoAte || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!d.ativo || !d.donoUid || !m || d.avisoPag) continue;
+        const n = Math.round((Date.UTC(+m[1], +m[2] - 1, +m[3]) - base) / 864e5);
+        if (![3, 0, -2].includes(n)) continue;
+        const pu = await R.getDoc('push/' + d.donoUid); const subs = ((pu || {}).data || {}).subs || [];
+        if (!subs.length) continue;
+        const quando = n === 3 ? 'vence em 3 dias' : n === 0 ? 'vence hoje' : 'venceu';
+        const r = await P.enviar(subs, { title: `🏪 A mensalidade da ${d.nome || 'sua loja'} ${quando}`, body: n < 0 ? 'Pague pelo Pix no painel da loja para ela continuar no ar.' : 'Pague pelo Pix no painel da loja, em Menu › Minha loja.', url: APP + '/', tag: 'loja-' + l.id });
+        enviados += r.enviados; lojistas++;
+      }
+    } catch (e) { /* lembrete das lojas não impede o resto */ }
+    return res.status(200).json({ ok: true, dia: hoje, pessoas, lojistas, enviados });
   } catch (e) {
     return res.status(500).json({ ok: false, erro: String(e && e.message).slice(0, 200) });
   }
