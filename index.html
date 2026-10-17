@@ -261,6 +261,25 @@ button.chip{cursor:pointer}
 .lj-pf-foto{all:unset;cursor:pointer;width:104px;height:104px;border-radius:14px;border:1.5px dashed var(--lc);background:var(--sunk);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;overflow:hidden;flex:none}
 .lj-pf-foto img{width:100%;height:100%;object-fit:cover}
 @media (max-width:380px){.lj-grid{grid-template-columns:1fr 1fr}.lj-up{flex-direction:column}}
+/* LGPD: privacidade, idade e responsável */
+.lg-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.4}
+.lg-lista li{display:flex;gap:10px;align-items:flex-start}
+.lg-lista li>span:first-child{font-size:18px;width:24px;text-align:center;flex:none}
+.lg-aceite{background:var(--accent-soft);border-radius:14px;padding:12px}
+.lg-aceite a,.login-legal a,.foot-links a{color:var(--accent);font-weight:700}
+.lg-kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:0;font-size:14px}
+.lg-kv dt{color:var(--muted);font-weight:700}.lg-kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.lg-menor{background:var(--accent-soft);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.lg-status{border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;background:var(--sunk)}
+.lg-status.fech{border-left:4px solid var(--accent)}.lg-status.ab{border-left:4px solid #1f8a5b}
+.lg-perigo{border-color:#e6b4ae}
+.btn.lg-del{background:#b3261e;color:#fff;border-color:#b3261e}
+.lg-den .check input[type=radio]{width:20px;height:20px;min-height:0;flex:none;margin:2px 0 0;padding:0;accent-color:var(--accent)}
+.lg-den .check{align-items:flex-start;text-align:left}
+.lg-den{padding-top:0}.lg-den>.link{align-self:flex-start;font-size:13px;color:var(--muted)}
+.login-legal{color:var(--muted);text-align:center;margin:0}
+.foot-links{display:block;margin-top:6px}
+.foot-links .link{font:inherit;padding:0}
 /* cabeçalho Plus */
 .pf-head.cab{background:#6a2fd0;background:var(--cab-bg);color:#fff}
 .pf-head.cab:after{display:none}
@@ -715,7 +734,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   function showLogin(){
     document.body.classList.add('logged-out');window.__loggedOut=true;
     app.innerHTML=`<div class="login">
-      <div><h1>Entre no PresenteCerto</h1><p class="lede">Monte sua ficha de presentes e descubra o que seus amigos querem ganhar.</p></div>
+      <div><h1>Entre no PresenteCerto</h1><p class="lede">Monte sua ficha de presentes e descubra o que seus amigos querem ganhar.</p></div>${/conta=excluida/.test(location.search)?'<div class="notice">Sua conta e seus dados foram excluídos. Obrigado por ter usado o PresenteCerto.</div>':''}
       <button class="g-btn" id="lgGoogle" ${ocupado?'disabled':''}><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.4 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.8c-.5-1.4-.8-3-.8-4.8s.3-3.3.8-4.8l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.7 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>Entrar com Google</button>
       <div class="sep">ou com e-mail</div>
       <div class="seg"><button id="lgM1" aria-pressed="${modo==='entrar'}">Entrar</button><button id="lgM2" aria-pressed="${modo==='criar'}">Criar conta</button></div>
@@ -726,7 +745,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
         <div class="err" role="alert">${esc(erro)}</div>
         <button class="btn" type="submit" ${ocupado?'disabled':''}>${ocupado?'Aguarde…':modo==='criar'?'Criar minha conta':'Entrar'}</button>
         ${modo==='entrar'?'<button class="link" type="button" id="lgReset">Esqueci minha senha</button>':''}
-      </form></div>`;
+      </form>
+      <p class="small login-legal">Ao continuar, você concorda com os <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. Menores de 16 anos precisam de um responsável.</p></div>`;
     const v=id=>(document.getElementById(id)?.value||'').trim();
     document.getElementById('lgM1').onclick=()=>{modo='entrar';erro='';showLogin()};
     document.getElementById('lgM2').onclick=()=>{modo='criar';erro='';showLogin()};
@@ -860,7 +880,7 @@ const MARCAS_GRUPOS={
 const TAG_MARCAS=Object.values(MARCAS_GRUPOS).flat();
 const BEBE_OPC=['Não bebo','Socialmente','Sim, gosto'];
 const TAG_BEBIDAS=['Vinho tinto','Vinho branco','Vinho rosé','Espumante','Cerveja','Cerveja artesanal','Chope','Whisky','Gin','Vodka','Cachaça','Rum','Tequila','Licor','Saquê','Drinks e coquetéis','Caipirinha','Bebidas sem álcool'];
-const TAG_ALERGIAS=['Lactose','Glúten','Amendoim','Frutos do mar','Níquel','Lã','Perfume forte','Pelo de animal'];
+const TAG_ALERGIAS=['Lã','Níquel','Bijuteria','Perfume forte','Pelo de animal','Látex','Flores','Doces'];
 const TAM_TXT={camiseta:v=>'tamanho '+v,calca:v=>'nº '+v,calcado:v=>'nº '+v,vestido:v=>'tamanho '+v,anel:v=>'aro '+v,cama:v=>'cama '+v};
 const CAT_COR=new Set(['Roupas','Calçados','Joias e acessórios','Roupas do dia a dia']);
 let quickSel={},fichaStep=null,fichaEditando=false;
@@ -885,7 +905,7 @@ function initialsAvatar(name){const ini=String(name||'?').split(/\s+/).map(w=>w[
 const av=id=>isEx(id)?initialsAvatar(profiles[id].nome):(names[id]?.avatar||initialsAvatar(nm(id)));
 const following=()=>(followsAll[myId]?.ids)||[];
 const myAcoes=()=>{const a=acoes[myId]||{};return{reservas:[...(a.reservas||[])],vaquinhas:[...(a.vaquinhas||[])],cotas:[...(a.cotas||[])]}};
-function canSee(id){const p=profiles[id];if(!p)return false;return id===myId||!p.fechado||(p.aprovados||[]).includes(myId)}
+function canSee(id){const p=profiles[id];if(!p)return false;return id===myId||!p.fechado||(p.aprovados||[]).includes(myId)||!!respContas[id]||isOwner}
 function pendingRequests(){const me=profiles[myId];if(!me||!me.fechado)return[];const ok=new Set([...(me.aprovados||[]),...(me.recusados||[])]);return Object.keys(followsAll).filter(id=>id!==myId&&(followsAll[id].ids||[]).includes(myId)&&!ok.has(id))}
 const safeLink=u=>/^https:\/\//i.test(u||'')||/^http:\/\//i.test(u||'');
 
@@ -930,6 +950,8 @@ function adElegivel(a,ctx){
   if(!a.ativo||!a.titulo)return false;
   const h=hoje();if(a.inicio&&h<a.inicio)return false;if(a.fim&&h>a.fim)return false;
   const me=profiles[myId]||{};
+  // ECA Digital: nada de anúncio escolhido pelo perfil para menores de 18 anos
+  if(souMenor()&&((a.gostos||[]).length||(a.cidades||[]).length||a.local==='aniversario'))return false;
   if((a.gostos||[]).length&&!(a.gostos||[]).some(g=>(me.gostosTags||[]).includes(g)))return false;
   if((a.cidades||[]).length&&!(a.cidades||[]).some(c=>normCid(c)===normCid(me.cidade)))return false;
   const local=a.local||'todos';
@@ -1036,7 +1058,12 @@ function pixPayload(key,name,city,amount){
   const p=f('00','01')+f('26',f('00','br.gov.bcb.pix')+f('01',String(key).trim()))+f('52','0000')+f('53','986')+(amount?f('54',(+amount).toFixed(2)):'')+f('58','BR')+f('59',(pixTxt(name)||'PRESENTECERTO').slice(0,25))+f('60',(pixTxt(city)||'BRASIL').slice(0,15))+f('62',f('05','***'))+'6304';
   return p+crc16(p);
 }
+const vaqPix={};
 function pixBox(v,valor){
+  if(!v.pix&&v.temPix){const c=vaqPix[v.id];if(!c){vaqPix[v.id]='carregando';db.doc('vaqpix/'+v.id).get().then(s=>{vaqPix[v.id]=s.exists?s.data():'erro';softRender()}).catch(()=>{vaqPix[v.id]='erro';softRender()})}
+    if(!c||c==='carregando')return '<div class="inline-form"><span class="muted">Carregando a chave Pix…</span></div>';
+    if(c==='erro')return '<div class="inline-form"><span class="muted">Não foi possível carregar a chave Pix. Peça ao organizador.</span><button class="link" data-act="cancel">Fechar</button></div>';
+    v={...v,pix:c.pix,recebedor:c.recebedor,cidade:c.cidade}}
   const code=pixPayload(v.pix,v.recebedor||firstName(v.org),v.cidade,valor);
   return `<div class="inline-form"><b>Pagar ${brl(valor)} com Pix</b><span class="muted">Abra o app do banco, escolha Pix copia e cola ou leia o QR code. Confira o nome de quem recebe antes de pagar.</span><div class="qr" data-qr="${esc(code)}"></div><div class="pix-code" id="pixCode">${esc(code)}</div><div class="row"><button class="btn small" data-act="copy" data-text="${esc(code)}">Copiar código Pix</button><button class="link" data-act="cancel">Fechar</button></div></div>`;
 }
@@ -1053,8 +1080,11 @@ function render(){try{atualizarFotoTab()}catch(e){}
   pendingRender=false;updateBadge();
   if(!db&&window.claude&&claude.use){app.innerHTML='<div class="view"><h1>Carregando a sua experiência…</h1></div>';return}
   if(!db){app.innerHTML=`<div class="view"><h1>Entre para usar o PresenteCerto</h1><p class="lede">Faça login na sua conta para criar sua ficha, seguir pessoas e ver as listas delas.</p></div>`;return}
+  if(lgBloqueio())return;
   if(viewing&&String(viewing).startsWith('loja:'))renderLoja(viewing.slice(5));
-  else if(viewing)renderPerson(viewing);
+  else if(viewing){renderPerson(viewing);app.insertAdjacentHTML('beforeend',denunciaHtml(viewing))}
+  else if(tab==='privacidade')renderPrivacidade();
+  else if(tab==='responsavel')renderResponsavel();
   else if(tab==='mural')renderMural();
   else if(tab==='datas')renderDatas();
   else if(tab==='pessoas')renderSearch();
@@ -1072,7 +1102,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='cabecalho')renderCabecalho();
   else if(tab==='perfil'&&!fichaEditando&&profiles[myId])renderPerson(myId,true);
   else renderMine();
-  app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.</footer>');
+  app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.<span class="foot-links"><a href="/privacidade.html" target="_blank" rel="noopener">Privacidade</a> · <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> · <button class="link" data-lg="privacidade">Meus dados</button></span></footer>');
   drawQrs();
 }
 function drawQrs(){app.querySelectorAll('[data-qr]').forEach(el=>{if(el.dataset.done)return;el.dataset.done=1;try{if(window.QRCode)new QRCode(el,{text:el.dataset.qr,width:360,height:360,correctLevel:QRCode.CorrectLevel.M});else el.remove()}catch(e){el.remove()}})}
@@ -1149,7 +1179,7 @@ function buildNotifs(){
   fol.forEach(id=>eventsFor(id).forEach(e=>{if(!marcos.has(e.dias))return;const ano=new Date(t0+e.dias*864e5).getFullYear();
     out.push({id:`dt:${id}:${e.label}:${ano}:${e.dias}`,t:t0,tipo:'datas',av:id,html:e.dias===0?`Hoje é dia de <b>${esc(e.label.toLowerCase())}</b> de ${N(id)}! Deixe seus parabéns.`:`${esc(e.label)} de ${N(id)} ${e.dias===1?'é amanhã':'em '+e.dias+' dias'}. Veja a lista de presentes.`,go:{open:id}})}));
   // amigo secreto sorteado
-  allSorteios().forEach(x=>{if(!x.pares||!(x.org===myId||(x.membros||[]).includes(myId)))return;out.push({id:'so:'+x.org+':'+x.id,t:Date.parse(x.sorteadoEm||'')||Date.parse(x.data||'')||0,tipo:'sorteio',av:x.org,html:`O sorteio do amigo secreto <b>${esc(x.nome)}</b> foi feito. Veja quem você tirou!`,go:{tab:'sorteio'}})});
+  allSorteios().forEach(x=>{if(!(x.pares||x.sorteado)||!(x.org===myId||(x.membros||[]).includes(myId)))return;out.push({id:'so:'+x.org+':'+x.id,t:Date.parse(x.sorteadoEm||'')||Date.parse(x.data||'')||0,tipo:'sorteio',av:x.org,html:`O sorteio do amigo secreto <b>${esc(x.nome)}</b> foi feito. Veja quem você tirou!`,go:{tab:'sorteio'}})});
   // vaquinhas que eu organizo
   const minhas=new Set(((acoes[myId]||{}).vaquinhas||[]).map(v=>v.id));
   Object.entries(acoes).forEach(([u,a])=>{if(u===myId)return;(a.cotas||[]).forEach(c=>{if(!minhas.has(c.vid))return;const v=((acoes[myId]||{}).vaquinhas||[]).find(x=>x.id===c.vid);
@@ -1252,6 +1282,8 @@ function renderMenu(){
    <button class="menu-item" data-menu="aparencia">🎨 Personalizar visual</button>
    ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
    ${isPlus(myId)?'<button class="menu-item" data-menu="plus">⭐ Meu Plus</button>':'<button class="menu-item menu-plus" data-menu="plus">⭐ Seja Plus <span>Perfil com a sua cara</span></button>'}
+   ${Object.keys(respContas).length?'<button class="menu-item" data-menu="responsavel">👨‍👧 Contas que acompanho</button>':''}
+   <button class="menu-item" data-menu="privacidade">🔒 Privacidade e dados</button>
    <button class="menu-item" data-menu="sugestao">💬 Enviar sugestão</button>
    ${isOwner?'<button class="menu-item" data-menu="painel">🛠️ Painel do administrador</button>':''}
    <button class="menu-item sair" data-menu="sair">Sair da conta</button>`;
@@ -1275,6 +1307,8 @@ document.addEventListener('click',e=>{
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
+  if(a==='privacidade'){lgForm=null;lgExcluir=null;setTab('privacidade')}
+  if(a==='responsavel')setTab('responsavel');
   if(a==='sugestao'){fbDraft=null;setTab('sugestao')}
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil',true)}
   if(a==='enviar'){const link=profileLink(myId),msg=msgConvite(link);if(navigator.share)navigator.share({title:'PresenteCerto',text:msg}).catch(()=>{});else{fichaStep=PASSOS.length-1;setTab('perfil',true)}}
@@ -1323,15 +1357,17 @@ const avisoPraMim=x=>{if(!x||!x.ativo||!x.texto)return false;const h=hoje();if(x
 const avisoHtml=(x,fechar)=>`<div class="banner"><div style="min-width:0;display:flex;flex-direction:column;gap:8px"><span style="overflow-wrap:anywhere">${esc(x.texto)}</span>${safeLink(x.link)?`<div><a class="btn small green" href="${esc(affiliate(x.link))}" target="_blank" rel="noopener" data-track="ad:av:${esc(x.id)}">${esc(x.botao||'Saiba mais')}</a></div>`:''}</div>${fechar?`<button class="icon-btn" data-act="fecharAviso" data-id="${esc(x.id)}" aria-label="Fechar aviso">×</button>`:''}</div>`;
 const avisosList=()=>{const l=[...(config.avisos||[])];if(config.aviso&&config.aviso.texto&&!l.some(x=>x.id===config.aviso.id))l.unshift(config.aviso);return l};
 let fechMem=[];const avisosFechados=()=>{let l=[];try{l=JSON.parse(localStorage.getItem('avisosFechados')||'[]')}catch(e){}return [...l,...fechMem]};
-const raw={profiles:{},follows:{},acoes:{},sorteios:{},parabens:{}};
+const raw={profiles:{},follows:{},acoes:{},sorteios:{},parabens:{}};let profilesOk=false;
 const hideEx=id=>!!config.ocultarExemplos&&String(id).startsWith('exemplo-');
 function applyRaw(){
   const keep=o=>Object.fromEntries(Object.entries(o).filter(([k])=>!hideEx(k)));
-  profiles=keep(raw.profiles);
+  profiles=keep(mesclarFichas(raw.profiles));
   followsAll=Object.fromEntries(Object.entries(keep(raw.follows)).map(([k,v])=>[k,{...v,ids:(v.ids||[]).filter(x=>!hideEx(x))}]));
   acoes=Object.fromEntries(Object.entries(keep(raw.acoes)).map(([k,v])=>[k,{...v,reservas:(v.reservas||[]).filter(r=>!hideEx(r.owner)),vaquinhas:(v.vaquinhas||[]).filter(x=>!hideEx(x.owner)),cotas:v.cotas||[]}]));
   sorteios=keep(raw.sorteios);
   parabens=Object.fromEntries(Object.entries(keep(raw.parabens)).map(([k,v])=>[k,{...v,lista:(v.lista||[]).filter(m=>!hideEx(m.para))}]));
+  try{syncFichas()}catch(e){}
+  if(isOwner&&!lgMigrouAdm&&profilesOk&&lojasOk&&configOk){lgMigrouAdm=true;setTimeout(()=>lgMigrarAdmin(false),4000)}
 }
 function allParabens(){return Object.entries(parabens).flatMap(([from,d])=>(d.lista||[]).map(m=>({...m,from})))}
 let feedFiltro='tudo',feedLimite=5;
@@ -1487,9 +1523,12 @@ const colorChip=c=>`<span class="chip"><span class="dot" style="background:${COR
 const grauTag=g=>GRAUS[g]?`<span class="grau ${GRAUS[g]}">${esc(g)}</span>`:'';
 function ensureFotos(id){
   if(!db||fotoSubs[id])return;
-  fotoSubs[id]=db.collection(`fotos/${id}/itens`).onSnapshot(s=>{const m={};s.docs.forEach(d=>{if(d.exists&&d.data().img)m[d.id]=d.data().img});fotos[id]=m;softRender()},()=>{});
+  fotoSubs[id]=db.collection(`fotos/${id}/itens`).onSnapshot(s=>{const m={};s.docs.forEach(d=>{if(d.exists&&d.data().img)m[d.id]=d.data().img});fotos[id]=m;softRender()},()=>{fotoErro[id]=true;fotos[id]=fotos[id]||{};fotoSoltas(id,['_capa'])});
 }
-const fotoOf=(owner,item)=>(fotos[owner]||{})[item];
+// Perfil fechado: sem aprovação, só as fotos públicas (fundo do perfil, logos de evento) são lidas uma a uma
+const fotoErro={},fotoBuscadas={};
+function fotoSoltas(id,keys){keys.forEach(k=>{const kk=id+'/'+k;if(fotoBuscadas[kk])return;fotoBuscadas[kk]=1;db.doc(`fotos/${id}/itens/${k}`).get().then(s=>{if(s.exists&&s.data().img){fotos[id]={...(fotos[id]||{}),[k]:s.data().img};softRender()}}).catch(()=>{})})}
+const fotoOf=(owner,item)=>{const f=(fotos[owner]||{})[item];if(!f&&fotoErro[owner]&&/^(_capa|emp_|ev_)/.test(String(item)))fotoSoltas(owner,[item]);return f};
 
 function itemStatusHtml(owner,w){
   const st=itemStatus(owner,w.id);
@@ -1501,7 +1540,7 @@ function itemStatusHtml(owner,w){
     h+=`<div class="msg"><b>Vaquinha</b> organizada por ${esc(nm(v.org))} · ${brl(total)} de ${brl(v.alvo)} · ${st.cotas.length} ${st.cotas.length===1?'pessoa':'pessoas'}</div><div class="bar"><i style="width:${pct}%"></i></div>`;
     if(st.cotas.length)h+=`<div class="msg">${st.cotas.map(c=>`${esc(nm(c.u))} ${brl(c.valor)}`).join(' · ')}</div>`;
     h+='<div class="row">';
-    if(mine&&v.org!==myId&&v.pix)h+=`<button class="btn small green" data-act="formPix" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Pagar minha parte com Pix</button>`;
+    if(mine&&v.org!==myId&&(v.pix||v.temPix))h+=`<button class="btn small green" data-act="formPix" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Pagar minha parte com Pix</button>`;
     if(mine)h+=`<button class="btn small ghost" data-act="leaveVaq" data-vid="${esc(v.id)}">Sair da vaquinha</button>`;
     else if(!isForm('cota'))h+=`<button class="btn small green" data-act="formCota" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Participar</button>`;
     if(v.org===myId)h+=`<button class="btn small ghost" data-act="endVaq" data-vid="${esc(v.id)}">Encerrar vaquinha</button>`;
@@ -1513,7 +1552,7 @@ function itemStatusHtml(owner,w){
     else h+=`<div class="msg">Reservado por <b>${esc(nm(st.reservers[0]))}</b>. Escolha outro item.</div>`;
   }else if(isForm('vaq')){
     h+=`<div class="inline-form"><label class="f">Valor total do presente (R$)<input id="fAlvo" inputmode="decimal" placeholder="Ex.: 600"></label><label class="f">Sua parte (R$, opcional)<input id="fMinha" inputmode="decimal" placeholder="Ex.: 100"></label>
-    <label class="f">Sua chave Pix para receber as partes<input id="fPix" placeholder="CPF, e-mail, celular (+55…) ou chave aleatória"></label>
+    <label class="f">Sua chave Pix para receber as partes<input id="fPix" placeholder="De preferência, uma chave aleatória"></label><span class="small" style="color:var(--muted)">🔒 A chave só aparece para quem entrar na vaquinha, nunca para o aniversariante. Prefira uma chave aleatória em vez de CPF ou celular.</span>
     <div class="grid2"><label class="f">Nome de quem recebe<input id="fRec" value="${esc(myName)}" maxlength="25"></label><label class="f">Cidade<input id="fCid" placeholder="Ex.: São Paulo" maxlength="15"></label></div>
     <span class="small" style="color:var(--muted)">Com a chave Pix, cada participante recebe um código Pix copia e cola e um QR code com o valor exato da parte dele.</span>
     <div class="row"><button class="btn small" data-act="createVaq" data-owner="${esc(owner)}" data-item="${esc(w.id)}">Criar vaquinha</button><button class="link" data-act="cancel">Cancelar</button></div></div>`;
@@ -1542,11 +1581,11 @@ async function runAI(id){
   const ficha={
     tamanhos:{camiseta:p.camiseta,calca:p.calca,calcado:p.calcado,vestido:p.vestido,anel:p.anel,cama:p.cama},
     coresQueGosta:p.cores,coresParaEvitar:p.evitarCores,estilo:p.estilos,perfume:p.perfume,prefereGanhar:p.tipoPresente,
-    marcasFavoritas:juntar(p.marcasTags,p.marcas),bebidaAlcoolica:p.bebe==='Não bebo'?'não bebe (não sugerir bebidas alcoólicas)':p.bebe?(p.bebe+': '+(p.bebidas||[]).join(', ')):'',hobbies:p.hobbies,gostaDe:juntar(p.gostosTags,p.gosta),naoGosta:p.naoGosta,alergias:juntar(p.alergiasTags,p.alergias),observacoes:p.obs,
-    jaPediu:[...(p.desejos||[]),...(p.precisa||[])].map(x=>x.t),idade:p.ano&&+p.ano>1900?new Date().getFullYear()-(+p.ano):undefined
+    marcasFavoritas:juntar(p.marcasTags,p.marcas),bebidaAlcoolica:p.bebe==='Não bebo'?'não bebe (não sugerir bebidas alcoólicas)':p.bebe?(p.bebe+': '+(p.bebidas||[]).join(', ')):'',hobbies:p.hobbies,gostaDe:juntar(p.gostosTags,p.gosta),naoGosta:p.naoGosta,evitarEmPresentes:juntar(p.alergiasTags,p.alergias),observacoes:p.obs,
+    jaPediu:[...(p.desejos||[]),...(p.precisa||[])].map(x=>x.t),faixaEtaria:p.ano&&+p.ano>1900?(new Date().getFullYear()-(+p.ano)<18?'menor de 18 anos':'adulto'):undefined
   };
   const prompt=`Você ajuda pessoas no Brasil a escolher presentes. Sugira 5 presentes para a pessoa descrita na ficha abaixo, com orçamento ${valor}.
-Regras: use só as informações da ficha; respeite tamanhos, cores a evitar, alergias e o que ela não gosta; não repita itens que ela já pediu (campo jaPediu); varie entre tipos de presente; se ela prefere experiências, inclua experiências. Preços em reais, realistas para o Brasil.
+Regras: use só as informações da ficha; respeite tamanhos, cores a evitar, o que evitar em presentes e o que ela não gosta; não repita itens que ela já pediu (campo jaPediu); varie entre tipos de presente; se ela prefere experiências, inclua experiências. Preços em reais, realistas para o Brasil.
 Responda apenas com JSON neste formato: [{"ideia":"nome curto do presente","porque":"uma frase ligando aos gostos dela","faixa":"R$ X a R$ Y","busca":"termo curto para buscar em loja"}]
 Ficha: ${JSON.stringify(ficha)}`;
   try{const out=await sample.json(prompt,{modelTier:'default'});const arr=Array.isArray(out)?out:(out&&out.ideias)||[];
@@ -1565,7 +1604,7 @@ function renderPerson(id,aba){
   const sz=[['Camiseta',p.camiseta],['Calça',p.calca],['Calçado',p.calcado],['Vestido',p.vestido],['Anel',p.anel],['Cama',p.cama]].filter(x=>x[1]);
   const ev=eventsFor(id).filter(e=>e.label!=='Aniversário');
   const gTags=(p.gostosTags||[]).filter(Boolean);
-  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],[gTags.length?'Também gosta de':'Gosta de',p.gosta],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
+  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],[gTags.length?'Também gosta de':'Gosta de',p.gosta],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Evitar em presentes',juntar(p.alergiasTags,p.alergias)],['Observações',p.obs]].filter(x=>x[1]);
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
   const sec=(ic,t,body,cls)=>`<section class="pf-sec ${cls||''}"><h3 class="pf-h"><span aria-hidden="true">${ic}</span>${t}</h3>${body}</section>`;
@@ -1650,7 +1689,7 @@ function renderSorteio(){
   if(!mine.length&&!(form&&form.type==='novoSorteio'))h+=`<div class="empty"><b>Nenhum amigo secreto ainda</b><span>Crie um para a família, o trabalho ou os amigos. Quem participa vê aqui quem tirou.</span></div>`;
   mine.sort((a,b)=>String(a.data||'').localeCompare(String(b.data||''))).forEach(s=>{
     const membros=[s.org,...(s.membros||[]).filter(x=>x!==s.org)];
-    const pares=s.pares?dec(s.pares):null;const tirou=pares&&pares[myId];
+    const feito=!!(s.pares||s.sorteado);const pares=s.pares?dec(s.pares):null;const tirou=pares?pares[myId]:(feito&&[s.org,...(s.membros||[])].includes(myId)?soTirou(s):null);
     const dt=s.data?new Date(s.data+'T12:00:00').toLocaleDateString('pt-BR'):'';
     const editing=form&&form.type==='editSorteio'&&form.id===s.id;
     h+=`<section class="panel"><div class="row between"><h2>${esc(s.nome)}</h2>${s.org===myId&&!editing?`<button class="link" data-act="delSorteio" data-id="${esc(s.id)}">Excluir</button>`:''}</div>
@@ -1658,7 +1697,8 @@ function renderSorteio(){
     if(editing){h+=membrosPicker()+`<div class="row"><button class="btn small" data-act="saveSorteioMembros" data-id="${esc(s.id)}">Salvar participantes</button><button class="link" data-act="cancel">Cancelar</button></div></section>`;return}
     h+=`<div class="chips">${membros.map(id=>`<span class="chip">${esc(nm(id))}</span>`).join('')}</div>`;
     if(tirou)h+=`<div class="secret"><span class="eyebrow">Você tirou</span><b class="big">${esc(nm(tirou))}</b>${profiles[tirou]?`<div><button class="btn small" data-act="open" data-id="${esc(tirou)}">Ver a ficha de presentes</button></div>`:'<span class="muted">Esta pessoa ainda não criou a ficha.</span>'}<span class="small" style="color:var(--muted)">Não conte para ninguém.</span></div>`;
-    else if(pares)h+=`<div class="muted">Sorteio feito. Você não está entre os participantes.</div>`;
+    else if(feito&&tirou===undefined)h+=`<div class="muted">Buscando quem você tirou…</div>`;
+    else if(feito)h+=`<div class="muted">Sorteio feito. ${[s.org,...(s.membros||[])].includes(myId)?'Seu resultado ainda não chegou. Atualize a página em instantes.':'Você não está entre os participantes.'}</div>`;
     else if(s.org===myId)h+=`<div class="row"><button class="btn green" data-act="sortear" data-id="${esc(s.id)}" ${membros.length<3?'disabled':''}>Sortear agora</button><button class="btn small ghost" data-act="editSorteio" data-id="${esc(s.id)}">Adicionar ou tirar participantes</button></div>${membros.length<3?'<span class="small" style="color:var(--muted)">Adicione pelo menos 3 participantes para sortear.</span>':''}`;
     else h+=`<div class="muted">Aguardando ${esc(nm(s.org))} fazer o sorteio.</div>`;
     h+='</section>';
@@ -1672,6 +1712,12 @@ async function saveSorteios(lista,msg){
   const was=sorteios[myId];sorteios[myId]={lista};form=null;keep(render);
   try{await db.doc('sorteios/'+myId).set({lista});if(msg)toast(msg)}catch(e){sorteios[myId]=was;keep(render);toast(failMsg)}
 }
+// resultado do sorteio feito no servidor: cada pessoa lê só o próprio
+const soRes={};
+function soTirou(s){const k=s.org+'_'+s.id+'_'+myId;if(k in soRes)return soRes[k]===false?null:soRes[k];soRes[k]=undefined;
+  db.doc('sorteiores/'+k).get().then(d=>{soRes[k]=d.exists?(d.data().tirou||false):false;softRender()}).catch(()=>{soRes[k]=false;softRender()});return undefined}
+async function soApi(body){const u=window.firebase&&firebase.auth().currentUser;if(!u)throw new Error('login');const t=await u.getIdToken();
+  const r=await fetch('/api/sorteio',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));return {r,j}}
 function sortear(ids){const a=[...ids];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}const p={};a.forEach((g,i)=>p[g]=a[(i+1)%a.length]);return p}
 
 function sugereHandle(){return (myName||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim().replace(/\s+/g,'.').replace(/[^a-z0-9._]/g,'').slice(0,20)||'seu.nome'}
@@ -1769,7 +1815,10 @@ const ljDoc=id=>lojasDb[id]||(!config.lojasMigradas&&(config.lojas||[]).find(l=>
 function lojaVencida(l){const n=ljDiasAte(l.pagoAte);return n!==null&&n< -LJ_TOLERANCIA}
 function lojaNoAr(l){return !!l&&!!l.ativo&&!lojaVencida(l)}
 function lojasAtivas(){return lojasTodas().filter(lojaNoAr)}
-function souDonoLoja(l){return !!l&&!!myEmail&&String(l.donoEmail||'').toLowerCase()===String(myEmail).toLowerCase()}
+// O e-mail do dono da loja fica em lojasdono/{id} (só o administrador e o próprio dono leem)
+let lojaDonos={};
+const donoEmailDe=l=>!l?'':String((l.id&&lojaDonos[l.id]!==undefined?lojaDonos[l.id]:l.donoEmail)||'').toLowerCase();
+function souDonoLoja(l){return !!l&&!!myEmail&&donoEmailDe(l)===String(myEmail).toLowerCase()}
 function minhasLojas(){return lojasTodas().filter(souDonoLoja)}
 const ljWa=(l,txt)=>l.whatsapp?`https://wa.me/${l.whatsapp.length<=11?'55':''}${l.whatsapp}?text=${encodeURIComponent(txt)}`:'';
 const ljPreco=v=>{const n=+v;return isFinite(n)&&n>0?brl(n):''};
@@ -1800,7 +1849,7 @@ function ljCarregar(id){
 function ljMigrar(){
   if(!isOwner||ljMigrando||!lojasOk||!configOk||config.lojasMigradas)return;ljMigrando=true;
   (async()=>{try{for(const l of (config.lojas||[])){if(!l||!l.id||lojasDb[l.id])continue;
-      await db.doc('lojas/'+l.id).set({nome:l.nome||'Loja',categoria:l.categoria||'',descricao:l.descricao||'',cidade:l.cidade||'',whatsapp:l.whatsapp||'',site:l.site||'',instagram:l.instagram||'',cupons:l.cupons||[],logo:l.logo||'',ativo:!!l.ativo,donoEmail:'',pagoAte:'',cor:LJ_CORES[0],entrega:[],nProdutos:0,criado:new Date().toISOString()})}
+      await db.doc('lojas/'+l.id).set({nome:l.nome||'Loja',categoria:l.categoria||'',descricao:l.descricao||'',cidade:l.cidade||'',whatsapp:l.whatsapp||'',site:l.site||'',instagram:l.instagram||'',cupons:l.cupons||[],logo:l.logo||'',ativo:!!l.ativo,pagoAte:'',cor:LJ_CORES[0],entrega:[],nProdutos:0,criado:new Date().toISOString()})}
     await db.doc('config/app').set({lojasMigradas:true},{merge:true})}catch(e){ljMigrando=false}})();
 }
 
@@ -1857,7 +1906,7 @@ async function ljDesejo(lid,pid){
   if(des.some(w=>w.link===link)){toast('Já está na sua lista de desejos');return}
   const wid='lj'+Date.now().toString(36);
   des.push({id:wid,t:String(p.nome).slice(0,80),preco:ljPreco(p.preco),obs:'na '+String(l.nome).slice(0,40),link});
-  try{await db.doc('profiles/'+myId).set({desejos:des,atualizado:new Date().toISOString()},{merge:true});profiles[myId]={...cur,desejos:des};draft=null;
+  try{await gravarPerfil({desejos:des,atualizado:new Date().toISOString()});draft=null;
     if(p.foto)db.doc(`fotos/${myId}/itens/${wid}`).set({img:p.foto}).then(()=>{fotos[myId]={...(fotos[myId]||{}),[wid]:p.foto}}).catch(()=>{});
     toast('Adicionado à sua lista de desejos 💜')}catch(e){toast(failMsg)}
 }
@@ -1992,15 +2041,17 @@ app.addEventListener('click',async e=>{
     case 'ljACancelar': ljAdmForm=null;keep(render);break;
     case 'ljASalvar': {if(!isOwner)break;const nome=val('ljaNome'),email=val('ljaEmail').toLowerCase(),ate=val('ljaAte');
       if(!nome){toast('Escreva o nome da loja');break}if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('O e-mail do dono não parece certo');break}
-      const dados={nome:nome.slice(0,40),categoria:val('ljaCat'),cidade:val('ljaCid').slice(0,40),donoEmail:email,pagoAte:/^\d{4}-\d{2}-\d{2}$/.test(ate)?ate:''};
-      try{if(ljAdmForm&&ljAdmForm.id)await db.doc('lojas/'+ljAdmForm.id).update(dados);else await db.doc('lojas/'+uid()).set({...dados,ativo:true,cor:LJ_CORES[0],entrega:[],cupons:[],nProdutos:0,logo:'',criado:new Date().toISOString()});ljAdmForm=null;toast('Loja salva');keep(render)}catch(err){toast(failMsg)}break}
+      const dados={nome:nome.slice(0,40),categoria:val('ljaCat'),cidade:val('ljaCid').slice(0,40),pagoAte:/^\d{4}-\d{2}-\d{2}$/.test(ate)?ate:''};
+      try{const lid=(ljAdmForm&&ljAdmForm.id)||uid();
+        if(email)await db.doc('lojasdono/'+lid).set({email});else await db.doc('lojasdono/'+lid).delete().catch(()=>{});lojaDonos[lid]=email;
+        if(ljAdmForm&&ljAdmForm.id)await db.doc('lojas/'+lid).update({...dados,donoEmail:window.firebase.firestore.FieldValue.delete()});else await db.doc('lojas/'+lid).set({...dados,ativo:true,cor:LJ_CORES[0],entrega:[],cupons:[],nProdutos:0,logo:'',criado:new Date().toISOString()});ljAdmForm=null;toast('Loja salva');keep(render)}catch(err){toast(failMsg)}break}
     case 'ljAToggle': {const l=lojasDb[ds.id];if(!l)break;try{await db.doc('lojas/'+ds.id).update({ativo:!l.ativo})}catch(err){toast(failMsg)}break}
     case 'ljAPago': {const l=lojasDb[ds.id];if(!l)break;const novo=ljMaisMes(l.pagoAte);if(!confirm(`Confirmar 1 mês pago da ${l.nome}? A loja fica paga até ${diaBR(novo)}.`))break;
       try{await db.doc('lojas/'+ds.id).update({pagoAte:novo,avisoPag:null,ativo:true});toast('Pago até '+diaBR(novo))}catch(err){toast(failMsg)}break}
     case 'ljAExcluir': {const l=lojasDb[ds.id];if(!l||!confirm(`Excluir a ${l.nome}? A página, os produtos e as fotos serão apagados.`))break;
       try{const ps=await db.collection('lojas/'+ds.id+'/produtos').get();const bt=db.batch();ps.docs.forEach(d=>bt.delete(d.ref));bt.delete(db.doc('lojas/'+ds.id+'/midia/capa'));bt.delete(db.doc('lojas/'+ds.id));await bt.commit();toast('Loja excluída')}catch(err){toast(failMsg)}break}
-    case 'ljAConvite': {const l=lojasDb[ds.id];if(!l)break;if(!l.donoEmail){toast('Coloque antes o e-mail do dono em “Dados e dono”');break}
-      copyText(`Olá! A ${l.nome} já tem uma página no PresenteCerto 🎁\n\n1. Entre em ${location.origin} com o e-mail ${l.donoEmail} (pelo Google ou criando uma senha).\n2. Toque na sua foto, no canto de cima, e escolha “Minha loja”.\n3. Ponha a foto do cabeçalho, a logo, seus contatos, o Pix e os produtos, e toque em Salvar.\n\nQualquer dúvida, é só me chamar!`);break}
+    case 'ljAConvite': {const l=lojasDb[ds.id];if(!l)break;const lEmail=donoEmailDe({...l,id:ds.id});if(!lEmail){toast('Coloque antes o e-mail do dono em “Dados e dono”');break}
+      copyText(`Olá! A ${l.nome} já tem uma página no PresenteCerto 🎁\n\n1. Entre em ${location.origin} com o e-mail ${lEmail} (pelo Google ou criando uma senha).\n2. Toque na sua foto, no canto de cima, e escolha “Minha loja”.\n3. Ponha a foto do cabeçalho, a logo, seus contatos, o Pix e os produtos, e toque em Salvar.\n\nQualquer dúvida, é só me chamar!`);break}
     case 'ljCobSalvar': {if(!isOwner)break;const c={valor:ljParsePreco(val('ljcValor'))||19.9,tipo:val('ljcTipo')||'celular',chave:val('ljcChave').slice(0,77),nome:val('ljcNome').slice(0,25),cidade:val('ljcCidade').slice(0,15)};
       const pe=ljPixErro(c);if(pe){toast(pe);break}saveConfig({...config,lojaCobranca:c},'Cobrança salva');break}
   }
@@ -2009,7 +2060,7 @@ function ljAdmCard(l){
   if(l.legado)return `<div class="inline-form" style="gap:4px"><b>${esc(l.nome)}</b><span class="small" style="color:var(--warn)">Loja do formato antigo. Ela passa para o formato novo sozinha assim que as regras novas do Firebase forem publicadas.</span></div>`;
   const st=!l.ativo?['','pausada']:lojaVencida(l)?['','fora do ar · atraso']:!l.pagoAte?['soon','no ar · cortesia']:ljDiasAte(l.pagoAte)<0?['','vencida · tolerância']:['soon','no ar'];
   return `<div class="inline-form" style="gap:4px"><div class="row between"><b>${esc(l.nome)}</b><span class="when ${st[0]}">${st[1]}</span></div>
-   <span class="small" style="color:var(--muted)">${esc([l.categoria,l.cidade].filter(Boolean).join(' · '))}${l.donoEmail?' · dono: '+esc(l.donoEmail):' · sem dono cadastrado'}</span>
+   <span class="small" style="color:var(--muted)">${esc([l.categoria,l.cidade].filter(Boolean).join(' · '))}${donoEmailDe(l)?' · dono: '+esc(donoEmailDe(l)):' · sem dono cadastrado'}</span>
    <span class="small">${l.pagoAte?`Paga até <b>${diaBR(l.pagoAte)}</b>`:'Sem mensalidade (cortesia)'} · <b>${l.nProdutos||0}</b> produtos · <b>${sumAd('lj:'+l.id,'v')}</b> visitas · <b>${sumLoja('lj:'+l.id)}</b> cliques</span>
    ${l.avisoPag?`<div class="notice">💰 Avisou que pagou em ${new Date(l.avisoPag).toLocaleDateString('pt-BR')}. Confira no seu banco e confirme.</div>`:''}
    <div class="item-actions"><button class="link" data-act="ljAPago" data-id="${esc(l.id)}">${l.avisoPag?'Confirmar pagamento (+1 mês)':'+1 mês pago'}</button><button class="link alt" data-act="ljPainel" data-id="${esc(l.id)}">Editar página</button><button class="link alt" data-act="ljAEditar" data-id="${esc(l.id)}">Dados e dono</button><button class="link alt" data-act="ljAToggle" data-id="${esc(l.id)}">${l.ativo?'Pausar':'Ativar'}</button><button class="link alt" data-act="ljAConvite" data-id="${esc(l.id)}">Copiar convite</button><button class="link alt" data-act="copy" data-text="${esc(`Relatório PresenteCerto – ${l.nome}\nVisitas à página: ${sumAd('lj:'+l.id,'v')}\nCliques em WhatsApp, site e Instagram: ${sumLoja('lj:'+l.id)}\nGerado em ${new Date().toLocaleDateString('pt-BR')}`)}">Copiar relatório</button><button class="link" data-act="ljAExcluir" data-id="${esc(l.id)}">Excluir</button></div></div>`;
@@ -2018,7 +2069,7 @@ function ljAdmFormHtml(l){
   const ate=l.id?(l.pagoAte||''):ljMaisMes('');
   return `<div class="inline-form"><b>${l.id?'Dados da loja':'Nova loja parceira'}</b>
    <div class="grid2"><label class="f">Nome da loja<input id="ljaNome" maxlength="40" value="${esc(l.nome||'')}"></label><label class="f">Categoria<select id="ljaCat">${ljCatOpts(l.categoria)}</select></label></div>
-   <div class="grid2"><label class="f">Cidade<input id="ljaCid" maxlength="40" autocomplete="off" data-cid="*" value="${esc(l.cidade||'')}" placeholder="Ex.: Fortaleza"></label><label class="f">E-mail do dono da loja<input id="ljaEmail" type="email" autocapitalize="off" value="${esc(l.donoEmail||'')}" placeholder="O mesmo que ele usa para entrar"></label></div>
+   <div class="grid2"><label class="f">Cidade<input id="ljaCid" maxlength="40" autocomplete="off" data-cid="*" value="${esc(l.cidade||'')}" placeholder="Ex.: Fortaleza"></label><label class="f">E-mail do dono da loja<input id="ljaEmail" type="email" autocapitalize="off" value="${esc(donoEmailDe(l)||'')}" placeholder="O mesmo que ele usa para entrar"></label></div>
    <label class="f">Mensalidade paga até (em branco = cortesia, sem cobrança)<input id="ljaAte" type="date" value="${esc(ate)}"></label>
    <div class="row"><button class="btn small" data-act="ljASalvar">${l.id?'Salvar':'Cadastrar loja'}</button><button class="link" data-act="ljACancelar">Cancelar</button></div></div>`;
 }
@@ -2102,14 +2153,15 @@ function pfHeadHtml(id,p,self,opt){
 /* visitas ao perfil */
 function cabDiscreto(){return !!(cabPriv&&cabPriv.discreto)}
 function cabRegistrarVisita(id){
-  if(!myId||id===myId||cabVisitados[id]||cabDiscreto()||cabPriv===null)return;cabVisitados[id]=1;
+  if(!myId||id===myId||cabVisitados[id]||cabDiscreto()||cabPriv===null||souMenor()||!idade)return;cabVisitados[id]=1;
   db.doc(`visitas/${id}/de/${myId}`).set({em:Date.now()}).catch(()=>{});
 }
 function cabCarregarVisitas(){
   if(Date.now()-cabVisitasEm<5*60e3)return;cabVisitasEm=Date.now();
-  db.collection(`visitas/${myId}/de`).get().then(s=>{const lim=Date.now()-7*864e5;cabVisitas=s.docs.map(d=>({id:d.id,em:+(d.data()||{}).em||0})).filter(v=>v.em>=lim&&v.id!==myId).sort((a,b)=>b.em-a.em);softRender()}).catch(()=>{cabVisitas=[]});
+  db.collection(`visitas/${myId}/de`).get().then(s=>{const lim=Date.now()-7*864e5;s.docs.forEach(d=>{if((+(d.data()||{}).em||0)<lim)d.ref.delete().catch(()=>{})});cabVisitas=s.docs.map(d=>({id:d.id,em:+(d.data()||{}).em||0})).filter(v=>v.em>=lim&&v.id!==myId).sort((a,b)=>b.em-a.em);softRender()}).catch(()=>{cabVisitas=[]});
 }
 function cabVisitasHtml(){
+  if(souMenor())return '';
   cabCarregarVisitas();if(!cabVisitas||!cabVisitas.length)return '';
   const n=cabVisitas.length,plus=isPlus(myId)||isOwner;
   const faces=cabVisitas.slice(0,4).map(v=>`<img src="${esc(av(v.id))}" alt="">`).join('');
@@ -2356,8 +2408,8 @@ function renderConta(){
   <section class="panel"><h2>Seus dados</h2>
    <label class="f">Nome que aparece para os amigos<input id="cNome" maxlength="40" value="${esc(c.nome)}" autocomplete="name"></label>
    <label class="f">Uma frase sobre você (opcional)<input id="cFrase" maxlength="120" value="${esc(c.frase)}" placeholder="Ex.: Apaixonada por plantas e café"></label>
-   <div class="flabel">Sua cidade</div>
-   <div class="grid2"><label class="f">Estado${ufSelect('cEstado',c.estado||'')}</label><label class="f">Cidade<input id="cCidade" maxlength="40" autocomplete="off" data-cid="cEstado" value="${esc(c.cidade||'')}" placeholder="Digite o nome da cidade"></label></div>
+   ${souMenor()?'':`<div class="flabel">Sua cidade</div>
+   <div class="grid2"><label class="f">Estado${ufSelect('cEstado',c.estado||'')}</label><label class="f">Cidade<input id="cCidade" maxlength="40" autocomplete="off" data-cid="cEstado" value="${esc(c.cidade||'')}" placeholder="Digite o nome da cidade"></label></div>`}
    <label class="f">E-mail da conta<input value="${esc(myEmail||'')}" disabled></label>
    <span class="small" style="color:var(--muted)">O e-mail é o da sua conta Google ou o que você usou no cadastro, e não pode ser trocado aqui.</span></section>
   <section class="panel"><h2>Nome de usuário</h2>
@@ -2419,8 +2471,7 @@ async function salvarConta(){
   try{
     if(user&&user.atualizarConta)await user.atualizarConta({nome,foto:c.foto||''});
     const dados={frase:(c.frase||'').trim().slice(0,120),cidade:(c.cidade||'').trim().slice(0,40),estado:c.estado||''};
-    await db.doc('profiles/'+myId).set(dados,{merge:true});
-    profiles[myId]={...(profiles[myId]||{}),...dados};if(draft)Object.assign(draft,dados);
+    await gravarPerfil(dados);if(draft)Object.assign(draft,dados);
     myName=nome;names[myId]={name:nome,avatar:c.foto||initialsAvatar(nome)};
     const img=document.querySelector('#meBtn img');if(img)img.src=names[myId].avatar;
     contaDraft=null;toast('Perfil atualizado');setTab('mural');
@@ -2512,6 +2563,7 @@ function renderAdmin(){
      <span class="small" style="color:var(--muted)">${esc([PUB[x.publico||'todos'],safeLink(x.link)?'botão "'+(x.botao||'Saiba mais')+'"':'',x.fim?'até '+new Date(x.fim+'T12:00').toLocaleDateString('pt-BR'):'',(x.cidades||[]).join(', ')].filter(Boolean).join(' · '))}${safeLink(x.link)?` · ${sumAd('av:'+x.id,'c')} cliques`:''}</span>
      <div class="item-actions"><button class="link" data-act="editAviso" data-id="${esc(x.id)}">Editar</button><button class="link alt" data-act="pausarAviso" data-id="${esc(x.id)}">${x.ativo?'Pausar':'Reativar'}</button><button class="link" data-act="excluirAviso" data-id="${esc(x.id)}">Excluir</button></div></div>`).join(''):'<span class="muted">Nenhum aviso criado.</span>'}
    ${form&&form.type==='novoAviso'?avForm({},-1):`<div class="row"><button class="btn small ghost" data-act="novoAviso">Criar aviso</button></div>`}</section>`;
+  h+=lgpdAdminHtml();
   app.innerHTML=h+'</div>';
 }
 
@@ -3014,14 +3066,21 @@ function empAbrir(id){
   empFechar();empAberto=id;tab='empresa';viewing=null;form=null;empForm=null;
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected','false'));
   const d=db.doc('empresas/'+id);
-  empUnsubs.push(d.onSnapshot(s=>{empDoc=s.exists?{id:s.id,...s.data()}:null;if(empDoc){ensureFotos(empDoc.dono);if(empDoc.dono===myId&&!empConvSub)empSubConv()}if(tab==='empresa')softRender()},()=>{empDoc=null;if(tab==='empresa')softRender()}));
-  empSubParts();
+  empPartsModo=null;empAlvoBusca=null;
+  empUnsubs.push(d.onSnapshot(s=>{empDoc=s.exists?{id:s.id,...s.data()}:null;if(empDoc){ensureFotos(empDoc.dono);if(empDoc.dono===myId&&!empConvSub)empSubConv();const m=empDoc.dono===myId?'rh':'eu';if(empPartsModo!==m){empPartsModo=m;empSubParts()}}if(tab==='empresa')softRender()},()=>{empDoc=null;if(tab==='empresa')softRender()}));
   empUnsubs.push(d.collection('resultado').doc(myId).onSnapshot(s=>{empRes=s.exists?s.data():null;if(tab==='empresa')softRender()},()=>{}));
   render();window.scrollTo(0,0);
 }
 let empConvSub=false;
 function empSubConv(){empConvSub=true;const id=empAberto;empUnsubs.push(db.doc('empresas/'+id).collection('convites').onSnapshot(s=>{if(empAberto!==id)return;empConv={};s.docs.forEach(x=>{empConv[x.id]=x.data()});if(tab==='empresa')softRender()},()=>{}))}
-function empSubParts(){const id=empAberto;empUnsubs.push(db.doc('empresas/'+id).collection('participantes').onSnapshot(s=>{if(empAberto!==id)return;empParts={};s.docs.forEach(x=>{empParts[x.id]=x.data()});empPartsOk=true;if(tab==='empresa')softRender()},()=>{empPartsOk=false}))}
+// Só o RH acompanha todos os participantes. Cada colaborador lê só a própria ficha (e, depois do sorteio, a de quem tirou).
+function empSubParts(){const id=empAberto;
+  if(empDoc&&empDoc.dono===myId){empUnsubs.push(db.doc('empresas/'+id).collection('participantes').onSnapshot(s=>{if(empAberto!==id)return;empParts={};s.docs.forEach(x=>{empParts[x.id]=x.data()});empPartsOk=true;if(tab==='empresa')softRender()},()=>{empPartsOk=false}));return}
+  empUnsubs.push(db.doc(`empresas/${id}/participantes/${myId}`).onSnapshot(s=>{if(empAberto!==id)return;if(s.exists)empParts[myId]=s.data();else delete empParts[myId];empPartsOk=true;if(tab==='empresa')softRender()},()=>{empPartsOk=false}))}
+let empPartsModo=null;
+function empAlvo(){if(!empRes||!empRes.tirou)return;const k=empRes.tirou;if(empParts[k]||empRes.ficha||empAlvoBusca===k)return;empAlvoBusca=k;const id=empAberto;
+  db.doc(`empresas/${id}/participantes/${k}`).get().then(s=>{if(empAberto===id&&s.exists){empParts[k]=s.data();softRender()}}).catch(()=>{})}
+let empAlvoBusca=null;
 async function empApi(body){const u=window.firebase&&firebase.auth().currentUser;if(!u)throw new Error('login');const t=await u.getIdToken();
   const r=await fetch('/api/empresa',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));return {r,j}}
 const empValor=e=>e.vmin&&e.vmax?`R$ ${e.vmin} a R$ ${e.vmax}`:e.vmin?`a partir de R$ ${e.vmin}`:e.vmax?`até R$ ${e.vmax}`:'';
@@ -3061,7 +3120,7 @@ function empFichaHtml(p){
 function empMinhaParte(e){
   const eu=empParts[myId];let h='';
   if(e.sorteado){
-    if(empRes){const alvo=empParts[empRes.tirou]||{nome:empRes.nome,setor:empRes.setor};
+    if(empRes){empAlvo();const alvo=empParts[empRes.tirou]||{nome:empRes.nome,setor:empRes.setor,ficha:empRes.ficha};
       h+=`<section class="emp-rev" style="background:${esc(e.cor||EMP_CORES[0])}"><span class="small">Você tirou</span><span class="emp-rev-av">${esc(String(alvo.nome||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><h2>${esc(alvo.nome||'')}</h2><span class="small">${esc([alvo.setor,e.data?'troca em '+empDataTxt(e.data):'',empValor(e)].filter(Boolean).join(' · '))}</span></section>`;
       h+=empFichaHtml(alvo);
     }else h+=`<div class="notice">O sorteio já foi feito${eu?'. Seu resultado está chegando, atualize a página em instantes.':' e você não estava entre os participantes.'}</div>`;
@@ -3399,9 +3458,9 @@ function renderMine(){
   if(st===0)h+=`<section class="panel"><h2>Quando é seu aniversário?</h2>
    <div class="grid2"><label class="f">Dia<select id="dia"><option value="">—</option>${opt(dias,d.dia)}</select></label>
    <label class="f">Mês<select id="mes"><option value="">—</option>${mesOpt(d.mes)}</select></label>
-   <label class="f">Ano (opcional)<input id="ano" inputmode="numeric" maxlength="4" value="${esc(d.ano)}" placeholder="Ex.: 1990"></label></div></section>
-  <section class="panel"><h2>Sua cidade</h2><p class="lede" style="margin:0">Ajuda a mostrar lojas e ofertas perto de você.</p>
-   <div class="grid2"><label class="f">Estado${ufSelect('estado',d.estado||'')}</label><label class="f">Cidade<input id="cidade" maxlength="40" autocomplete="off" data-cid="estado" value="${esc(d.cidade||'')}" placeholder="Digite o nome da cidade"></label></div></section>
+   </div>${souMenor()?'<span class="small" style="color:var(--muted)">🔒 Por você ter menos de 18 anos, sua idade não aparece no perfil.</span>':`<label class="check"><input type="checkbox" id="mostrarIdade" ${d.ano?'checked':''}><span>Mostrar minha idade no perfil</span></label>`}</section>
+  ${souMenor()?'':`<section class="panel"><h2>Sua cidade</h2><p class="lede" style="margin:0">Ajuda a mostrar lojas e ofertas perto de você. Fica visível no seu perfil para quem pode ver sua ficha.</p>
+   <div class="grid2"><label class="f">Estado${ufSelect('estado',d.estado||'')}</label><label class="f">Cidade<input id="cidade" maxlength="40" autocomplete="off" data-cid="estado" value="${esc(d.cidade||'')}" placeholder="Digite o nome da cidade"></label></div></section>`}
   <section class="panel"><h2>Outras datas especiais (opcional)</h2><p class="lede" style="margin:0">Casamento, chá de bebê, formatura e outras ocasiões.</p>
    ${d.datas.map((x,i)=>`<div class="date-row"><span><b>${esc(x.tipo==='Outra data'&&x.nota?x.nota:x.tipo)}</b> · ${+x.dia} de ${MESES[+x.mes-1]}${x.ano?' de '+esc(x.ano):''}</span><button class="icon-btn" data-act="delData" data-i="${i}" aria-label="Remover data">×</button></div>`).join('')}
    <div class="grid2"><label class="f">Tipo<select id="dTipo">${opt(TIPOS_DATA,'')}</select></label><label class="f">Nome (para "Outra data")<input id="dNota" placeholder="Ex.: Bodas de prata"></label></div>
@@ -3426,16 +3485,16 @@ function renderMine(){
    ${Object.entries(MARCAS_GRUPOS).map(([g,l0],gi)=>{const extras=((d.marcasOutras||{})[g]||[]).filter(m=>(d.marcasTags||[]).includes(m)&&!l0.includes(m));const l=[...l0,...extras];const n=l.filter(m=>(d.marcasTags||[]).includes(m)).length;
      return `<details class="marca-grupo" data-g="${esc(g)}" ${n||marcaAberta===g?'open':''}><summary>${esc(g)}${n?` <span class="when soon">${n}</span>`:''}</summary>${chipsPick('marcasTags',l,'style')}
      <div class="row marca-outra" style="flex-wrap:nowrap"><input id="mo${gi}" data-marcain="${esc(g)}" maxlength="40" placeholder="Não achou? Escreva aqui" autocomplete="off"><button class="btn small ghost" data-act="addMarca" data-g="${esc(g)}" data-i="${gi}">Adicionar</button></div></details>`}).join('')}
-   <div class="flabel">Bebida alcoólica</div><div class="chips">${BEBE_OPC.map(v=>`<button class="chip style" data-act="pickOne" data-key="bebe" data-v="${esc(v)}" aria-pressed="${d.bebe===v}">${esc(v)}</button>`).join('')}</div>
-   ${d.bebe&&d.bebe!=='Não bebo'?`<div class="flabel">Quais bebidas você gosta?</div>${chipsPick('bebidas',TAG_BEBIDAS,'style')}`:''}
-   <div class="flabel">Alergias ou restrições</div>${chipsPick('alergiasTags',TAG_ALERGIAS,'avoid')}
+   <div ${souMenor()?'hidden':''}><div class="flabel">Bebida alcoólica</div><div class="chips">${BEBE_OPC.map(v=>`<button class="chip style" data-act="pickOne" data-key="bebe" data-v="${esc(v)}" aria-pressed="${d.bebe===v}">${esc(v)}</button>`).join('')}</div></div>
+   ${!souMenor()&&d.bebe&&d.bebe!=='Não bebo'?`<div class="flabel">Quais bebidas você gosta?</div>${chipsPick('bebidas',TAG_BEBIDAS,'style')}`:''}
+   <div class="flabel">Evitar em presentes</div><span class="small" style="color:var(--muted)">Materiais e coisas que não combinam com você. Não coloque informações de saúde.</span>${chipsPick('alergiasTags',TAG_ALERGIAS,'avoid')}
    <details ${d.gosta||d.naoGosta||d.obs||d.marcas||d.hobbies||d.alergias?'open':''}><summary class="link" style="cursor:pointer">Quer contar mais? (opcional)</summary>
    <div class="sec" style="margin-top:10px">
     <label class="f">Outros gostos e hobbies<input id="hobbies" value="${esc(d.hobbies)}" placeholder="Ex.: corrida de rua, jardinagem"></label>
     <label class="f">Outras coisas de que você gosta<textarea id="gosta" placeholder="Ex.: café especial, livros de suspense">${esc(d.gosta)}</textarea></label>
     <label class="f">Outras marcas<input id="marcas" value="${esc(d.marcas)}" placeholder="Ex.: Tok&Stok, Osklen"></label>
     <label class="f">Do que você não gosta<textarea id="naoGosta" placeholder="Ex.: perfume doce, bijuteria dourada">${esc(d.naoGosta)}</textarea></label>
-    <label class="f">Outras alergias<input id="alergias" value="${esc(d.alergias)}" placeholder="Ex.: corante"></label>
+    <label class="f">Outras coisas para evitar<input id="alergias" value="${esc(d.alergias)}" placeholder="Ex.: bijuteria, cheiro de lavanda"></label>
     <label class="f">Observações<textarea id="obs" placeholder="Ex.: estou de mudança, prefiro coisas pequenas">${esc(d.obs)}</textarea></label>
    </div></details></section>`;
   if(st===4){h+=listEditor('desejos','Lista de desejos','O que você gostaria de ganhar. Escolha a categoria e toque nos presentes. Até 10 itens.','Ex.: Fone sem fio');
@@ -3450,7 +3509,7 @@ function renderMine(){
   <div class="row"><button class="btn ghost small" data-act="verMeuPerfil">Ver meu perfil</button></div>
   ${recebidosBlock()}
   <section class="panel"><h2>Privacidade e lembretes</h2>
-   <label class="check"><input type="checkbox" id="fechado" ${d.fechado?'checked':''}><span><b>Perfil fechado</b><br><span style="color:var(--muted)">Só quem você aprovar vê sua ficha. Os pedidos aparecem na aba Datas.</span></span></label>
+   <div class="row between" style="flex-wrap:nowrap"><span><b>${(raw.profiles[myId]||d).fechado?'🔒 Perfil fechado':'🌍 Perfil aberto'}</b><br><span class="small" style="color:var(--muted)">${(raw.profiles[myId]||d).fechado?'Só quem você aprovar vê sua ficha. Os pedidos aparecem na aba Datas.':'Qualquer pessoa com conta vê sua ficha.'}</span></span><button class="btn small ghost" data-lg="privacidade">Mudar</button></div>
    <label class="f">Me lembrar das datas com antecedência de<select id="aviso">${[7,15,30,45].map(n=>`<option value="${n}" ${+d.aviso===n?'selected':''}>${n} dias</option>`).join('')}</select></label></section>
   <section class="panel"><h2>Instalar no celular</h2><p class="lede" style="margin:0">Coloque o PresenteCerto na tela inicial e abra como um aplicativo.</p>
    <div class="grid2"><div><b>iPhone (Safari)</b><ol class="steps"><li>Abra o link do PresenteCerto no Safari.</li><li>Toque no botão Compartilhar.</li><li>Escolha “Adicionar à Tela de Início”.</li></ol></div>
@@ -3462,10 +3521,10 @@ function renderMine(){
   app.innerHTML=h;
   const mark=()=>{if(!dirty){dirty=true;const b=app.querySelector('#save');if(b)b.textContent=st<ult?'Salvar e continuar':'Salvar ficha'}};
   ['dia','mes','camiseta','calca','calcado','vestido','anel','cama','aviso'].forEach(k=>app.querySelector('#'+k)?.addEventListener('change',e=>{d[k]=e.target.value;mark()}));
-  ['ano','gosta','naoGosta','obs','marcas','hobbies','alergias'].forEach(k=>app.querySelector('#'+k)?.addEventListener('input',e=>{d[k]=e.target.value;mark()}));
+  app.querySelector('#mostrarIdade')?.addEventListener('change',e=>{d.ano=e.target.checked&&idade&&idade.data?idade.data.slice(0,4):'';mark()});
+  ['gosta','naoGosta','obs','marcas','hobbies','alergias'].forEach(k=>app.querySelector('#'+k)?.addEventListener('input',e=>{d[k]=e.target.value;mark()}));
   app.querySelector('#cidade')?.addEventListener('input',e=>{d.cidade=e.target.value.trim().slice(0,40);mark()});
   app.querySelector('#estado')?.addEventListener('change',e=>{d.estado=e.target.value;mark()});
-  app.querySelector('#fechado')?.addEventListener('change',e=>{d.fechado=e.target.checked;mark()});
 }
 async function irPasso(n){
   n=Math.max(0,Math.min(PASSOS.length-1,n));
@@ -3478,7 +3537,7 @@ async function saveMine(){
   const cur=profiles[myId]||{};
   const data={...draft,ano:String(draft.ano||'').replace(/\D/g,'').slice(0,4),aviso:+draft.aviso||15,aprovados:cur.aprovados||[],recusados:cur.recusados||[],parabensOcultos:cur.parabensOcultos||[],usuario:cur.usuario||'',frase:cur.frase||draft.frase||'',atualizado:new Date().toISOString()};
   delete data.jaTem;if(cur.cab)data.cab=cur.cab;else delete data.cab;
-  try{await db.doc('profiles/'+myId).set(data);profiles[myId]=data;draft=null;dirty=false;toast('Ficha salva');keep(render)}
+  try{await gravarPerfil(data,{substituir:true});draft=null;dirty=false;toast('Ficha salva');keep(render)}
   catch(e){if(b){b.disabled=false;b.textContent='Salvar ficha'}toast(failMsg)}
 }
 
@@ -3524,8 +3583,7 @@ app.addEventListener('click',async e=>{
       try{const T=EV_TIPOS[L[1]]||{};const ref=db.collection('eventos').doc();
         await ref.set({dono:myId,donoNome:(myName||'').split(' ')[0].slice(0,30),tipo:L[1],titulo:L[0],data:'',msg:T.msg||'',itens:its.map(w=>({id:uid(),nome:String(w.t).slice(0,80),link:safeLink(w.link)?String(w.link).slice(0,500):''})),publicado:false,criado:Date.now()});
         const ativas=(pr.listasAtivas||[]).filter(x=>x!==k);
-        await db.doc('profiles/'+myId).update({[k]:[],listasAtivas:ativas});
-        profiles[myId]={...pr,[k]:[],listasAtivas:ativas};draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
+        await gravarPerfil({[k]:[],listasAtivas:ativas});draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
       catch(e){toast('Não foi possível transformar a lista. Tente de novo.')}break}
     case 'editarFicha': if(viewing===myId)viewing=null;setTab('perfil',true);break;
     case 'verMeuPerfil': if(dirty){toast('Salve primeiro para ver a versão final');break}setTab('perfil',false);break;
@@ -3547,12 +3605,13 @@ app.addEventListener('click',async e=>{
     case 'cancel': form=null;keep(render);break;
     case 'createVaq': {const alvo=num(val('fAlvo'));if(!alvo){toast('Informe o valor total do presente');break}
       const vid=myId.slice(-6)+uid();const minha=num(val('fMinha'));
-      A.vaquinhas.push({id:vid,owner:ds.owner,item:ds.item,alvo,pix:val('fPix').slice(0,77),recebedor:val('fRec').slice(0,25),cidade:val('fCid').slice(0,15)});if(minha)A.cotas.push({vid,org:myId,valor:minha});
+      const vqChave=val('fPix').slice(0,77);if(vqChave){try{await db.doc('vaqpix/'+vid).set({org:myId,owner:ds.owner,pix:vqChave,recebedor:val('fRec').slice(0,25),cidade:val('fCid').slice(0,15)})}catch(e){toast(failMsg);break}}
+      A.vaquinhas.push({id:vid,owner:ds.owner,item:ds.item,alvo,pix:'',temPix:!!vqChave,recebedor:'',cidade:''});if(minha)A.cotas.push({vid,org:myId,valor:minha});
       saveAcoes(A,'Vaquinha criada. Os outros amigos já podem participar.');break}
     case 'joinVaq': {const v=num(val('fCota'));if(!v){toast('Informe quanto você vai colocar');break}A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);A.cotas.push({vid:ds.vid,org:ds.org,valor:v,em:new Date().toISOString()});
-      const st=itemStatus(ds.owner,ds.item);saveAcoes(A,'Você entrou na vaquinha');if(st.vaq&&st.vaq.pix&&ds.org!==myId){form={type:'pix',owner:ds.owner,item:ds.item};keep(render)}break}
+      const st=itemStatus(ds.owner,ds.item);saveAcoes(A,'Você entrou na vaquinha');if(st.vaq&&(st.vaq.pix||st.vaq.temPix)&&ds.org!==myId){form={type:'pix',owner:ds.owner,item:ds.item};keep(render)}break}
     case 'leaveVaq': A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Você saiu da vaquinha');break;
-    case 'endVaq': A.vaquinhas=A.vaquinhas.filter(v=>v.id!==ds.vid);A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Vaquinha encerrada');break;
+    case 'endVaq': db.doc('vaqpix/'+ds.vid).delete().catch(()=>{});A.vaquinhas=A.vaquinhas.filter(v=>v.id!==ds.vid);A.cotas=A.cotas.filter(c=>c.vid!==ds.vid);saveAcoes(A,'Vaquinha encerrada');break;
     case 'ai': runAI(ds.id);break;
     case 'saveHandle': saveHandle();break;
     case 'apSet': aparDraft[ds.k]=ds.v;if(ds.k==='cor'||ds.k==='escuro'||ds.k==='fundo')aparDraft.tema='';keep(renderAparencia);break;
@@ -3646,7 +3705,7 @@ app.addEventListener('click',async e=>{
     case 'saveSorteioMembros': {const membros=form.membros.filter(x=>x!==myId);if(!isPlus(myId)&&membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}saveSorteios(((sorteios[myId]?.lista)||[]).map(s=>s.id===ds.id&&!s.pares?{...s,membros}:s),'Participantes atualizados');break}
     case 'criarSorteio': {const nome=(form.nome||'').trim();if(!nome){toast('Dê um nome ao amigo secreto');break}if(!isPlus(myId)&&form.membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}if(form.membros.length<2){toast('Escolha pelo menos mais 2 pessoas');break}
       const lista=[...((sorteios[myId]?.lista)||[]),{id:uid(),nome:nome.slice(0,50),data:form.data||'',valor:(form.valor||'').slice(0,30),membros:form.membros}];saveSorteios(lista,'Amigo secreto criado');break}
-    case 'sortear': {const lista=((sorteios[myId]?.lista)||[]).map(s=>{if(s.id!==ds.id)return s;const ids=[myId,...s.membros.filter(x=>x!==myId)];return{...s,pares:enc(sortear(ids)),sorteadoEm:new Date().toISOString()}});saveSorteios(lista,'Sorteio feito. Cada um já pode ver quem tirou.');break}
+    case 'sortear': {if(el.disabled)break;el.disabled=true;el.textContent='Sorteando…';try{const {r,j}=await soApi({acao:'sortear',id:ds.id});if(r.ok&&j.ok)toast('Sorteio feito. Cada um já pode ver quem tirou.');else toast(j.erro==='poucos'?'Adicione pelo menos 3 participantes.':'Não foi possível sortear agora. Tente de novo.')}catch(err){toast(failMsg)}el.disabled=false;el.textContent='Sortear agora';break}
     case 'delSorteio': saveSorteios(((sorteios[myId]?.lista)||[]).filter(s=>s.id!==ds.id),'Amigo secreto excluído');break;
     case 'preview': if(dirty){toast('Salve primeiro para ver a versão final');break}viewing=myId;render();window.scrollTo(0,0);break;
     case 'save': saveMine();break;
@@ -3715,6 +3774,362 @@ app.addEventListener('click',async e=>{
   }
 });
 
+/* ---------- LGPD e ECA Digital: idade, responsável, perfil fechado, privacidade e dados ---------- */
+const TERMOS_VER='1.0';
+const LG_CONTATO='comercial@sinapseon-line.com';
+// Campos que continuam públicos mesmo com o perfil fechado (o resto da ficha vai para fichas/{uid})
+const PUB_KEYS=new Set(['fechado','aprovados','recusados','parabensOcultos','usuario','cab','capa','aviso','atualizado','frase','exemplo','nome']);
+let idade=null,idadeOk=false,idadeIndisp=false,respContas={},lgForm=null,lgExcluir=null,lgOcupado=false,denAlvo=null,denuncias={};
+let fichasRaw={},fichaSubs={},fichaCarregada={},lgManutFeita=false,lgMigrouAdm=false,lgMigrMsg='';
+let respPend=null;const respNomeOk={};
+try{const r=new URLSearchParams(location.search).get('resp');if(r){const [u,c]=r.split('.');if(u&&c)respPend={uid:u.replace(/[^A-Za-z0-9]/g,''),cod:c.replace(/[^A-Za-z0-9]/g,'')}}}catch(e){}
+const MESES_LONGOS=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+function idadeAnosDe(data){const m=String(data||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;const y=+m[1],mo=+m[2],d=+m[3];const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<mo||(t.getMonth()+1===mo&&t.getDate()<d))a--;return a}
+const minhaIdade=()=>idade?idadeAnosDe(idade.data):null;
+const souMenor=()=>{const a=minhaIdade();return a!==null&&a<18};
+const souMenor16=()=>{const a=minhaIdade();return a!==null&&a<16};
+const esperandoResp=()=>souMenor16()&&!idade.resp;
+const possoAbrirPerfil=()=>!souMenor16()||!!(idade&&idade.podeAbrir);
+function lgCodigo(){try{const a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,b=>(b%36).toString(36)).join('')+Date.now().toString(36)}catch(e){return uid()+uid()+uid()}}
+const lgDataBR=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:''};
+const respLink=()=>idade&&idade.cod?`${APP_URL}/?resp=${encodeURIComponent(myId)}.${encodeURIComponent(idade.cod)}`:'';
+
+// ----- leitura das fichas de perfis fechados (uma a uma, só as que eu posso ver) -----
+function syncFichas(){
+  if(!db||!myId)return;
+  const want=new Set();
+  Object.entries(raw.profiles).forEach(([id,p])=>{if(!p||!p.fechado)return;if(id===myId||isOwner||(p.aprovados||[]).includes(myId)||respContas[id])want.add(id)});
+  Object.keys(fichaSubs).forEach(id=>{if(!want.has(id)){try{fichaSubs[id]()}catch(e){}delete fichaSubs[id];delete fichasRaw[id];delete fichaCarregada[id]}});
+  want.forEach(id=>{if(fichaSubs[id])return;
+    if(fotoErro[id]){delete fotoErro[id];if(fotoSubs[id]){try{fotoSubs[id]()}catch(e){}delete fotoSubs[id]}}
+    fichaSubs[id]=db.doc('fichas/'+id).onSnapshot(s=>{fichasRaw[id]=s.exists?s.data():null;fichaCarregada[id]=true;applyRaw();lgManutencao();softRender()},()=>{fichaCarregada[id]=true;lgManutencao()})});
+}
+function mesclarFichas(rp){const out={};Object.entries(rp).forEach(([id,p])=>{out[id]=(p&&p.fechado&&fichasRaw[id])?{...fichasRaw[id],...p}:p});return out}
+
+// ----- gravação do meu perfil: se fechado, a ficha vai para fichas/{uid} e o perfil público fica só com o básico -----
+async function gravarPerfil(patch,opt){opt=opt||{};
+  const rawCur=raw.profiles[myId]||{};
+  if((rawCur.fechado||fichasRaw[myId])&&!fichaCarregada[myId])throw new Error('ficha ainda carregando');
+  const cur=profiles[myId]?{...profiles[myId]}:{};
+  let novo=opt.substituir?{...patch}:{...cur,...patch};
+  delete novo.jaTem;
+  if(souMenor()){novo.ano='';novo.cidade='';novo.estado='';
+    if(!idade.ajustado&&!opt.abrir)novo.fechado=true;
+    if(novo.fechado!==true&&!possoAbrirPerfil())novo.fechado=true}
+  Object.keys(novo).forEach(k=>{if(novo[k]===undefined)delete novo[k]});
+  const b=db.batch();let pubDoc=novo;
+  if(novo.fechado){const pub={},priv={};Object.entries(novo).forEach(([k,v])=>{(PUB_KEYS.has(k)?pub:priv)[k]=v});priv.fechado=true;
+    b.set(db.doc('profiles/'+myId),pub);b.set(db.doc('fichas/'+myId),priv);pubDoc=pub;
+    await b.commit();fichasRaw[myId]=priv;fichaCarregada[myId]=true}
+  else{b.set(db.doc('profiles/'+myId),novo);if(rawCur.fechado||fichasRaw[myId])b.delete(db.doc('fichas/'+myId));
+    await b.commit();fichasRaw[myId]=null}
+  delete novo.menorAjustado;
+  if(souMenor()&&!idade.ajustado){idade={...idade,ajustado:true};db.doc('idades/'+myId).update({ajustado:true}).catch(()=>{})}
+  raw.profiles[myId]=pubDoc;profiles[myId]=novo;
+  return novo;
+}
+
+// ----- ajustes automáticos da minha conta (uma vez por sessão, depois que tudo carregou) -----
+const temPrivNoPublico=p=>Object.entries(p||{}).some(([k,v])=>!PUB_KEYS.has(k)&&v!==''&&v!==null&&!(Array.isArray(v)&&!v.length)&&v!==false);
+async function lgManutencao(){
+  if(lgManutFeita||!db||!myId||!idadeOk||idadeIndisp||!idade||!profilesOk)return;
+  const p=raw.profiles[myId];
+  if(p&&(p.fechado||fichasRaw[myId])&&!fichaCarregada[myId])return;
+  lgManutFeita=true;
+  try{
+    if(p){const patch={};let mudar=false;
+      if(p.fechado&&temPrivNoPublico(p))mudar=true; // perfil fechado antigo: mover a ficha para o lugar protegido
+      if(souMenor()){const m=profiles[myId]||{};if(m.ano||m.cidade||m.estado)mudar=true;
+        if(!idade.ajustado&&!p.fechado){patch.fechado=true;mudar=true}
+        if(!idade.ajustado&&!mudar){idade={...idade,ajustado:true};db.doc('idades/'+myId).update({ajustado:true}).catch(()=>{})}
+        if(!p.fechado&&!possoAbrirPerfil()){patch.fechado=true;mudar=true}}
+      if(mudar){await gravarPerfil(patch);if(patch.fechado&&!p.fechado)toast('Seu perfil ficou fechado. Veja em Privacidade e dados.')}}
+    // vaquinhas antigas: tirar a chave Pix do documento público
+    const A=acoes[myId];if(A&&(A.vaquinhas||[]).some(v=>v.pix)){const b=db.batch();
+      const vq=(A.vaquinhas||[]).map(v=>{if(!v.pix)return v;b.set(db.doc('vaqpix/'+v.id),{org:myId,owner:v.owner,pix:v.pix,recebedor:v.recebedor||'',cidade:v.cidade||''});return {...v,pix:'',temPix:true,recebedor:'',cidade:''}});
+      b.set(db.doc('acoes/'+myId),{...A,vaquinhas:vq});await b.commit()}
+    // amigos secretos antigos: passar o resultado para o lugar protegido
+    if(((sorteios[myId]||{}).lista||[]).some(s=>s.pares))soApi({acao:'migrar'}).catch(()=>{});
+  }catch(e){lgManutFeita=false}
+}
+
+// ----- migração geral (administrador): roda uma vez por sessão e pelo botão do painel -----
+async function lgMigrarAdmin(manual){
+  if(!isOwner||!db)return;lgMigrouAdm=true;
+  const res={perfis:0,menores:0,lojas:0,vaq:0,sorteios:0};
+  try{
+    const idades={};try{const s=await db.collection('idades').get();s.docs.forEach(d=>{idades[d.id]=d.data()})}catch(e){}
+    for(const [id,p] of Object.entries(raw.profiles)){
+      if(!p||p.exemplo)continue;
+      const anos=idades[id]?idadeAnosDe(idades[id].data):null,menor=anos!==null&&anos<18;
+      let pub={...p};let mexeu=false;
+      if(menor){if(!idades[id].ajustado){if(!pub.fechado){pub.fechado=true;mexeu=true}await db.doc('idades/'+id).update({ajustado:true}).catch(()=>{})}
+        if(anos<16&&!pub.fechado&&!idades[id].podeAbrir){pub.fechado=true;mexeu=true}}
+      if(!pub.fechado||(!temPrivNoPublico(pub)&&!(menor&&mexeu))){if(menor&&(p.ano||p.cidade||p.estado)){await db.doc('profiles/'+id).set({ano:'',cidade:'',estado:''},{merge:true});res.menores++}continue}
+      let ficha=null;try{const f=await db.doc('fichas/'+id).get();ficha=f.exists?f.data():null}catch(e){}
+      const priv={},pubOnly={};Object.entries(pub).forEach(([k,v])=>{(PUB_KEYS.has(k)?pubOnly:priv)[k]=v});
+      const fichaNova={...priv,...(ficha||{}),fechado:true};if(menor){fichaNova.ano='';fichaNova.cidade='';fichaNova.estado=''}
+      const b=db.batch();b.set(db.doc('fichas/'+id),fichaNova);b.set(db.doc('profiles/'+id),pubOnly);await b.commit();
+      res.perfis++;if(menor)res.menores++;
+    }
+    for(const [id,l] of Object.entries(lojasDb)){if(!l||!l.donoEmail)continue;
+      await db.doc('lojasdono/'+id).set({email:String(l.donoEmail).toLowerCase()});await db.doc('lojas/'+id).update({donoEmail:window.firebase.firestore.FieldValue.delete()});res.lojas++}
+    for(const [u,A] of Object.entries(raw.acoes)){if(!A||!(A.vaquinhas||[]).some(v=>v.pix))continue;const b=db.batch();
+      const vq=(A.vaquinhas||[]).map(v=>{if(!v.pix)return v;b.set(db.doc('vaqpix/'+v.id),{org:u,owner:v.owner||'',pix:v.pix,recebedor:v.recebedor||'',cidade:v.cidade||''});res.vaq++;return {...v,pix:'',temPix:true,recebedor:'',cidade:''}});
+      b.set(db.doc('acoes/'+u),{...A,vaquinhas:vq});await b.commit()}
+    if(Object.values(raw.sorteios).some(d=>(d.lista||[]).some(s=>s.pares))){try{const {j}=await soApi({acao:'migrar',todos:true});res.sorteios=j.n||0}catch(e){}}
+    lgMigrMsg=`Última verificação: ${new Date().toLocaleString('pt-BR')}. Ajustados agora: ${res.perfis} perfis fechados, ${res.menores} perfis de menores, ${res.lojas} lojas, ${res.vaq} vaquinhas, ${res.sorteios} amigos secretos.`;
+    if(manual||res.perfis||res.lojas||res.vaq||res.sorteios||res.menores)toast('Dados protegidos (LGPD) atualizados');
+  }catch(e){lgMigrMsg='A verificação parou no meio: '+String(e&&e.message||e).slice(0,120)+'. Confira se as regras novas do Firebase foram publicadas.';if(manual)toast('Não foi possível concluir a verificação')}
+  if(tab==='admin')softRender();
+}
+
+// ----- telas de bloqueio: data de nascimento, termos, espera pelo responsável, convite de responsável -----
+function lgBloqueio(){
+  if(idadeIndisp)return false;
+  if(!idadeOk){app.innerHTML='<div class="view"><h1>Carregando a sua experiência…</h1></div>';return true}
+  if(!idade||idade.termos!==TERMOS_VER){renderIdade();return true}
+  if(esperandoResp()&&tab!=='privacidade'){renderEsperaResp();return true}
+  if(respPend&&tab!=='privacidade'){renderRespAceitar();return true}
+  return false;
+}
+function renderIdade(){
+  const so=!!idade;const p=raw.profiles[myId]||{};
+  if(!lgForm||lgForm.t!=='idade')lgForm={t:'idade',dia:p.dia||'',mes:p.mes||'',ano:/^\d{4}$/.test(String(p.ano||''))?p.ano:'',erro:''};
+  const f=lgForm;const dias=Array.from({length:31},(_,i)=>i+1);
+  let h=`<div class="view lg"><div><h1>${so?'Atualizamos nossos termos':'Antes de continuar'}</h1><p class="lede">${so?'Leia e aceite a nova versão para seguir usando o PresenteCerto.':'Só duas coisas rápidas. Você responde uma vez só.'}</p></div>`;
+  if(!so)h+=`<section class="panel"><h2>Sua data de nascimento</h2>
+   <div class="grid2"><label class="f">Dia<select id="lgDia"><option value="">—</option>${dias.map(d=>`<option value="${d}" ${+f.dia===d?'selected':''}>${d}</option>`).join('')}</select></label>
+   <label class="f">Mês<select id="lgMes"><option value="">—</option>${MESES_LONGOS.map((m,i)=>`<option value="${i+1}" ${+f.mes===i+1?'selected':''}>${m}</option>`).join('')}</select></label>
+   <label class="f">Ano<input id="lgAno" inputmode="numeric" maxlength="4" value="${esc(f.ano)}" placeholder="Ex.: 1990"></label></div>
+   <span class="small" style="color:var(--muted)">A data completa fica guardada só para você. No perfil aparecem apenas o dia e o mês do aniversário. Depois de salva, ela não muda por aqui. Se errar, escreva para ${LG_CONTATO}.</span></section>`;
+  h+=`<section class="panel"><h2>O que os outros veem</h2><ul class="lg-lista">
+   <li><span aria-hidden="true">👤</span><span><b>Nome, foto e @:</b> todas as pessoas com conta no PresenteCerto.</span></li>
+   <li><span aria-hidden="true">🎁</span><span><b>Sua ficha</b> (aniversário, gostos, tamanhos e lista de desejos): todo mundo, se o perfil for aberto; só quem você aprovar, se for fechado.</span></li>
+   <li><span aria-hidden="true">👀</span><span><b>Visitas:</b> quando você abre o perfil de alguém, a pessoa pode ver que você visitou nos últimos 7 dias. Dá para desligar em Privacidade e dados.</span></li>
+   <li><span aria-hidden="true">🔒</span><span><b>Nunca aparecem:</b> seu e-mail, sua senha e sua data de nascimento completa.</span></li>
+   <li><span aria-hidden="true">🧒</span><span><b>Menores de 18 anos</b> têm perfil fechado e mais proteções. <b>Menores de 16</b> precisam de um responsável ligado à conta.</span></li></ul></section>
+   <label class="check lg-aceite"><input type="checkbox" id="lgAceite" ${f.aceite?'checked':''}><span>Li e aceito os <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
+   <div class="err" role="alert">${esc(f.erro||'')}</div>
+   <div class="row"><button class="btn" data-lg="idadeSalvar" ${lgOcupado?'disabled':''}>${lgOcupado?'Salvando…':'Continuar'}</button><button class="link" data-lg="sair">Sair da conta</button></div></div>`;
+  app.innerHTML=h;
+}
+async function lgIdadeSalvar(){
+  const f=lgForm||{};const aceite=!!app.querySelector('#lgAceite')?.checked;f.aceite=aceite;
+  const erro=m=>{f.erro=m;renderIdade()};
+  if(idade){if(!aceite)return erro('Para continuar, marque que leu e aceita os Termos e a Política.');
+    lgOcupado=true;renderIdade();try{await db.doc('idades/'+myId).update({termos:TERMOS_VER,termosEm:Date.now()})}catch(e){lgOcupado=false;return erro('Não foi possível salvar. Confira sua internet e tente de novo.')}lgOcupado=false;return}
+  f.dia=val('lgDia');f.mes=val('lgMes');f.ano=val('lgAno');
+  const d=+f.dia,m=+f.mes,y=+f.ano,ano=new Date().getFullYear();
+  if(!d||!m||!/^\d{4}$/.test(f.ano))return erro('Escolha o dia, o mês e escreva o ano com 4 números.');
+  const dt=new Date(Date.UTC(y,m-1,d,12));if(dt.getUTCDate()!==d||dt.getUTCMonth()!==m-1||y<1900||y>ano)return erro('Essa data não existe. Confira o dia, o mês e o ano.');
+  if(dt.getTime()>Date.now())return erro('A data de nascimento não pode estar no futuro.');
+  const data=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,anos=idadeAnosDe(data);
+  if(anos>110)return erro('Confira o ano de nascimento.');
+  if(!aceite)return erro('Para continuar, marque que leu e aceita os Termos e a Política.');
+  if(!confirm(`Confira: ${d} de ${MESES_LONGOS[m-1]} de ${y} (${anos} ${anos===1?'ano':'anos'}).\n\nDepois de salvar, não dá para mudar por aqui.`))return;
+  lgOcupado=true;renderIdade();
+  try{await db.doc('idades/'+myId).set({nasc:window.firebase.firestore.Timestamp.fromDate(dt),data,criado:Date.now(),cod:lgCodigo(),termos:TERMOS_VER,termosEm:Date.now()});lgForm=null}
+  catch(e){lgOcupado=false;return erro('Não foi possível salvar. Confira sua internet e tente de novo.')}
+  lgOcupado=false;
+}
+function renderEsperaResp(){
+  const link=respLink();const msg=`Oi! Estou criando minha conta no PresenteCerto, o app de lista de presentes. Como tenho menos de 16 anos, preciso que você seja meu responsável no app. É só abrir este link e entrar com a sua conta: ${link}`;
+  app.innerHTML=`<div class="view lg"><div><h1>Falta só o seu responsável</h1><p class="lede">Para quem tem menos de 16 anos, a lei pede que a conta fique ligada à de um responsável: pai, mãe ou quem cuida de você. Mande o convite. Ele abre o link, entra no PresenteCerto com a conta dele e confirma.</p></div>
+   <section class="panel"><h2>Convite para o responsável</h2>
+    <div class="row"><a class="btn green" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn ghost" data-act="copy" data-text="${esc(link)}">Copiar link</button></div>
+    <span class="small" style="color:var(--muted)">Assim que ele confirmar, esta tela some sozinha.</span>
+    <button class="link" data-lg="novoCodigo" style="align-self:flex-start">Gerar um link novo (o anterior para de valer)</button></section>
+   <section class="panel"><h2>Enquanto isso</h2><span class="small" style="color:var(--muted)">Sua conta fica pausada e ninguém vê o seu perfil. Errou a data de nascimento? Escreva para <b>${LG_CONTATO}</b>.</span>
+    <div class="row"><button class="btn small ghost" data-lg="privacidade">Privacidade e dados</button><button class="link" data-lg="sair">Sair da conta</button></div></section></div>`;
+}
+function renderRespAceitar(){
+  const r=respPend;if(!respNomeOk[r.uid]){respNomeOk[r.uid]=1;resolveNames([r.uid]).then(()=>{if(respPend)softRender()})}
+  const nome=names[r.uid]?.name||'Uma pessoa';const anos=minhaIdade();
+  let h=`<div class="view lg"><div><h1>Pedido de responsável</h1><p class="lede"><b>${esc(nome)}</b> pediu para você ser o responsável pela conta no PresenteCerto.</p></div>`;
+  if(r.uid===myId)h+=`<div class="notice">Este é o seu próprio convite. Mande o link para o seu responsável abrir no celular dele.</div><div class="row"><button class="btn ghost" data-lg="respNao">Voltar</button></div>`;
+  else if(anos!==null&&anos<18)h+=`<div class="notice">Só um adulto (18 anos ou mais) pode ser o responsável.</div><div class="row"><button class="btn ghost" data-lg="respNao">Voltar</button></div>`;
+  else h+=`<section class="panel"><h2>Como responsável, você</h2><ul class="lg-lista">
+     <li><span aria-hidden="true">🔒</span><span>decide se o perfil pode ficar aberto para todos ou só para quem for aprovado;</span></li>
+     <li><span aria-hidden="true">👀</span><span>vê a ficha e a lista de desejos a qualquer momento, em <b>Contas que acompanho</b>;</span></li>
+     <li><span aria-hidden="true">✉️</span><span>pode pedir a correção ou a exclusão da conta pelo e-mail ${LG_CONTATO}.</span></li></ul>
+     <span class="small" style="color:var(--muted)">Confirme só se você for pai, mãe ou responsável legal por esta pessoa.</span></section>
+    <div class="row"><button class="btn" data-lg="respSim" ${lgOcupado?'disabled':''}>Sou o responsável</button><button class="link" data-lg="respNao">Não sou</button></div>`;
+  app.innerHTML=h+'</div>';
+}
+async function lgRespSim(){
+  const r=respPend;if(!r)return;lgOcupado=true;keep(render);
+  try{await db.doc('idades/'+r.uid).update({resp:myId,respEm:Date.now(),codUsado:r.cod});respPend=null;try{history.replaceState(null,'',location.pathname)}catch(e){}toast('Pronto! Você agora acompanha esta conta.');lgOcupado=false;setTab('responsavel')}
+  catch(e){lgOcupado=false;respPend=null;try{history.replaceState(null,'',location.pathname)}catch(e2){}toast('Este convite não vale mais ou já foi usado. Peça um link novo.');render()}
+}
+
+// ----- Privacidade e dados -----
+function renderPrivacidade(){
+  const p=profiles[myId]||{};const anos=minhaIdade();const fechado=!!(raw.profiles[myId]||{}).fechado;const menor=souMenor();
+  let h=`<div class="view lg"><button class="back" data-act="tab" data-id="${esperandoResp()?'mural':'perfil'}">← Voltar</button><div><h1>Privacidade e dados</h1><p class="lede">Veja o que os outros enxergam, mude suas escolhas e exerça seus direitos.</p></div>`;
+  h+=`<section class="panel"><h2>Sua conta</h2><dl class="lg-kv"><dt>E-mail</dt><dd>${esc(myEmail||'—')}</dd>
+    <dt>Nascimento</dt><dd>${idade?esc(lgDataBR(idade.data))+(anos!==null?` · ${anos} anos`:''):'não informado'}</dd>
+    ${souMenor16()?`<dt>Responsável</dt><dd>${idade.resp?esc(nm(idade.resp)):'aguardando confirmação'}</dd>`:''}</dl>
+    ${menor?`<div class="lg-menor"><b>🧒 Proteções para menores de 18 anos</b><span class="small">Perfil fechado por padrão · ano de nascimento e cidade nunca aparecem · suas visitas a outros perfis não são registradas · sem anúncios escolhidos pelos seus gostos.</span></div>`:''}</section>`;
+  // quem vê a ficha
+  h+=`<section class="panel"><h2>Quem vê sua ficha</h2><div class="lg-status ${fechado?'fech':'ab'}"><b>${fechado?'🔒 Perfil fechado':'🌍 Perfil aberto'}</b><span class="small">${fechado?'Só quem você aprovar vê aniversário, gostos, tamanhos e listas. Os outros veem só nome, foto e @.':'Qualquer pessoa com conta no PresenteCerto vê sua ficha completa.'}</span></div>`;
+  if(lgForm&&lgForm.t==='abrir')h+=`<div class="inline-form"><b>Abrir seu perfil para todos?</b><span class="small">Qualquer pessoa com conta no PresenteCerto, inclusive quem você não conhece, vai ver seu aniversário, gostos, tamanhos e listas de desejos.${menor?' Como você é menor de idade, seu ano de nascimento e sua cidade continuam escondidos.':''}</span><div class="row"><button class="btn small" data-lg="abrirOk">Sim, abrir</button><button class="link" data-lg="cancelar">Cancelar</button></div></div>`;
+  else if(fechado)h+=possoAbrirPerfil()?`<div class="row"><button class="btn small ghost" data-lg="abrir">Abrir meu perfil</button></div>`:`<span class="small" style="color:var(--muted)">Para abrir o perfil para todos, seu responsável precisa liberar na conta dele.</span>`;
+  else h+=`<div class="row"><button class="btn small ghost" data-lg="fechar">Fechar meu perfil</button></div>`;
+  h+='</section>';
+  // visitas
+  h+=`<section class="panel"><h2>Visitas ao perfil</h2>${menor?'<span class="small" style="color:var(--muted)">Como você é menor de idade, suas visitas a outros perfis não são registradas e você não vê quem visitou o seu.</span>':`<span class="small" style="color:var(--muted)">Quando você abre o perfil de alguém, registramos que você visitou e quando. O dono do perfil pode ver isso por 7 dias; depois o registro é apagado.</span>
+    <label class="check"><input type="checkbox" id="lgDisc" ${cabDiscreto()?'checked':''}><span><b>Modo discreto</b><br><span style="color:var(--muted)">Não registrar minhas visitas a outros perfis.</span></span></label>`}</section>`;
+  h+=`<section class="panel"><h2>Anúncios e ofertas</h2><span class="small" style="color:var(--muted)">${menor?'Você não recebe anúncios escolhidos pelos seus gostos ou pela sua cidade.':'Alguns anúncios do Mural são escolhidos pelos gostos e pela cidade da sua ficha. Essa escolha é feita no seu próprio aparelho. Com o Plus, os anúncios somem.'} Links de lojas podem ser de afiliado: quando você compra por eles, o PresenteCerto ganha uma comissão, sem custo para você.</span></section>`;
+  // direitos
+  h+=`<section class="panel"><h2>Seus dados</h2><span class="small" style="color:var(--muted)">Baixe uma cópia de tudo o que está guardado sobre você no PresenteCerto.</span><div class="row"><button class="btn small ghost" data-lg="baixar" ${lgOcupado?'disabled':''}>⬇️ Baixar meus dados</button></div></section>`;
+  h+=`<section class="panel lg-perigo"><h2>Excluir minha conta</h2>`;
+  if(!lgExcluir)h+=`<span class="small" style="color:var(--muted)">Apaga sua conta e seus dados para sempre.</span><div class="row"><button class="btn small ghost" data-lg="excluir">Quero excluir minha conta</button></div>`;
+  else{const senha=(window.firebase&&firebase.auth().currentUser&&(firebase.auth().currentUser.providerData||[]).some(x=>x.providerId==='password'));
+    h+=`<span class="small"><b>Será apagado:</b> sua ficha, fotos, listas, seguidores, reservas, vaquinhas, mensagens, amigos secretos e listas de evento que você organiza, eventos de empresa que você criou, avisos no celular e o seu login.</span>
+    <span class="small"><b>Pode ficar guardado:</b> registros de pagamento, pelo prazo exigido pela lei fiscal. Fichas que você preencheu em eventos de empresas de outras pessoas ficam com a empresa organizadora.</span>
+    <span class="small"><b>Não dá para desfazer.</b></span>
+    ${senha?'<label class="f">Sua senha<input id="lgSenha" type="password" autocomplete="current-password"></label>':'<span class="small" style="color:var(--muted)">Vamos pedir para você entrar de novo com o Google, por segurança.</span>'}
+    <label class="f">Para confirmar, escreva EXCLUIR<input id="lgConf" autocapitalize="characters" autocomplete="off"></label>
+    <div class="err" role="alert">${esc(lgExcluir.erro||'')}</div>
+    <div class="row"><button class="btn small lg-del" data-lg="excluirOk" ${lgOcupado?'disabled':''}>${lgOcupado?'Excluindo…':'Excluir para sempre'}</button><button class="link" data-lg="cancelar">Cancelar</button></div>`}
+  h+='</section>';
+  h+=`<section class="panel"><h2>Documentos e contato</h2><div class="row"><a class="btn small ghost" href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a><a class="btn small ghost" href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a></div>
+   <span class="small" style="color:var(--muted)">Dúvidas, correções ou outros pedidos sobre seus dados: <b>${LG_CONTATO}</b>. Respondemos em até 15 dias. Você também pode procurar a Autoridade Nacional de Proteção de Dados (gov.br/anpd).</span></section>`;
+  app.innerHTML=h+'</div>';
+  app.querySelector('#lgDisc')?.addEventListener('change',e=>{const on=e.target.checked;cabPriv={...(cabPriv||{}),discreto:on};db.doc(`data/users/${myId}/privacidade`).set({discreto:on},{merge:true}).then(()=>toast(on?'Modo discreto ligado':'Modo discreto desligado')).catch(()=>toast(failMsg))});
+}
+async function lgMudarFechado(on){
+  lgOcupado=true;try{await gravarPerfil({fechado:on},{abrir:!on});lgForm=null;toast(on?'Perfil fechado':'Perfil aberto')}catch(e){toast(e&&/carregando/.test(e.message)?'Aguarde um instante e tente de novo.':failMsg)}lgOcupado=false;keep(render);
+}
+async function lgBaixar(){
+  lgOcupado=true;keep(render);toast('Juntando seus dados…');
+  const g=async p=>{try{const s=await db.doc(p).get();return s.exists?s.data():null}catch(e){return null}};
+  const lista=async q=>{try{const s=await q.get();return s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){return []}};
+  const out={sobre:'Cópia dos seus dados pessoais no PresenteCerto (LGPD, art. 18). Controladora: Sinapse Consultoria Empresarial Ltda, CNPJ 11.277.870/0001-29. Contato: '+LG_CONTATO,geradoEm:new Date().toISOString(),conta:{id:myId,nome:myName,email:myEmail}};
+  for(const c of ['idades','usuarios','profiles','fichas','follows','acoes','agradecimentos','sorteios','parabens','planos','metricas','respostas','push'])out[c]=await g(c+'/'+myId);
+  if(out.idades){delete out.idades.cod;delete out.idades.codUsado}
+  out.privado={};for(const d of ['aparencia','notificacoes','grupos','privacidade','destaques','listasRecebidas','sugestoesEnviadas'])out.privado[d]=await g(`data/users/${myId}/${d}`);
+  out.fotos=await lista(db.collection(`fotos/${myId}/itens`));
+  out.visitasAoSeuPerfil=(await lista(db.collection(`visitas/${myId}/de`))).map(v=>({quem:v.id,nome:nm(v.id),em:new Date(+v.em||0).toISOString()}));
+  out.listasDeEvento=await lista(db.collection('eventos').where('dono','==',myId));
+  out.amigoSecretoEmpresas=await lista(db.collection('empresas').where('dono','==',myId));
+  out.chavesPixVaquinhas=[];for(const v of ((acoes[myId]||{}).vaquinhas||[]))if(v.temPix){const x=await g('vaqpix/'+v.id);if(x)out.chavesPixVaquinhas.push({vaquinha:v.id,...x})}
+  if(myEmail)out.creditosDeCompras=await g('creditos/'+myEmail.toLowerCase().replace(/\//g,'_'));
+  out.acompanhoComoResponsavel=Object.keys(respContas).map(id=>({id,nome:nm(id)}));
+  const txt=JSON.stringify(out,(k,v)=>v&&typeof v==='object'&&typeof v.toDate==='function'?v.toDate().toISOString():v,2);
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=`presentecerto-meus-dados-${hoje()}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast('Arquivo baixado')}catch(e){toast('Não foi possível baixar o arquivo neste aparelho')}
+  lgOcupado=false;keep(render);
+}
+async function lgExcluirConta(){
+  const conf=val('lgConf').toUpperCase();const senha=app.querySelector('#lgSenha')?.value||'';
+  const erro=m=>{lgExcluir={...lgExcluir,erro:m};lgOcupado=false;keep(render)};
+  if(conf!=='EXCLUIR')return erro('Escreva EXCLUIR para confirmar.');
+  const u=window.firebase&&firebase.auth().currentUser;if(!u)return erro('Entre de novo e tente outra vez.');
+  lgOcupado=true;lgExcluir={...lgExcluir,erro:''};keep(render);
+  try{
+    if((u.providerData||[]).some(x=>x.providerId==='password')){if(!senha)return erro('Digite sua senha.');await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,senha))}
+    else{const prov=new firebase.auth.GoogleAuthProvider();prov.setCustomParameters({prompt:'select_account'});await u.reauthenticateWithPopup(prov)}
+  }catch(e){return erro(e&&/wrong-password|invalid-credential/.test(e.code||'')?'Senha incorreta.':e&&e.code==='auth/user-mismatch'?'Entre com a mesma conta que você quer excluir.':'Não foi possível confirmar quem é você. Tente de novo.')}
+  try{const t=await u.getIdToken(true);const r=await fetch('/api/excluir-conta',{method:'POST',headers:{Authorization:'Bearer '+t}});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.erro||'api')}
+  catch(e){return erro('Não conseguimos apagar seus dados agora. Tente de novo em instantes ou escreva para '+LG_CONTATO+'.')}
+  try{await u.delete()}catch(e){}
+  try{localStorage.clear()}catch(e){}
+  location.href=location.pathname+'?conta=excluida';
+}
+
+// ----- responsável -----
+function renderResponsavel(){
+  const ids=Object.keys(respContas);resolveNames(ids);
+  let h=`<div class="view lg"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>Contas que acompanho</h1><p class="lede">Você é o responsável por estas contas. Aqui você vê a ficha e decide quem pode ver.</p></div>`;
+  if(!ids.length)h+=`<div class="empty"><b>Nenhuma conta ainda</b><span>Quando um menor de 16 anos mandar o convite e você confirmar, a conta aparece aqui.</span></div>`;
+  ids.forEach(id=>{const x=respContas[id];const anos=idadeAnosDe(x.data);const p=raw.profiles[id]||{};
+    h+=`<section class="panel"><div class="person"><img src="${esc(av(id))}" alt=""><div style="min-width:0"><div class="nm">${esc(nm(id))}</div><div class="meta">${anos!==null?anos+' anos · ':''}perfil ${p.fechado===false?'aberto':'fechado'}</div></div></div>
+     <label class="check"><input type="checkbox" data-lgresp="${esc(id)}" ${x.podeAbrir?'checked':''} ${anos!==null&&anos>=16?'disabled':''}><span><b>Permitir perfil aberto</b><br><span style="color:var(--muted)">${anos!==null&&anos>=16?'Já tem 16 anos ou mais: a própria pessoa decide.':'Se desmarcado, o perfil fica fechado: só quem a pessoa aprovar vê a ficha.'}</span></span></label>
+     <div class="row"><button class="btn small ghost" data-act="open" data-id="${esc(id)}">Ver ficha</button></div></section>`});
+  h+=`<section class="panel"><span class="small" style="color:var(--muted)">Para corrigir dados, pedir a exclusão de uma conta que você acompanha ou relatar um problema, escreva para <b>${LG_CONTATO}</b>.</span></section>`;
+  app.innerHTML=h+'</div>';
+}
+
+// ----- denúncia de perfil -----
+const DEN_MOTIVOS={menor:'Parece ser criança ou adolescente sem responsável',falso:'Perfil falso ou se passando por outra pessoa',ofensivo:'Conteúdo ofensivo ou impróprio',outro:'Outro motivo'};
+function denunciaHtml(id){
+  if(!id||id===myId||isEx(id))return '';
+  if(denAlvo!==id)return `<div class="view lg-den"><button class="link" data-lg="denunciar" data-id="${esc(id)}">🚩 Denunciar perfil</button></div>`;
+  return `<div class="view lg-den"><section class="panel"><h2>Denunciar perfil</h2><span class="small" style="color:var(--muted)">A pessoa não fica sabendo quem denunciou.</span>
+   ${Object.entries(DEN_MOTIVOS).map(([k,v],i)=>`<label class="check"><input type="radio" name="denM" value="${k}" ${i===0?'checked':''}><span>${esc(v)}</span></label>`).join('')}
+   <label class="f">Conte mais (opcional)<textarea id="denTxt" maxlength="500"></textarea></label>
+   <div class="row"><button class="btn small" data-lg="denEnviar" data-id="${esc(id)}">Enviar denúncia</button><button class="link" data-lg="denCancelar">Cancelar</button></div></section></div>`;
+}
+
+// ----- painel do administrador -----
+function lgpdAdminHtml(){
+  const ds=Object.entries(denuncias).sort((a,b)=>(b[1].em||0)-(a[1].em||0));const novas=ds.filter(([,d])=>d.status==='nova');
+  let h=`<section class="panel"><h2>Privacidade (LGPD)</h2><b>Denúncias${novas.length?` · ${novas.length} nova${novas.length>1?'s':''}`:''}</b>`;
+  h+=ds.length?ds.slice(0,30).map(([k,d])=>`<div class="inline-form" style="gap:4px"><div class="row between"><button class="link" data-act="open" data-id="${esc(d.alvo)}">${esc(nm(d.alvo))}</button><span class="when ${d.status==='nova'?'soon':''}">${d.status==='nova'?'nova':'resolvida'}</span></div>
+     <span class="small">${esc(DEN_MOTIVOS[d.motivo]||d.motivo)}${d.texto?' · '+esc(d.texto):''}</span><span class="small" style="color:var(--muted)">por ${esc(nm(d.uid))} · ${new Date(+d.em||0).toLocaleString('pt-BR')}</span>
+     <div class="item-actions"><button class="link" data-lg="admNasc" data-id="${esc(d.alvo)}">Corrigir nascimento</button>${d.status==='nova'?`<button class="link" data-lg="admDenOk" data-id="${esc(k)}">Marcar resolvida</button>`:''}<button class="link alt" data-lg="admDenDel" data-id="${esc(k)}">Apagar</button></div></div>`).join(''):'<span class="small" style="color:var(--muted)">Nenhuma denúncia.</span>';
+  h+=`<b>Proteção dos dados antigos</b><span class="small" style="color:var(--muted)">${esc(lgMigrMsg||'Verifica perfis fechados, perfis de menores, e-mails de lojistas, chaves Pix e amigos secretos antigos e passa tudo para os lugares protegidos.')}</span>
+   <div class="row"><button class="btn small ghost" data-lg="admMigrar">Verificar agora</button></div></section>`;
+  return h;
+}
+async function lgAdmNasc(alvo){
+  const t=prompt(`Data de nascimento de ${nm(alvo)} (DD/MM/AAAA):`);if(!t)return;
+  const m=t.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m){toast('Use o formato DD/MM/AAAA');return}
+  const d=+m[1],mo=+m[2],y=+m[3];const dt=new Date(Date.UTC(y,mo-1,d,12));if(dt.getUTCDate()!==d||dt.getUTCMonth()!==mo-1||dt.getTime()>Date.now()){toast('Data inválida');return}
+  const data=`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  try{const ref=db.doc('idades/'+alvo);const s=await ref.get();
+    if(s.exists)await ref.update({nasc:window.firebase.firestore.Timestamp.fromDate(dt),data});
+    else await ref.set({nasc:window.firebase.firestore.Timestamp.fromDate(dt),data,criado:Date.now(),cod:lgCodigo(),termos:'',termosEm:0});
+    const anos=idadeAnosDe(data);
+    if(anos<18){const p0=raw.profiles[alvo];
+      if(p0){const p={...p0,fechado:true,ano:'',cidade:'',estado:''};const pub={},priv={};Object.entries(p).forEach(([k,v])=>{(PUB_KEYS.has(k)?pub:priv)[k]=v});
+        let fx=null;try{const f=await db.doc('fichas/'+alvo).get();fx=f.exists?f.data():null}catch(e){}
+        const b=db.batch();b.set(db.doc('fichas/'+alvo),{...priv,...(fx||{}),ano:'',cidade:'',estado:'',fechado:true});b.set(db.doc('profiles/'+alvo),pub);await b.commit()}
+      await db.doc('idades/'+alvo).update({ajustado:true}).catch(()=>{})}
+    toast(`Nascimento corrigido: ${anos} anos`)}catch(e){toast(failMsg)}
+}
+
+// ----- cliques do módulo -----
+document.addEventListener('click',async e=>{
+  const el=e.target.closest('[data-lg]');if(!el)return;const a=el.dataset.lg;
+  if(a==='sair'){if(user&&user.logout)user.logout().then(()=>location.reload());return}
+  if(a==='idadeSalvar')return lgIdadeSalvar();
+  if(a==='privacidade'){lgForm=null;lgExcluir=null;setTab('privacidade');return}
+  if(a==='novoCodigo'){if(!confirm('Gerar um link novo? O link anterior para de funcionar.'))return;try{await db.doc('idades/'+myId).update({cod:lgCodigo()});toast('Link novo pronto')}catch(err){toast(failMsg)}return}
+  if(a==='respSim')return lgRespSim();
+  if(a==='respNao'){respPend=null;try{history.replaceState(null,'',location.pathname)}catch(err){}render();return}
+  if(a==='abrir'){lgForm={t:'abrir'};keep(render);return}
+  if(a==='abrirOk')return lgMudarFechado(false);
+  if(a==='fechar')return lgMudarFechado(true);
+  if(a==='cancelar'){lgForm=null;lgExcluir=null;keep(render);return}
+  if(a==='baixar')return lgBaixar();
+  if(a==='excluir'){lgExcluir={};keep(render);return}
+  if(a==='excluirOk')return lgExcluirConta();
+  if(a==='denunciar'){denAlvo=el.dataset.id;keep(render);return}
+  if(a==='denCancelar'){denAlvo=null;keep(render);return}
+  if(a==='denEnviar'){const motivo=(app.querySelector('input[name="denM"]:checked')||{}).value||'outro';const texto=(app.querySelector('#denTxt')?.value||'').trim().slice(0,500);
+    try{await db.collection('denuncias').doc(uid()+uid()).set({uid:myId,alvo:el.dataset.id,motivo,texto,em:Date.now(),status:'nova'});denAlvo=null;toast('Denúncia enviada. Obrigado por avisar.');keep(render)}catch(err){toast(failMsg)}return}
+  if(!isOwner)return;
+  if(a==='admMigrar'){toast('Verificando…');lgMigrarAdmin(true);return}
+  if(a==='admNasc')return lgAdmNasc(el.dataset.id);
+  if(a==='admDenOk'){db.doc('denuncias/'+el.dataset.id).update({status:'resolvida'}).catch(()=>toast(failMsg));return}
+  if(a==='admDenDel'){if(confirm('Apagar esta denúncia?'))db.doc('denuncias/'+el.dataset.id).delete().catch(()=>toast(failMsg));return}
+});
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.lgresp)return;const id=t.dataset.lgresp;
+  db.doc('idades/'+id).update({podeAbrir:t.checked}).then(()=>toast(t.checked?'Perfil aberto liberado':'Perfil aberto bloqueado. Ele fecha na próxima vez que a pessoa abrir o app.')).catch(()=>{t.checked=!t.checked;toast(failMsg)})});
+
+// ----- assinaturas (chamado no início do app) -----
+function lgIniciar(){
+  db.doc('idades/'+myId).onSnapshot(s=>{const era=idade;idade=s.exists?s.data():null;idadeOk=true;idadeIndisp=false;
+    if(era&&idade&&!!era.resp!==!!idade.resp&&idade.resp)toast('Seu responsável confirmou. Bem-vindo!');
+    lgManutencao();applyRaw();softRender();renderMenu()},
+    ()=>{idadeOk=true;idadeIndisp=true;softRender()});
+  db.collection('idades').where('resp','==',myId).onSnapshot(s=>{const n={};s.docs.forEach(d=>{n[d.id]=d.data()});respContas=n;resolveNames(Object.keys(n));syncFichas();if(tab==='responsavel')softRender();renderMenu()},()=>{});
+  if(isOwner)db.collection('denuncias').onSnapshot(s=>{const n={};s.docs.forEach(d=>{n[d.id]=d.data()});denuncias=n;resolveNames(Object.values(n).flatMap(d=>[d.alvo,d.uid]));if(tab==='admin')softRender()},()=>{});
+}
+
 /* ---------- início ---------- */
 async function resolveNames(ids){
   ids=ids.filter(i=>i&&!names[i]&&!isEx(i));if(!user||!ids.length)return;
@@ -3739,6 +4154,7 @@ async function start(){
   db.doc(`data/users/${myId}/aparencia`).onSnapshot(s=>{aparencia=s.exists?{...s.data()}:{};if(!aparencia.v&&aparencia.cor==='rosa')aparencia.cor='roxo';
     if(tab!=='aparencia')aplicarTema(prefsEfetivas());
     aparOk=true;tentarInicio()},()=>{aparOk=true;tentarInicio()});
+  lgIniciar();
   db.doc(`data/users/${myId}/notificacoes`).onSnapshot(s=>{if(s.exists){const d=s.data();notifEstado={lidoAte:d.lidoAte||0,lidos:[...(d.lidos||[])],desligados:[...(d.desligados||[])]}}else if(!notifEstado.lidoAte){notifEstado={...notifEstado,lidoAte:Date.now()-7*864e5};salvarNotif()}atualizarSino();if(notifAberto)renderSino()},()=>{});
   render();
   if(pendingEv){const pe=pendingEv;pendingEv=null;try{history.replaceState(null,'',location.pathname)}catch(e){}evAbrir(pe)}
@@ -3747,7 +4163,7 @@ async function start(){
   claude.use('sample').then(s=>{sample=s;if(viewing)softRender()});
   const err=()=>toast('Conexão perdida. Recarregue a página.');
   const coll=(path,setter)=>db.collection(path).onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});setter(n);refresh(Object.keys(n))},err);
-  coll('profiles',n=>{raw.profiles=n;applyRaw()});
+  coll('profiles',n=>{raw.profiles=n;profilesOk=true;applyRaw();lgManutencao()});
   coll('follows',n=>{raw.follows=n;applyRaw()});
   coll('acoes',n=>{raw.acoes=n;applyRaw()});
   coll('agradecimentos',n=>agrad=n);
@@ -3764,6 +4180,9 @@ async function start(){
   db.doc('respostas/'+myId).onSnapshot(s=>{minhasRespostas=s.exists&&Array.isArray(s.data().lista)?s.data().lista:[];atualizarSino();if(notifAberto)renderSino();if(tab==='sugestao'&&fbDraft&&!fbDraft.texto)renderSugestao()},()=>{});
   db.doc(`data/users/${myId}/privacidade`).onSnapshot(s=>{cabPriv=s.exists?{...s.data()}:{}},()=>{cabPriv={}});
   db.doc('ofertasauto/shopee').onSnapshot(s=>{const d=s.exists?s.data():{};ofAuto=Array.isArray(d.lista)?d.lista:[];ofAutoEm=d.em&&d.em.toDate?d.em.toDate():d.em?new Date(d.em):null;softRender()},()=>{});
+  {const dn=sn=>{const n={};sn.docs.forEach(d=>{n[d.id]=String(d.data().email||'').toLowerCase()});lojaDonos=n;softRender();renderMenu()};
+   if(isOwner)db.collection('lojasdono').onSnapshot(dn,()=>{});
+   else if(myEmail&&window.firebase&&firebase.auth().currentUser&&firebase.auth().currentUser.emailVerified)db.collection('lojasdono').where('email','==',myEmail.toLowerCase()).onSnapshot(dn,()=>{});}
   db.collection('lojas').onSnapshot(sn=>{const n={};sn.docs.forEach(d=>{n[d.id]=d.data()});lojasDb=n;lojasOk=true;ljMigrar();softRender();renderMenu()},()=>{lojasOk=true;softRender()});
   db.doc('config/app').onSnapshot(s=>{config=s.exists?s.data():{};configOk=true;applyRaw();ljMigrar();softRender();tentarDestaque()},()=>{configOk=true;tentarDestaque()});
   db.doc(`data/users/${myId}/grupos`).onSnapshot(s=>{grupos=s.exists&&Array.isArray(s.data().lista)?s.data().lista.map(g=>({...g,membros:[...(g.membros||[])]})):[];softRender()},()=>{});
