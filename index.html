@@ -261,6 +261,19 @@ button.chip{cursor:pointer}
 .lj-pf-foto{all:unset;cursor:pointer;width:104px;height:104px;border-radius:14px;border:1.5px dashed var(--lc);background:var(--sunk);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;overflow:hidden;flex:none}
 .lj-pf-foto img{width:100%;height:100%;object-fit:cover}
 @media (max-width:380px){.lj-grid{grid-template-columns:1fr 1fr}.lj-up{flex-direction:column}}
+/* modo escuro: cartões que tinham fundo claro fixo */
+:root[data-escuro="1"] .ev-prem,:root[data-escuro="1"] .ev-plano.top,:root[data-escuro="1"] .emp-plano.top,:root[data-escuro="1"] .ev-dica,:root[data-escuro="1"] .emp-mail,:root[data-escuro="1"] .pf-aniv,:root[data-escuro="1"] .cab-festa,:root[data-tema="escurototal"] .ev-prem,:root[data-tema="escurototal"] .ev-plano.top,:root[data-tema="escurototal"] .emp-plano.top,:root[data-tema="escurototal"] .ev-dica,:root[data-tema="escurototal"] .emp-mail,:root[data-tema="escurototal"] .pf-aniv,:root[data-tema="escurototal"] .cab-festa,:root[data-tema="noiterose"] .ev-prem,:root[data-tema="noiterose"] .ev-plano.top,:root[data-tema="noiterose"] .emp-plano.top,:root[data-tema="noiterose"] .ev-dica,:root[data-tema="noiterose"] .emp-mail,:root[data-tema="noiterose"] .pf-aniv,:root[data-tema="noiterose"] .cab-festa,:root[data-tema="grafite2"] .ev-prem,:root[data-tema="grafite2"] .ev-plano.top,:root[data-tema="grafite2"] .emp-plano.top,:root[data-tema="grafite2"] .ev-dica,:root[data-tema="grafite2"] .emp-mail,:root[data-tema="grafite2"] .pf-aniv,:root[data-tema="grafite2"] .cab-festa,:root[data-tema="carbono"] .ev-prem,:root[data-tema="carbono"] .ev-plano.top,:root[data-tema="carbono"] .emp-plano.top,:root[data-tema="carbono"] .ev-dica,:root[data-tema="carbono"] .emp-mail,:root[data-tema="carbono"] .pf-aniv,:root[data-tema="carbono"] .cab-festa{background:var(--warn-soft)!important;color:var(--fg)}
+:root[data-escuro="1"] .msg-ia-ok,:root[data-escuro="1"] .emp-ok,:root[data-escuro="1"] .emp-gratis,:root[data-escuro="1"] .cab-festa-ok,:root[data-tema="escurototal"] .msg-ia-ok,:root[data-tema="escurototal"] .emp-ok,:root[data-tema="escurototal"] .emp-gratis,:root[data-tema="escurototal"] .cab-festa-ok,:root[data-tema="noiterose"] .msg-ia-ok,:root[data-tema="noiterose"] .emp-ok,:root[data-tema="noiterose"] .emp-gratis,:root[data-tema="noiterose"] .cab-festa-ok,:root[data-tema="grafite2"] .msg-ia-ok,:root[data-tema="grafite2"] .emp-ok,:root[data-tema="grafite2"] .emp-gratis,:root[data-tema="grafite2"] .cab-festa-ok,:root[data-tema="carbono"] .msg-ia-ok,:root[data-tema="carbono"] .emp-ok,:root[data-tema="carbono"] .emp-gratis,:root[data-tema="carbono"] .cab-festa-ok{background:var(--ribbon-soft)!important;color:var(--fg)!important}
+:root[data-escuro="1"] .pf-recebi,:root[data-tema="escurototal"] .pf-recebi,:root[data-tema="noiterose"] .pf-recebi,:root[data-tema="grafite2"] .pf-recebi,:root[data-tema="carbono"] .pf-recebi{background:var(--ribbon-soft);color:var(--ribbon)}
+:root[data-escuro="1"] .menu-item.menu-plus,:root[data-tema="escurototal"] .menu-item.menu-plus,:root[data-tema="noiterose"] .menu-item.menu-plus,:root[data-tema="grafite2"] .menu-item.menu-plus,:root[data-tema="carbono"] .menu-item.menu-plus{background:var(--accent-soft)}
+:root[data-escuro="1"] .cab-teste,:root[data-tema="escurototal"] .cab-teste,:root[data-tema="noiterose"] .cab-teste,:root[data-tema="grafite2"] .cab-teste,:root[data-tema="carbono"] .cab-teste{background:var(--warn-soft);color:var(--fg);border-color:var(--line)}
+@media (prefers-color-scheme:dark){
+:root[data-escuro="auto"] .ev-prem,:root[data-escuro="auto"] .ev-plano.top,:root[data-escuro="auto"] .emp-plano.top,:root[data-escuro="auto"] .ev-dica,:root[data-escuro="auto"] .emp-mail,:root[data-escuro="auto"] .pf-aniv,:root[data-escuro="auto"] .cab-festa{background:var(--warn-soft)!important;color:var(--fg)}
+:root[data-escuro="auto"] .msg-ia-ok,:root[data-escuro="auto"] .emp-ok,:root[data-escuro="auto"] .emp-gratis,:root[data-escuro="auto"] .cab-festa-ok{background:var(--ribbon-soft)!important;color:var(--fg)!important}
+:root[data-escuro="auto"] .pf-recebi{background:var(--ribbon-soft);color:var(--ribbon)}
+:root[data-escuro="auto"] .menu-item.menu-plus{background:var(--accent-soft)}
+:root[data-escuro="auto"] .cab-teste{background:var(--warn-soft);color:var(--fg);border-color:var(--line)}
+}
 /* mensagem do convite */
 .msg-ed{display:flex;flex-direction:column;gap:8px}
 .msg-ed textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;line-height:1.45;background:var(--surface);color:var(--fg);resize:vertical}
@@ -1313,6 +1326,7 @@ function renderMenu(){
    ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
    <button class="menu-item" data-menu="enviar">👋 Convidar amigos</button>
    ${lojasVisiveis().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
+   <button class="menu-item" data-menu="noturno">${modoNoturnoAtivo()?'☀️ Modo diurno':'🌙 Modo noturno'}</button>
    <button class="menu-item" data-menu="aparencia">🎨 Personalizar visual</button>
    ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
    ${isPlus(myId)?'<button class="menu-item" data-menu="plus">⭐ Meu Plus</button>':'<button class="menu-item menu-plus" data-menu="plus">⭐ Seja Plus <span>Perfil com a sua cara</span></button>'}
@@ -1342,6 +1356,7 @@ document.addEventListener('click',e=>{
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
   if(a==='privacidade'){lgForm=null;lgExcluir=null;setTab('privacidade')}
+  if(a==='noturno'){alternarNoturno();return}
   if(a==='responsavel')setTab('responsavel');
   if(a==='sugestao'){fbDraft=null;setTab('sugestao')}
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil',true)}
@@ -2327,7 +2342,7 @@ app.addEventListener('click',e=>{
   if(a==='pendAdiar'){if(pendEst.atual)pendEst.adiadas[pendEst.atual]=Date.now()+3*864e5;pendEst.atual='';pendEst.feitoEm=Date.now();pendSalvar();keep(render)}
   if(a==='pendFechar'){pendFeitoAgora=false;keep(render)}
 });
-const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Perfil em festa no aniversário','Faltando um mês, seu perfil pode virar festa com confete, coroa e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🌙','Personalizar o visual','Cores do app, modo escuro, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
+const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Perfil em festa no aniversário','Faltando um mês, seu perfil pode virar festa com confete, coroa e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🎨','Personalizar o visual','Cores do app, temas, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
   const on=isPlus(myId);
   let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
@@ -2344,7 +2359,7 @@ function plusPanel(){
    <div class="flabel">Lista extra de Natal (aparece na etapa Lista de desejos)</div>${chipsPick('listasAtivas',Object.keys(LISTAS_EXTRA),'style').replace(/>(lista_[a-z]+)</g,(m,k)=>'>'+LISTAS_EXTRA[k]+'<')}
    <span class="small" style="color:var(--muted)">Você vê menos anúncios e pode criar amigo secreto sem limite de pessoas.</span></section>`;
   return `<section class="panel hl"><h2>PresenteCerto Plus</h2><span class="muted">Mais recursos para quem adora presentear:</span>
-   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, modo escuro, fundo e tela inicial</li><li>Lista de Natal separada da sua lista de desejos</li><li>2 listas de evento grátis (casamento, chá de bebê, casa nova)</li><li>Amigo secreto sem limite de participantes</li><li>2 listas de evento grátis (casamento, chá de bebê...)</li></ul>
+   <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:14px"><li>Menos anúncios: sem os quadros de propaganda no Mural e nas fichas</li><li>Capa colorida e selo Plus no seu perfil</li><li>Personalizar o visual: cores, temas, fundo e tela inicial</li><li>Lista de Natal separada da sua lista de desejos</li><li>2 listas de evento grátis (casamento, chá de bebê, casa nova)</li><li>Amigo secreto sem limite de participantes</li><li>2 listas de evento grátis (casamento, chá de bebê...)</li></ul>
    <div class="row"><button class="link" data-act="tab" data-id="plus">Ver todos os benefícios</button></div>
    ${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:''}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
@@ -2395,7 +2410,16 @@ const AP_ESCURO={claro:'Claro',escuro:'Escuro',auto:'Igual ao celular'};
 const AP_FUNDO={liso:'Liso',pontos:'Pontinhos',confetes:'Confetes',lacos:'Laços de presente'};
 const AP_INICIO={mural:'Mural',datas:'Datas',perfil:'Minha ficha'};
 const podeVisual=()=>isOwner||isPlus(myId);
-function prefsEfetivas(){const a=aparencia||{};if(podeVisual())return a;return {letra:a.letra}}
+// Modo da tela (claro, escuro ou igual ao celular) e tamanho da letra valem para todos; o resto é do Plus
+// modo noturno com um toque (menu da foto)
+function modoNoturnoAtivo(){const r=document.documentElement;const t=r.getAttribute('data-tema');if(t==='escurototal')return true;const e=r.getAttribute('data-escuro');return e==='1'||(e==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
+async function alternarNoturno(){
+  const escuro=!modoNoturnoAtivo();const novo={...(aparencia||{}),v:2,escuro:escuro?'escuro':'claro'};
+  if(!escuro&&novo.tema==='escurototal')novo.tema='';
+  aparencia=novo;aplicarTema(prefsEfetivas());renderMenu();toast(escuro?'Modo noturno ligado 🌙':'Modo diurno ligado ☀️');
+  try{await db.doc(`data/users/${myId}/aparencia`).set(novo)}catch(e){toast(failMsg)}
+}
+function prefsEfetivas(){const a=aparencia||{};if(podeVisual())return a;return {letra:a.letra,escuro:a.escuro}}
 function aplicarTema(a){
   a=a||{};const r=document.documentElement;
   const tema=a.tema&&AP_TEMAS[a.tema]?a.tema:'';
@@ -2411,10 +2435,10 @@ function renderAparencia(){
   const d=aparDraft,plus=podeVisual();aplicarTema(d);
   const op=(campo,mapa,extra)=>`<div class="chips">${Object.entries(mapa).map(([k,v])=>`<button class="chip style" data-act="apSet" data-k="${campo}" data-v="${k}" aria-pressed="${(d[campo]||'')===k}">${extra?extra(k):''}${esc(v)}</button>`).join('')}</div>`;
   const cad=plus?'':' <span class="lock">Plus</span>';
-  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>${plus?'':`<div class="notice"><b>Você ainda não tem o Plus.</b> Cor, modo escuro, fundo, tela inicial e visual compacto só ficam valendo para assinantes. Suas escolhas ficam guardadas e passam a valer assim que o Plus for ativado. O tamanho da letra vale para todos.<div class="row" style="margin-top:10px">${safeLink(config.plusLink)?`<a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener" data-track="loja:plus-personalizar">Assine agora${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:`<button class="btn" data-act="apAssinar">Assine agora</button>`}</div></div>`}
+  let h=`<div class="view"><button class="back" data-act="apVoltar">← Voltar</button><div><h1>Personalizar</h1><p class="lede">${plus?'Deixe o PresenteCerto com a sua cara. As mudanças valem só para você.':'Experimente à vontade: a tela muda na hora. Para manter o visual, assine o Plus.'}</p></div>${plus?'':`<div class="notice"><b>Você ainda não tem o Plus.</b> Cor, temas, fundo, tela inicial e visual compacto só ficam valendo para assinantes. Suas escolhas ficam guardadas e passam a valer assim que o Plus for ativado. O modo da tela e o tamanho da letra valem para todos.<div class="row" style="margin-top:10px">${safeLink(config.plusLink)?`<a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener" data-track="loja:plus-personalizar">Assine agora${config.plusPreco?' · '+esc(config.plusPreco):''}</a>`:`<button class="btn" data-act="apAssinar">Assine agora</button>`}</div></div>`}
   <section class="panel"><h2>Temas prontos${cad}</h2><span class="muted">Cor, fundo e clima de uma vez só. Escolher um tema substitui as opções abaixo.</span><div class="temas">${Object.keys(AP_TEMAS).map(k=>{const [n,bg,ac]=AP_TEMAS[k];return `<button class="tema-btn" data-act="apTema" data-v="${k}" aria-pressed="${d.tema===k}"><span class="tema-prev" style="background:${bg}"><i style="background:${ac}"></i><i style="background:${ac};opacity:.45"></i></span><span>${esc(n)}</span></button>`}).join('')}<button class="tema-btn" data-act="apTema" data-v="" aria-pressed="${!d.tema}"><span class="tema-prev" style="background:var(--sunk)"><i style="background:var(--muted)"></i></span><span>Nenhum</span></button></div></section>
   <section class="panel"><h2>Cor do aplicativo${cad}</h2>${op('cor',{roxo:'Roxo (padrão)',rosa:'Rosa',azul:'Azul',verde:'Verde',laranja:'Laranja',grafite:'Grafite'},k=>`<span class="swatch" style="background:${AP_CORES[k]}"></span>`)}</section>
-  <section class="panel"><h2>Modo da tela${cad}</h2>${op('escuro',AP_ESCURO)}</section>
+  <section class="panel"><h2>Modo da tela</h2><span class="muted">Grátis para todos. O modo escuro descansa a vista à noite.</span>${op('escuro',AP_ESCURO)}</section>
   <section class="panel"><h2>Fundo${cad}</h2>${op('fundo',AP_FUNDO)}</section>
   <section class="panel"><h2>Tela inicial${cad}</h2><span class="muted">Qual aba abre quando você entra no PresenteCerto.</span>${op('inicio',AP_INICIO)}</section>
   <section class="panel"><h2>Visual compacto${cad}</h2><label class="check"><input type="checkbox" data-apcheck="compacto" ${d.compacto?'checked':''}><span>Cartões mais próximos, para ver mais coisas sem rolar.</span></label></section>
@@ -2426,7 +2450,7 @@ function renderAparencia(){
 async function salvarAparencia(){
   const d=aparDraft||{};const plus=podeVisual();
   const novo={v:2,tema:AP_TEMAS[d.tema]?d.tema:'',cor:d.cor,escuro:d.escuro,fundo:d.fundo,inicio:d.inicio,compacto:!!d.compacto,letra:d.letra};
-  try{await db.doc(`data/users/${myId}/aparencia`).set(novo);aparencia=novo;aparDraft=null;toast(plus?'Visual salvo':'Salvo. O tamanho da letra já vale; o resto passa a valer quando o Plus for ativado.');setTab('mural')}catch(e){toast(failMsg)}
+  try{await db.doc(`data/users/${myId}/aparencia`).set(novo);aparencia=novo;aparDraft=null;toast(plus?'Visual salvo':'Salvo. O modo da tela e o tamanho da letra já valem; o resto passa a valer quando o Plus for ativado.');setTab('mural')}catch(e){toast(failMsg)}
 }
 
 /* ---------- Editar perfil ---------- */
