@@ -1149,6 +1149,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   if(!db&&window.claude&&claude.use){app.innerHTML='<div class="view"><h1>Carregando a sua experiência…</h1></div>';return}
   if(!db){app.innerHTML=`<div class="view"><h1>Entre para usar o PresenteCerto</h1><p class="lede">Faça login na sua conta para criar sua ficha, seguir pessoas e ver as listas delas.</p></div>`;return}
   if(lgBloqueio())return;
+  if(!dqMostrado)setTimeout(tentarDestaque,0);
   if(viewing&&String(viewing).startsWith('loja:'))renderLoja(viewing.slice(5));
   else if(viewing){renderPerson(viewing);app.insertAdjacentHTML('beforeend',denunciaHtml(viewing))}
   else if(tab==='privacidade')renderPrivacidade();
@@ -1347,6 +1348,7 @@ function renderMenu(){
    ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
    <button class="menu-item" data-menu="enviar">👋 Convidar amigos</button>
    ${lojasVisiveis().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
+   ${!appInstalado()&&sistema()&&!dqInstalou?'<button class="menu-item" data-menu="instalar">📲 Instalar no celular</button>':''}
    <button class="menu-item" data-menu="noturno">${modoNoturnoAtivo()?'☀️ Modo diurno':'🌙 Modo noturno'}</button>
    <button class="menu-item" data-menu="aparencia">🎨 Personalizar visual</button>
    ${pushAtivo?'<button class="menu-item" data-menu="pushOff">🔕 Desligar avisos no celular</button>':(pushSuportado()||ehIOS)?'<button class="menu-item" data-menu="pushOn">🔔 Ativar avisos no celular</button>':''}
@@ -1378,6 +1380,7 @@ document.addEventListener('click',e=>{
   if(a==='painel')setTab('admin');
   if(a==='privacidade'){lgForm=null;lgExcluir=null;setTab('privacidade')}
   if(a==='noturno'){alternarNoturno();return}
+  if(a==='instalar'){abrirInstalar('menu');return}
   if(a==='responsavel')setTab('responsavel');
   if(a==='sugestao'){fbDraft=null;setTab('sugestao')}
   if(a==='compartilhar'){fichaStep=PASSOS.length-1;setTab('perfil',true)}
@@ -2640,8 +2643,8 @@ function renderAdmin(){
      <span class="small" style="color:var(--muted)">${esc([PUB2[x.publico||'todos'],FREQ[x.frequencia||'uma'],x.ir?'botão "'+(x.botao||(x.ir==='link'?'Saiba mais':'Ver agora'))+'" → '+DQ_IR[x.ir]:'sem botão',x.temImagem?'com imagem':'',x.inicio?'de '+new Date(x.inicio+'T12:00').toLocaleDateString('pt-BR'):'',x.fim?'até '+new Date(x.fim+'T12:00').toLocaleDateString('pt-BR'):'',(x.cidades||[]).join(', ')].filter(Boolean).join(' · '))} · ${sumAd('pop:'+x.id,'v')} visualizações · ${sumAd('pop:'+x.id,'c')} cliques</span>
      <div class="item-actions"><button class="link" data-act="previaDq" data-id="${esc(x.id)}">Ver prévia</button><button class="link" data-act="editDq" data-id="${esc(x.id)}">Editar</button><button class="link alt" data-act="pausarDq" data-id="${esc(x.id)}">${x.ativo?'Pausar':'Reativar'}</button>${i>0?`<button class="link" data-act="subirDq" data-id="${esc(x.id)}">Subir na lista</button>`:''}<button class="link" data-act="excluirDq" data-id="${esc(x.id)}">Excluir</button></div></div>`).join(''):'<span class="muted">Nenhum destaque criado.</span>'}
    <div class="inline-form" style="gap:4px"><div class="row between"><b>Instalar no celular (fixo)</b><span class="when ${config.popupInstalar===false?'':'soon'}">${config.popupInstalar===false?'desligado':'no ar'}</span></div>
-     <span class="small" style="color:var(--muted)">Aparece para quem usa pelo navegador e ainda não instalou. Vem antes dos outros destaques. "Já instalei" esconde de vez naquele celular.</span>
-     <label class="f" style="margin-top:4px">Quantas vezes aparece<select data-instfreq>${Object.entries(INST_FREQ).map(([k,v])=>`<option value="${k}" ${(config.instalarFreq||'dia')===k?'selected':''}>${v}</option>`).join('')}</select></label>
+     <span class="small" style="color:var(--muted)">Aparece para quem usa pelo navegador e ainda não instalou. Não aparece dentro do WhatsApp, Instagram e Facebook. "Já instalei" e "Não mostrar mais" escondem de vez, também na conta da pessoa.</span>
+     <label class="f" style="margin-top:4px">Quantas vezes aparece<select data-instfreq>${Object.entries(INST_FREQ).map(([k,v])=>`<option value="${k}" ${(config.instalarFreq||'inteligente')===k?'selected':''}>${v}</option>`).join('')}</select></label>
      <div class="item-actions"><button class="link" data-act="previaInstalar">Ver prévia</button><button class="link" data-act="zerarInstalar">Voltar a mostrar neste aparelho</button><button class="link alt" data-act="toggleInstalar">${config.popupInstalar===false?'Ligar':'Desligar'}</button></div></div>
    ${form&&form.type==='novoDq'?dqForm(form.rascunho||{},-1):`<div class="row"><button class="btn small ghost" data-act="novoDq">Criar destaque</button></div>`}</section>`;
   // 8 avisos
@@ -2669,16 +2672,29 @@ let instalarEvento=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();instalarEvento=e});
 const appInstalado=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
 const sistema=()=>{const u=navigator.userAgent||'';if(/iPhone|iPad|iPod/i.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1))return 'ios';if(/Android/i.test(u))return 'android';return ''};
-const INST_FREQ={sempre:'Toda vez que abrir o site',dia:'Uma vez por dia',semana:'Uma vez por semana',uma:'Só uma vez (até a pessoa fechar)'};
+const INST_FREQ={inteligente:'Inteligente (recomendado): a partir da 3ª visita, depois de 7 e 30 dias',semana:'Uma vez por semana',uma:'Só uma vez (até a pessoa fechar)',dia:'Uma vez por dia',sempre:'Toda vez que abrir o site (só para teste)'};
+// estado da janela "instalar": recusas, data da próxima vez e "não mostrar mais" (no aparelho e na conta)
+let instEstado={n:0,ate:'',nunca:false};
+try{const v=localStorage.getItem('instalarPop')||'';if(v.startsWith('{'))instEstado={...instEstado,...JSON.parse(v)};else if(v==='nunca')instEstado.nunca=true;else if(v)instEstado={n:1,ate:'',nunca:false,dia:v}}catch(e){}
+let instVisitas=0;try{instVisitas=(+(localStorage.getItem('pc_visitas'))||0)+1;localStorage.setItem('pc_visitas',String(instVisitas))}catch(e){instVisitas=3}
+const emAppInterno=()=>/Instagram|FBAN|FBAV|FB_IAB|FBIOS|Line\/|MicroMessenger|TikTok|musical_ly|Snapchat|Pinterest|WhatsApp/i.test(navigator.userAgent||'');
+function instGuardar(){try{localStorage.setItem('instalarPop',JSON.stringify(instEstado))}catch(e){}
+  if(myId&&db)db.doc(`data/users/${myId}/destaques`).set({instalar:{n:instEstado.n||0,ate:instEstado.ate||'',nunca:!!instEstado.nunca}},{merge:true}).catch(()=>{})}
 function instalarPraMostrar(){
   if(config.popupInstalar===false||appInstalado()||dqInstalou||!sistema())return false;
-  let v='';try{v=localStorage.getItem('instalarPop')||''}catch(e){}
-  if(v==='nunca')return false;if(!v)return true;
-  const f=config.instalarFreq||'dia';
+  if(instEstado.nunca||emAppInterno())return false;
+  const f=config.instalarFreq||'inteligente';
   if(f==='sempre')return true;
-  if(f==='uma')return false;
-  if(f==='semana'){const d=Date.parse(v+'T12:00');return !(d&&Date.now()-d<7*864e5)}
-  return v!==hoje();
+  const visto=instEstado.n>0||!!instEstado.dia;
+  if(f==='uma')return !visto;
+  if(f==='dia')return instEstado.dia!==hoje();
+  if(f==='semana'){const d=Date.parse((instEstado.dia||'')+'T12:00');return !(d&&Date.now()-d<7*864e5)}
+  // inteligente: nunca no primeiro acesso; só a partir da 3ª visita (ou depois de salvar a ficha); recusou → 7 dias → 30 dias → para
+  const fichaPronta=profiles[myId]&&completude(profiles[myId]).pct>=30;
+  if(instVisitas<3&&!fichaPronta)return false;
+  if(instEstado.n>=3)return false;
+  if(instEstado.ate&&hoje()<instEstado.ate)return false;
+  return true;
 }
 function instalouSalvar(){if(dqInstalou&&!myId)return;dqInstalou=true;if(myId&&db)db.doc(`data/users/${myId}/destaques`).set({instalou:true},{merge:true}).catch(()=>{})}
 function abrirInstalar(previa){
@@ -2690,18 +2706,22 @@ function abrirInstalar(previa){
   const and=`<div class="inst-os ${so==='android'?'seu':''}"><b>No Android (Chrome)</b><ol><li>Toque nos ${icoPontos} <b style="display:inline">três pontinhos</b>, lá em cima.</li><li>Toque em <b style="display:inline">“Adicionar à tela inicial”</b> ou “Instalar app”.</li><li>Confirme em <b style="display:inline">Adicionar</b>. Pronto! 🎉</li></ol></div>`;
   const passos=so==='ios'?ios:so==='android'?and:ios+and;
   const ov=document.createElement('div');ov.className='dq-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Instalar o PresenteCerto');
-  const marcar=v=>{if(previa)return;try{localStorage.setItem('instalarPop',v)}catch(e){}if(v==='nunca')instalouSalvar()};
+  const manual=previa==='menu';
+  const marcar=v=>{if(previa===true)return;if(v==='nunca'){instEstado={...instEstado,nunca:true};instGuardar();instalouSalvar()}};
   const fechar=()=>{ov.remove();document.removeEventListener('keydown',tecla)};
-  const depois=()=>{marcar(hoje());fechar()};
+  const depois=()=>{if(!previa&&!manual){const n=(instEstado.n||0)+1;const dias=n===1?7:n===2?30:0;const d=new Date(Date.now()+dias*864e5);
+      instEstado={...instEstado,n,dia:hoje(),ate:dias?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):'',nunca:n>=3};instGuardar()}
+    fechar();if(!previa&&!manual)toast('Tudo bem! Se quiser depois, está no menu da sua foto: 📲 Instalar no celular.')};
+  const naoMais=()=>{if(previa!==true){instEstado={...instEstado,nunca:true};instGuardar()}fechar();toast('Combinado, não vamos mais perguntar. Se mudar de ideia, está no menu da sua foto.')};
   const tecla=e=>{if(e.key==='Escape')depois()};document.addEventListener('keydown',tecla);
-  const topo=`<button class="dq-x" aria-label="Fechar">×</button>${previa?'<div class="dq-eyebrow">Prévia · só você está vendo</div>':''}`;
+  const topo=`<button class="dq-x" aria-label="Fechar">×</button>${previa===true?'<div class="dq-eyebrow">Prévia · só você está vendo</div>':''}`;
   function telaConvite(){
     ov.innerHTML=`<div class="dq-box"><div class="dq-in" style="padding-top:26px;text-align:center;align-items:center">${topo}
       <img class="inst-icone" src="icon.svg" alt="" style="width:72px;height:72px">
       <h2>Nunca mais dê presente errado</h2>
       <p>Coloque o PresenteCerto na tela do seu celular e veja na hora o que seus amigos querem ganhar.</p>
       <ul class="inst-benef"><li><span>⚡</span>Abre num toque, direto da tela inicial</li><li><span>🎂</span>Aniversários e listas sempre à mão</li><li><span>📦</span>Grátis e não ocupa memória do celular</li></ul>
-      <div class="dq-btns" style="width:100%"><button class="btn dq-quero">Quero no meu celular</button><button class="link dq-fechar" style="align-self:center">Agora não</button></div></div></div>`;
+      <div class="dq-btns" style="width:100%"><button class="btn dq-quero">Quero no meu celular</button><button class="link dq-fechar" style="align-self:center">Agora não</button>${manual?'':'<button class="link dq-nunca" style="align-self:center;font-size:13px;color:var(--muted)">Não mostrar mais</button>'}</div></div></div>`;
     ligar();
     ov.querySelector('.dq-quero').onclick=async()=>{
       if(instalarEvento){try{instalarEvento.prompt();const r=await instalarEvento.userChoice;instalarEvento=null;if(r&&r.outcome==='accepted'){marcar('nunca');fechar();toast('Pronto! O PresenteCerto está na sua tela inicial.');return}}catch(e){}}
@@ -2715,7 +2735,7 @@ function abrirInstalar(previa){
       <div class="dq-btns"><button class="btn dq-ja">Pronto, já instalei</button><button class="link dq-fechar" style="align-self:center">Faço depois</button></div></div></div>`;
     ligar();ov.querySelector('.dq-ja').onclick=()=>{marcar('nunca');fechar();toast('Oba! Agora é só abrir pelo ícone na tela inicial.')};
   }
-  function ligar(){ov.querySelector('.dq-x').onclick=depois;ov.querySelector('.dq-fechar').onclick=depois}
+  function ligar(){ov.querySelector('.dq-x').onclick=depois;ov.querySelector('.dq-fechar').onclick=depois;const nm=ov.querySelector('.dq-nunca');if(nm)nm.onclick=naoMais}
   ov.addEventListener('click',e=>{if(e.target===ov)depois()});
   document.body.appendChild(ov);telaConvite();
 }
@@ -2740,6 +2760,8 @@ function tentarDestaque(){
   if(dqMostrado||!dqVistosOk||!planosOk||!configOk||!myId||!db)return;
   if(appInstalado()&&!dqInstalou)instalouSalvar();
   if(tab==='aparencia'||document.querySelector('.crop-ov,.dq-ov'))return;
+  if(!idadeIndisp&&(!idadeOk||!idade||idade.termos!==TERMOS_VER||precisaHandle()||esperandoResp()||respPend))return;
+  if(typeof fichaBoasVindas!=='undefined'&&fichaBoasVindas)return;
   if(instalarPraMostrar()){dqMostrado=true;setTimeout(()=>abrirInstalar(false),900);return}
   const x=destaquesList().find(destaquePraMim);if(!x)return;
   dqMostrado=true;
@@ -3816,7 +3838,7 @@ app.addEventListener('click',async e=>{
     case 'fbRespEnviar': responderSugestao(ds.id);break;
     case 'fbExcluir': if(confirm('Excluir esta sugestão?'))db.doc('feedback/'+ds.id).delete().then(()=>toast('Sugestão excluída')).catch(()=>toast('Não foi possível excluir.'));break;
     case 'previaInstalar': abrirInstalar(true);break;
-    case 'zerarInstalar': {try{localStorage.removeItem('instalarPop')}catch(e){}if(appInstalado()){toast('Neste aparelho o PresenteCerto já está instalado, então a janela não aparece. Use Ver prévia.');break}toast('Pronto! A janela vai aparecer de novo neste aparelho.');abrirInstalar(false);break}
+    case 'zerarInstalar': {try{localStorage.removeItem('instalarPop');localStorage.setItem('pc_visitas','5')}catch(e){}instEstado={n:0,ate:'',nunca:false};instVisitas=5;if(appInstalado()){toast('Neste aparelho o PresenteCerto já está instalado, então a janela não aparece. Use Ver prévia.');break}toast('Pronto! A janela vai aparecer de novo neste aparelho.');abrirInstalar(false);break}
     case 'toggleInstalar': saveConfig({...config,popupInstalar:config.popupInstalar===false},config.popupInstalar===false?'Pop-up de instalar ligado':'Pop-up de instalar desligado');break;
     case 'verOfertas': setTab('ofertas');break;
     case 'ofVoltar': setTab('mural');break;
@@ -4487,7 +4509,7 @@ async function start(){
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n;usernamesOk=true});
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
-  db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
+  db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;if(d.instalar){const r=d.instalar;instEstado={...instEstado,n:Math.max(instEstado.n||0,+r.n||0),ate:(r.ate||'')>(instEstado.ate||'')?r.ate:instEstado.ate,nunca:instEstado.nunca||!!r.nunca}}dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
   db.doc(`data/users/${myId}/listasRecebidas`).onSnapshot(s=>{listasRec=s.exists&&s.data().lista&&typeof s.data().lista==='object'?{...s.data().lista}:{};if(tab==='eventos'&&!evAberto)softRender()},()=>{});
   db.collection('empresas').where('dono','==',myId).onSnapshot(sn=>{empMeus={};sn.docs.forEach(d=>{empMeus[d.id]=d.data()});if(tab==='empresa'&&!empAberto)softRender()},()=>{});
