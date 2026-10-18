@@ -284,6 +284,20 @@ button.chip{cursor:pointer}
 .msg-det>summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--accent);list-style:none}
 .msg-det[open]>summary{margin-bottom:8px}
 /* resumo da ficha, destaque de item novo, Já ganhei */
+.pf-marcas{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px 12px}
+.pf-mg{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pf-mg:last-of-type{border-bottom:0}
+.pf-mg .chips .chip{padding:5px 10px;font-size:13px}
+.pf-mg-todas{align-self:flex-start;font-size:13px;font-weight:700;padding:8px 0 10px}
+.pf-mg-h{display:flex;align-items:center;gap:8px;font-size:14px}
+.pf-mg-n{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);background:var(--sunk);border-radius:99px;padding:1px 8px}
+button.pf-marca{cursor:pointer;font:inherit}
+button.pf-marca[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pf-mg-lojas{background:var(--accent-soft);border-radius:12px;padding:8px 10px}
+.pf-mg-lojas .shop{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.pf-mg-lojas .shop span{font-size:13px;color:var(--fg);font-weight:600;width:100%}
+.pf-mg-lojas .shop a{color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:700;text-decoration:none}
+.pf-mais{font-weight:700;color:var(--accent);background:var(--accent-soft);cursor:pointer}
 .pf-h .pf-editar{all:unset;cursor:pointer;margin-left:auto;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:4px 12px;white-space:nowrap}
 .pf-h .pf-editar:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .fr-lista{display:flex;flex-direction:column;gap:8px}
@@ -1655,11 +1669,11 @@ function renderPerson(id,aba){
   const sz=[['Camiseta',p.camiseta],['Calça',p.calca],['Calçado',p.calcado],['Vestido',p.vestido],['Anel',p.anel],['Cama',p.cama]].filter(x=>x[1]);
   const ev=eventsFor(id).filter(e=>e.label!=='Aniversário');
   const gTags=(p.gostosTags||[]).filter(Boolean);
-  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],[gTags.length?'Também gosta de':'Gosta de',p.gosta],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',p.alergiasOk?juntar(p.alergiasTags,p.alergias):''],['Observações',p.obs]].filter(x=>x[1]);
+  const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],[gTags.length?'Também gosta de':'Gosta de',p.gosta],['Hobbies',p.hobbies],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',p.alergiasOk?juntar(p.alergiasTags,p.alergias):''],['Observações',p.obs]].filter(x=>x[1]);
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
   // na minha própria ficha, cada parte tem um botão Editar que abre direto a etapa certa
-  const PF_PASSO={'Lista de desejos':4,'Precisando com urgência':5,'Tamanhos':1,'Gosta de':3,'Cores':2,'Outras datas':0};
+  const PF_PASSO={'Marcas favoritas':3,'Lista de desejos':4,'Precisando com urgência':5,'Tamanhos':1,'Gosta de':3,'Cores':2,'Outras datas':0};
   const passoDe=t=>t in PF_PASSO?PF_PASSO[t]:/^Lista de /.test(t)?4:/^Mais sobre /.test(t)?3:null;
   const sec=(ic,t,body,cls)=>{const n=self?passoDe(t):null;return `<section class="pf-sec ${cls||''}"><h3 class="pf-h"><span aria-hidden="true">${ic}</span>${t}${n!==null?`<button class="pf-editar" data-act="editarPasso" data-i="${n}" aria-label="Editar ${esc(t)}">✏️ Editar</button>`:''}</h3>${body}</section>`};
   const fundo=fotoOf(id,'_capa');
@@ -1686,6 +1700,7 @@ function renderPerson(id,aba){
   if(isPlus(id))Object.entries(LISTAS_LEGADO).forEach(([k,L])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(L[0]),`${self?legadoAviso(k,p[k].length):''}<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
   if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes" style="--cols:${pfCols(sz.length)}">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
   if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints" style="--cols:${pfCols(gTags.length)}">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
+  {const mh=marcasHtml(id,p);if(mh)h+=sec('🏷️','Marcas favoritas',mh)}
   if((p.cores||[]).length||(p.evitarCores||[]).length)h+=sec('🎨','Cores',`${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}`);
   if(kv.length)h+=sec('📝','Mais sobre '+esc(firstName(id)),`<dl class="kv pf-kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`);
   h+=muralParabens(id);
@@ -1701,6 +1716,22 @@ const PF_ICONES=[[/rel[oó]gio|smartwatch|watch/,'⌚'],[/t[eê]nis|sapato|sand[
 const pfIcone=t=>{const s=String(t||'').toLowerCase();const m=PF_ICONES.find(([r])=>r.test(s));return m?m[1]:'🎁'};
 const pfCols=n=>{if(n<=4)return Math.max(n,1);const r=Math.ceil(n/4);return Math.ceil(n/r)};
 const PF_TONS=['#2f6fd6','#d9467e','#c28a00','#22a35a','#7b4fd1'];
+// Marcas favoritas no perfil: agrupadas por categoria, 4 por grupo e o resto em "ver todas"
+const MARCA_IC={'Beleza e perfume':'💄','Moda':'👕','Esporte':'👟','Tecnologia':'📱','Casa e cozinha':'🏠','Joias e relógios':'⌚','Livros, games e hobbies':'🎮','Comidas e bebidas':'🍫','Infantil e bebê':'🧸','Pet':'🐾'};
+let marcasAbertas={},marcaSel={};
+function marcasHtml(id,p){
+  const tags=[...new Set(p.marcasTags||[])],usadas=new Set(),grupos=[];
+  Object.entries(MARCAS_GRUPOS).forEach(([g,l])=>{const extra=((p.marcasOutras||{})[g]||[]);const m=tags.filter(t=>!usadas.has(t)&&(l.includes(t)||extra.includes(t)));m.forEach(t=>usadas.add(t));if(m.length)grupos.push([g,m])});
+  const resto=[...new Set([...tags.filter(t=>!usadas.has(t)),...String(p.marcas||'').split(/[,;]/).map(x=>x.trim().replace(/\.$/,'')).filter(Boolean)])];
+  if(resto.length)grupos.push(['Outras marcas',resto]);
+  if(!grupos.length)return '';
+  const dica=id!==myId?'<span class="small" style="color:var(--muted)">Toque numa marca para procurar presentes dela nas lojas.</span>':'';
+  grupos.sort((a,b)=>(a[0]==='Outras marcas')-(b[0]==='Outras marcas')||b[1].length-a[1].length);
+  const kt=id+'|*',tudo=!!marcasAbertas[kt],total=grupos.reduce((n,g)=>n+g[1].length,0),mostra=tudo?grupos:grupos.slice(0,3);
+  return `${dica}<div class="pf-marcas">${mostra.map(([g,m])=>{const k=id+'|'+g,ab=!!marcasAbertas[k],vis=ab?m:m.slice(0,4);
+    const outro=id!==myId,sel=marcaSel[id]&&marcaSel[id].g===g?marcaSel[id].m:'';
+    return `<div class="pf-mg"><div class="pf-mg-h"><span aria-hidden="true">${MARCA_IC[g]||'🏷️'}</span><b>${esc(g)}</b><span class="pf-mg-n">${m.length}</span></div><div class="chips">${vis.map(x=>outro?`<button class="chip pf-marca" data-act="marcaLojas" data-id="${esc(id)}" data-g="${esc(g)}" data-v="${esc(x)}" aria-pressed="${sel===x}">${esc(x)}</button>`:`<span class="chip">${esc(x)}</span>`).join('')}${m.length>4?`<button class="chip pf-mais" data-act="marcasMais" data-k="${esc(k)}">${ab?'Ver menos':'+'+(m.length-4)+' ver todas'}</button>`:''}</div>${sel?`<div class="pf-mg-lojas">${shopLinks(sel,null,`🛍️ Procurar ${esc(sel)} em:`)}</div>`:''}</div>`}).join('')}${grupos.length>3?`<button class="link pf-mg-todas" data-act="marcasMais" data-k="${esc(kt)}">${tudo?'Mostrar menos categorias':(grupos.length-3===1?'Ver a outra categoria':`Ver as outras ${grupos.length-3} categorias`)+` (${total} marcas no total)`}</button>`:''}</div>`;
+}
 function pfItems(owner,items,showStatus,key){
   const dono=owner===myId&&key;
   return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
@@ -3706,6 +3737,8 @@ app.addEventListener('click',async e=>{
         await gravarPerfil({[k]:[],listasAtivas:ativas});draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
       catch(e){toast('Não foi possível transformar a lista. Tente de novo.')}break}
     case 'editarFicha': if(viewing===myId)viewing=null;fichaVoltarPerfil=false;fichaStep=profiles[myId]?'resumo':null;draft=null;dirty=false;setTab('perfil',true);break;
+    case 'marcaLojas': {const cur=marcaSel[ds.id];marcaSel[ds.id]=cur&&cur.g===ds.g&&cur.m===ds.v?null:{g:ds.g,m:ds.v};keep(render);break}
+    case 'marcasMais': marcasAbertas[ds.k]=!marcasAbertas[ds.k];keep(render);break;
     case 'editarPasso': if(viewing===myId)viewing=null;fichaVoltarPerfil=true;fichaStep=+ds.i;draft=null;dirty=false;form=null;setTab('perfil',true);break;
     case 'fResumo': case 'fSalvarResumo': {if(dirty){if(a==='fResumo')fichaStep='resumo';await saveMine();if(dirty)break}form=null;
       if(fichaVoltarPerfil){fichaVoltarPerfil=false;fichaStep=null;draft=null;setTab('perfil',false);break}
