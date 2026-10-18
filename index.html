@@ -2349,7 +2349,7 @@ function pendLista(){
   const fa=names[myId]&&names[myId].avatar;if(!fa||String(fa).startsWith('data:image/svg'))L.push({id:'foto',ic:'📸',t:'Coloque uma foto no seu perfil',d:'Fica mais fácil a família e os amigos te acharem.',b:'Pôr foto',a:'data-menu="conta"'});
   const nd=((me&&me.desejos)||[]).length;
   if(nd<3)L.push({id:'desejos',ic:'🎁',t:nd?`Sua lista de desejos tem só ${nd} ${nd===1?'item':'itens'}`:'Sua lista de desejos está vazia',d:'Adicione pelo menos 3 coisas que você gostaria de ganhar.',b:'Adicionar desejos',a:`data-act="pendFicha" data-v="${PASSOS.indexOf('Lista de desejos')}"`});
-  if(me){const c=completude(me);if(c.pct<80)L.push({id:'ficha',ic:'📝',t:`Sua ficha está ${c.pct}% pronta`,d:'Falta: '+c.faltam.slice(0,3).join(', ')+(c.faltam.length>3?'…':'.'),b:'Completar a ficha',a:'data-act="editarFicha"',pct:c.pct})}
+  if(me){const c=completude(me);if(c.pct<80)L.push({id:'ficha',ic:'📝',t:'Preencha as etapas da sua ficha',d:'Falta: '+c.faltam.slice(0,3).join(', ')+(c.faltam.length>3?'…':'.'),b:'Completar a ficha',a:'data-act="editarFicha"',pct:c.pct})}
   if(!following().length)L.push({id:'seguir',ic:'👥',t:'Siga amigos e família',d:'Veja os aniversários e as listas de quem você gosta.',b:'Encontrar pessoas',a:'data-act="tab" data-id="pessoas"'});
   if(pushAtivo===false&&(pushSuportado()||ehIOS))L.push({id:'push',ic:'🔔',t:'Ative os avisos no celular',d:'Receba um lembrete antes do aniversário de quem você segue.',b:'Ativar avisos',a:'data-menu="pushOn"'});
   Object.entries(meusEv||{}).filter(([,e])=>!e.publicado).slice(0,1).forEach(([id,e])=>L.push({id:'ev:'+id,ic:'🎉',t:`Sua lista “${e.titulo||'de evento'}” ainda é rascunho`,d:'Publique para mandar o link aos convidados.',b:'Abrir a lista',a:`data-ev="abrir" data-id="${esc(id)}"`}));
@@ -2367,9 +2367,9 @@ function pendCard(){
     if(agora-(pendEst.feitoEm||0)<PEND_ESPERA)return '';
     cur=L[0];if(!cur)return '';pendEst.atual=cur.id;pendEst.desde=agora;pendSalvar();
   }
-  const PF_PEND=['aniv','foto','desejos','ficha'],nPerfil=L.filter(x=>PF_PEND.includes(x.id)).length;
-  const eb=PF_PEND.includes(cur.id)?(nPerfil>1?`Faltam ${nPerfil} passos para completar seu perfil`:'Último passo para completar seu perfil'):'Para fazer';
-  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">${eb}</span><b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span>${cur.pct!==undefined?`<div class="pend-bar"><i style="width:${cur.pct}%"></i></div>`:''}<div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
+  const ehPerfil=['aniv','foto','desejos','ficha'].includes(cur.id),pctPerfil=completude(profiles[myId]).pct;
+  const eb=ehPerfil?`Seu perfil está ${pctPerfil}% completo`:'Para fazer';
+  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">${eb}</span>${ehPerfil?`<div class="pend-bar" style="margin:4px 0 10px" role="progressbar" aria-valuenow="${pctPerfil}" aria-valuemin="0" aria-valuemax="100" aria-label="Perfil ${pctPerfil}% completo"><i style="width:${pctPerfil}%"></i></div>`:''}<b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span><div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
 }
 setTimeout(()=>{try{if(tab==='mural'&&!viewing)softRender()}catch(e){}},4300);
 app.addEventListener('click',e=>{
