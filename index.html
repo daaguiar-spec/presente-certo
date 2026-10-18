@@ -1683,7 +1683,6 @@ function renderPerson(id,aba){
   if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints" style="--cols:${pfCols(gTags.length)}">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
   if((p.cores||[]).length||(p.evitarCores||[]).length)h+=sec('🎨','Cores',`${(p.cores||[]).length?`<div class="chips">${p.cores.map(colorChip).join('')}</div>`:''}${(p.evitarCores||[]).length?`<div class="small" style="color:var(--muted)">Evitar: ${p.evitarCores.map(esc).join(', ')}</div>`:''}`);
   if(kv.length)h+=sec('📝','Mais sobre '+esc(firstName(id)),`<dl class="kv pf-kv">${kv.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`);
-  if(!self)h+=aiBlock(id);
   h+=muralParabens(id);
   if(ev.length)h+=sec('📅','Outras datas',ev.map(e=>`<div class="date-row"><span><b>${esc(e.label)}</b> · ${esc(e.txt)}</span>${pill(e.dias)}</div>`).join(''));
   if(p.atualizado)h+=`<div class="small" style="color:var(--muted)">Ficha atualizada em ${esc(new Date(p.atualizado).toLocaleDateString('pt-BR'))}</div>`;
