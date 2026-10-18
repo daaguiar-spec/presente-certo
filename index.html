@@ -2367,8 +2367,9 @@ function pendCard(){
     if(agora-(pendEst.feitoEm||0)<PEND_ESPERA)return '';
     cur=L[0];if(!cur)return '';pendEst.atual=cur.id;pendEst.desde=agora;pendSalvar();
   }
-  const resto=L.length-1;
-  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">Para fazer${resto>0?` · mais ${resto} depois`:''}</span><b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span>${cur.pct!==undefined?`<div class="pend-bar"><i style="width:${cur.pct}%"></i></div>`:''}<div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
+  const PF_PEND=['aniv','foto','desejos','ficha'],nPerfil=L.filter(x=>PF_PEND.includes(x.id)).length;
+  const eb=PF_PEND.includes(cur.id)?(nPerfil>1?`Faltam ${nPerfil} passos para completar seu perfil`:'Último passo para completar seu perfil'):'Para fazer';
+  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">${eb}</span><b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span>${cur.pct!==undefined?`<div class="pend-bar"><i style="width:${cur.pct}%"></i></div>`:''}<div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
 }
 setTimeout(()=>{try{if(tab==='mural'&&!viewing)softRender()}catch(e){}},4300);
 app.addEventListener('click',e=>{
