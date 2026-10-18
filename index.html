@@ -284,6 +284,8 @@ button.chip{cursor:pointer}
 .msg-det>summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--accent);list-style:none}
 .msg-det[open]>summary{margin-bottom:8px}
 /* resumo da ficha, destaque de item novo, Já ganhei */
+.pf-h .pf-editar{all:unset;cursor:pointer;margin-left:auto;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:4px 12px;white-space:nowrap}
+.pf-h .pf-editar:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .fr-lista{display:flex;flex-direction:column;gap:8px}
 .fr-card{all:unset;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
 .fr-card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -1149,7 +1151,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='cabecalho')renderCabecalho();
   else if(tab==='perfil'&&!fichaEditando&&profiles[myId])renderPerson(myId,true);
   else renderMine();
-  app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.<span class="foot-links"><a href="/privacidade.html" target="_blank" rel="noopener">Privacidade</a> · <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> · <button class="link" data-lg="privacidade">Meus dados</button></span></footer>');
+  if(!app.querySelector('footer.foot'))app.insertAdjacentHTML('beforeend','<footer class="foot">Ao comprar pelos nossos links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais por isso.<span class="foot-links"><a href="/privacidade.html" target="_blank" rel="noopener">Privacidade</a> · <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> · <button class="link" data-lg="privacidade">Meus dados</button></span></footer>');
   drawQrs();
 }
 function drawQrs(){app.querySelectorAll('[data-qr]').forEach(el=>{if(el.dataset.done)return;el.dataset.done=1;try{if(window.QRCode)new QRCode(el,{text:el.dataset.qr,width:360,height:360,correctLevel:QRCode.CorrectLevel.M});else el.remove()}catch(e){el.remove()}})}
@@ -1656,7 +1658,10 @@ function renderPerson(id,aba){
   const kv=[['Prefere ganhar',p.tipoPresente],['Estilo',(p.estilos||[]).join(', ')],['Perfume',(p.perfume||[]).join(', ')],[gTags.length?'Também gosta de':'Gosta de',p.gosta],['Hobbies',p.hobbies],['Marcas favoritas',juntar(p.marcasTags,p.marcas)],['Bebidas',p.bebe==='Não bebo'?'Não bebe bebida alcoólica':p.bebe?[p.bebe==='Socialmente'?'Bebe socialmente':'Gosta de beber',(p.bebidas||[]).join(', ')].filter(Boolean).join(': '):''],['Não gosta',p.naoGosta],['Alergias',p.alergiasOk?juntar(p.alergiasTags,p.alergias):''],['Observações',p.obs]].filter(x=>x[1]);
   const meusGrupos=grupos;
   const capa=isPlus(id)&&CAPAS[p.capa]?`style="background:${CAPAS[p.capa]}"`:'';const capaEsc=p.capa==='noite'&&isPlus(id);
-  const sec=(ic,t,body,cls)=>`<section class="pf-sec ${cls||''}"><h3 class="pf-h"><span aria-hidden="true">${ic}</span>${t}</h3>${body}</section>`;
+  // na minha própria ficha, cada parte tem um botão Editar que abre direto a etapa certa
+  const PF_PASSO={'Lista de desejos':4,'Precisando com urgência':5,'Tamanhos':1,'Gosta de':3,'Cores':2,'Outras datas':0};
+  const passoDe=t=>t in PF_PASSO?PF_PASSO[t]:/^Lista de /.test(t)?4:/^Mais sobre /.test(t)?3:null;
+  const sec=(ic,t,body,cls)=>{const n=self?passoDe(t):null;return `<section class="pf-sec ${cls||''}"><h3 class="pf-h"><span aria-hidden="true">${ic}</span>${t}${n!==null?`<button class="pf-editar" data-act="editarPasso" data-i="${n}" aria-label="Editar ${esc(t)}">✏️ Editar</button>`:''}</h3>${body}</section>`};
   const fundo=fotoOf(id,'_capa');
   const headSty=fundo?`style="--capa:url(&quot;${esc(fundo)}&quot;)"`:capa;
   const capaBtns=self?`<div class="pf-capa-btns">${fundo?'<button class="pf-capa-btn" data-act="capaTirar" aria-label="Remover foto de fundo">✕</button>':''}<button class="pf-capa-btn" data-act="capaFoto">📷 ${fundo?'Trocar fundo':'Foto de fundo'}</button></div>`:'';
@@ -3387,7 +3392,7 @@ function fichaAlinhar(){
     ids.forEach(id=>app.querySelector(`[data-wid="${CSS.escape(id)}"]`)?.classList.add('wish-novo'));
     if(el)setTimeout(()=>{const y=el.getBoundingClientRect().top+window.scrollY-110;window.scrollTo({top:Math.max(0,y),behavior:'smooth'})},30)}
 }
-let fichaRolar=null,fichaNovos=[];
+let fichaRolar=null,fichaNovos=[],fichaVoltarPerfil=false;
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-rolar]');if(!b)return;const el=document.getElementById(b.dataset.rolar);if(el){const y=el.getBoundingClientRect().top+window.scrollY-84;window.scrollTo({top:Math.max(0,y),behavior:'smooth'})}});
 document.addEventListener('toggle',e=>{const dg=e.target;if(dg&&dg.classList&&dg.classList.contains('marca-grupo')&&dg.open){const y=dg.getBoundingClientRect().top+window.scrollY-84;window.scrollTo({top:Math.max(0,y),behavior:'smooth'})}},true);
 function listEditor(key,title,hint,ph,cls){
@@ -3564,7 +3569,7 @@ function renderMine(){
   const opt=(vals,cur)=>vals.map(v=>`<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(v)}</option>`).join('');
   const mesOpt=cur=>MESES.map((m,i)=>`<option value="${i+1}" ${String(cur)===String(i+1)?'selected':''}>${m}</option>`).join('');
   const dias=Array.from({length:31},(_,i)=>i+1);
-  let h=`<div class="view">${editando?`<button class="back" data-act="fResumo">← Resumo da ficha</button><div><h1>${esc(PASSOS[st])}</h1><p class="lede">Mude o que quiser e toque em Salvar. O resto da ficha continua igual.</p></div>`:`<div><h1>Minha ficha de presentes</h1><p class="lede">Preencha em poucos passos, quase tudo só tocando. Leva uns 2 minutos.</p></div>
+  let h=`<div class="view">${editando?`<button class="back" data-act="fResumo">${fichaVoltarPerfil?'← Voltar ao perfil':'← Resumo da ficha'}</button><div><h1>${esc(PASSOS[st])}</h1><p class="lede">Mude o que quiser e toque em Salvar. O resto da ficha continua igual.</p></div>`:`<div><h1>Minha ficha de presentes</h1><p class="lede">Preencha em poucos passos, quase tudo só tocando. Leva uns 2 minutos.</p></div>
   ${completudeHtml(d,false)}`}
   <div class="steps-nav">${PASSOS.map((n,i)=>`<button class="chip ${i<st?'style':''}" data-act="fStep" data-i="${i}" aria-pressed="${i===st}" ${i<st?'aria-label="'+n+', etapa feita"':''}>${i+1}. ${n}</button>`).join('')}</div>
   <div class="small" style="color:var(--muted)">Etapa ${st+1} de ${PASSOS.length}</div>`;
@@ -3629,7 +3634,7 @@ function renderMine(){
    <div class="row"><button class="btn small ghost" data-act="copy" data-text="${esc(APP_URL)}">Copiar link do PresenteCerto</button></div></section>
   <section class="panel"><h2>Conta</h2><span class="muted">Você está conectado como <b>${esc(myEmail||myName||'você')}</b>.</span><div class="row"><button class="btn small ghost" data-act="logout">Sair da conta</button></div></section>`;
   const prox=st<ult?(dirty?'Salvar e continuar':'Próximo: '+PASSOS[st+1]):(dirty?'Salvar ficha':'Concluir');
-  if(editando)h+=`<div class="row savebar between"><button class="btn ghost" data-act="fResumo">Resumo</button><button class="btn" data-act="fSalvarResumo" id="save">${dirty?'Salvar':'Pronto'}</button></div></div>`;
+  if(editando)h+=`<div class="row savebar between"><button class="btn ghost" data-act="fResumo">${fichaVoltarPerfil?'Voltar':'Resumo'}</button><button class="btn" data-act="fSalvarResumo" id="save">${dirty?'Salvar':'Pronto'}</button></div></div>`;
   else h+=`<div class="row savebar between">${st>0?`<button class="btn ghost" data-act="fPrev">Voltar</button>`:'<span></span>'}<button class="btn" data-act="fNext" id="save">${prox}</button></div></div>`;
   app.innerHTML=h;
   fichaAlinhar();
@@ -3700,9 +3705,11 @@ app.addEventListener('click',async e=>{
         const ativas=(pr.listasAtivas||[]).filter(x=>x!==k);
         await gravarPerfil({[k]:[],listasAtivas:ativas});draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
       catch(e){toast('Não foi possível transformar a lista. Tente de novo.')}break}
-    case 'editarFicha': if(viewing===myId)viewing=null;fichaStep=profiles[myId]?'resumo':null;draft=null;dirty=false;setTab('perfil',true);break;
-    case 'fResumo': if(dirty){fichaStep='resumo';await saveMine();if(dirty)break}fichaStep='resumo';form=null;keep(renderMine);window.scrollTo(0,0);break;
-    case 'fSalvarResumo': if(dirty){await saveMine();if(dirty)break}fichaStep='resumo';form=null;keep(renderMine);window.scrollTo(0,0);break;
+    case 'editarFicha': if(viewing===myId)viewing=null;fichaVoltarPerfil=false;fichaStep=profiles[myId]?'resumo':null;draft=null;dirty=false;setTab('perfil',true);break;
+    case 'editarPasso': if(viewing===myId)viewing=null;fichaVoltarPerfil=true;fichaStep=+ds.i;draft=null;dirty=false;form=null;setTab('perfil',true);break;
+    case 'fResumo': case 'fSalvarResumo': {if(dirty){if(a==='fResumo')fichaStep='resumo';await saveMine();if(dirty)break}form=null;
+      if(fichaVoltarPerfil){fichaVoltarPerfil=false;fichaStep=null;draft=null;setTab('perfil',false);break}
+      fichaStep='resumo';keep(renderMine);window.scrollTo(0,0);break}
     case 'fVerPerfil': fichaStep=null;draft=null;setTab('perfil',false);break;
     case 'verMeuPerfil': if(dirty){toast('Salve primeiro para ver a versão final');break}setTab('perfil',false);break;
     case 'tab': setTab(ds.id);break;
