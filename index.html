@@ -1185,7 +1185,7 @@ const LISTAS_EXTRA={lista_natal:'Natal'};
 // listas antigas do Plus que agora viram Listas de evento
 const LISTAS_LEGADO={lista_casamento:['Casamento','casamento'],lista_chabebe:['Chá de bebê','chabebe'],lista_casanova:['Casa nova','casanova']};
 const legadoAviso=(k,n)=>`<div class="notice" style="display:flex;flex-direction:column;gap:8px"><span>A <b>Lista de ${esc(LISTAS_LEGADO[k][0])}</b> agora funciona como <b>Lista de evento</b>: com link para os convidados escolherem sem repetir. Transforme a sua com um toque; os ${n} ${n===1?'item vai':'itens vão'} junto.</span><div><button class="btn small" data-act="legadoEv" data-k="${k}">Transformar em lista de evento</button></div></div>`;
-const LIMITE_SORTEIO=10;
+const LIMITE_SORTEIO=15;
 try{const u=new URLSearchParams(location.search).get('u');if(u)pendingOpen=u.replace(/^@/,'').toLowerCase()}catch(e){}
 const handleOf=id=>{const h=profiles[id]?.usuario;return h&&usernames[h]&&usernames[h].uid===id?h:''};
 const profileLink=id=>`${APP_URL}/?u=${encodeURIComponent(handleOf(id)||id)}`;
