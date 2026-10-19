@@ -2335,9 +2335,11 @@ app.addEventListener('click',async e=>{
   if(a==='saAgora'){b.disabled=true;b.textContent='Buscando…';try{await saveConfig({...config,shopeeAuto:ler()},'Buscando ofertas na Shopee…');const t=await firebase.auth().currentUser.getIdToken();const r=await fetch('/api/ofertas-shopee',{method:'POST',headers:{Authorization:'Bearer '+t}});const j=await r.json().catch(()=>({}));ofAutoMsg=j.ok?(j.desligado?'As ofertas automáticas estão desligadas. Marque “Ligar” e salve.':`✓ ${j.n} ofertas encontradas e publicadas.`):'⚠ '+(j.erro||'Não foi possível buscar agora.');toast(j.ok?'Ofertas atualizadas':'Não deu certo. Veja a mensagem no painel.')}catch(err){ofAutoMsg='⚠ Não foi possível falar com o servidor.'}keep(render)}
 });
 /* ---------- Pendências do Mural: uma por vez, a próxima aparece depois de um tempo ---------- */
-const PEND_ESPERA=4*36e5,PEND_TROCA=3*864e5;let pendIni=Date.now(),pendFeitoAgora=false;
+const PEND_ESPERA=4*36e5,PEND_TROCA=3*864e5;let pendIni=Date.now(),pendFeitoAgora=false,pendOkTimer=null,followsOk=false;
 let pendEst=(()=>{try{return JSON.parse(localStorage.getItem('pc_pend')||'{}')||{}}catch(e){return{}}})();
-pendEst={atual:'',desde:0,feitoEm:0,adiadas:{},vistos:{},...pendEst};
+pendEst={atual:'',desde:0,feitoEm:0,clicou:'',adiadas:{},vistos:{},...pendEst};
+// só escolhe/encerra pendência depois que os dados da pessoa chegaram (senão aparece "resolvida" sem ela ter feito nada)
+function pendPronto(){const rp=(raw.profiles||{})[myId]||{};return profilesOk&&followsOk&&meusEvOk&&pushAtivo!==null&&!((rp.fechado||fichasRaw[myId])&&!fichaCarregada[myId])}
 const pendSalvar=()=>{try{localStorage.setItem('pc_pend',JSON.stringify(pendEst))}catch(e){}};
 function lojasVisiveis(){return config.lojasOn?lojasAtivas():[]}
 function pendLista(){
@@ -2356,28 +2358,30 @@ function pendLista(){
   const agora=Date.now();return L.filter(x=>!(pendEst.adiadas[x.id]>agora));
 }
 function pendCard(){
-  if(!myId||Date.now()-pendIni<4000)return '';
-  if(pendFeitoAgora)return `<section class="pend ok"><span class="pend-ic" aria-hidden="true">✅</span><div style="min-width:0"><b>Pendência resolvida!</b><span class="small">Boa! A próxima dica aparece daqui a umas 4 horas, quando você abrir o app de novo.</span></div><button class="pend-x" data-act="pendFechar" aria-label="Fechar">✕</button></section>`;
+  if(!myId||Date.now()-pendIni<4000||!pendPronto())return '';
+  if(pendFeitoAgora){if(!pendOkTimer)pendOkTimer=setTimeout(()=>{pendOkTimer=null;pendFeitoAgora=false;const el=document.querySelector('.pend.ok');if(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400)}},8000);
+    return `<section class="pend ok"><span class="pend-ic" aria-hidden="true">✅</span><div style="min-width:0"><b>Pendência resolvida!</b><span class="small">Boa! A próxima dica aparece daqui a umas 4 horas, quando você abrir o app de novo.</span></div><button class="pend-x" data-act="pendFechar" aria-label="Fechar">✕</button></section>`}
   let L=pendLista(),agora=Date.now();let cur=L.find(x=>x.id===pendEst.atual);
   // 3 dias sem resolver: troca sozinha pela próxima (se houver outra)
   if(cur&&pendEst.desde&&agora-pendEst.desde>PEND_TROCA&&L.length>1){pendEst.adiadas[cur.id]=agora+PEND_TROCA;L=L.filter(x=>x.id!==cur.id);cur=L[0];pendEst.atual=cur.id;pendEst.desde=agora;pendSalvar()}
   if(cur&&!pendEst.desde){pendEst.desde=agora;pendSalvar()}
   if(!cur){
-    if(pendEst.atual){pendEst.atual='';pendEst.feitoEm=agora;pendSalvar();pendFeitoAgora=true;return pendCard()}
+    if(pendEst.atual){const fez=pendEst.clicou===pendEst.atual;pendEst.atual='';pendEst.clicou='';pendEst.feitoEm=agora;pendSalvar();if(fez){pendFeitoAgora=true;return pendCard()}return ''}
     if(agora-(pendEst.feitoEm||0)<PEND_ESPERA)return '';
     cur=L[0];if(!cur)return '';pendEst.atual=cur.id;pendEst.desde=agora;pendSalvar();
   }
   const ehPerfil=['aniv','foto','desejos','ficha'].includes(cur.id),pctPerfil=completude(profiles[myId]).pct;
   const eb=ehPerfil?`Seu perfil está ${pctPerfil}% completo`:'Para fazer';
-  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">${eb}</span>${ehPerfil?`<div class="pend-bar" style="margin:4px 0 10px" role="progressbar" aria-valuenow="${pctPerfil}" aria-valuemin="0" aria-valuemax="100" aria-label="Perfil ${pctPerfil}% completo"><i style="width:${pctPerfil}%"></i></div>`:''}<b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span><div class="pend-acts"><button class="btn small" ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
+  return `<section class="pend"><span class="pend-ic" aria-hidden="true">${cur.ic}</span><div style="min-width:0;flex:1"><span class="pend-eb">${eb}</span>${ehPerfil?`<div class="pend-bar" style="margin:4px 0 10px" role="progressbar" aria-valuenow="${pctPerfil}" aria-valuemin="0" aria-valuemax="100" aria-label="Perfil ${pctPerfil}% completo"><i style="width:${pctPerfil}%"></i></div>`:''}<b>${esc(cur.t)}</b><span class="small">${esc(cur.d)}</span><div class="pend-acts"><button class="btn small" data-pendbtn ${cur.a}>${esc(cur.b)}</button><button class="link" data-act="pendAdiar">Agora não</button></div></div></section>`;
 }
 setTimeout(()=>{try{if(tab==='mural'&&!viewing)softRender()}catch(e){}},4300);
+app.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-pendbtn]')&&pendEst.atual){pendEst.clicou=pendEst.atual;pendSalvar()}},true);
 app.addEventListener('click',e=>{
   const b=e.target.closest&&e.target.closest('[data-act]');if(!b)return;const ds=b.dataset,a=ds.act;if(!/^pend/.test(a))return;
   if(a==='pendFicha'){fichaStep=+ds.v||0;if(viewing===myId)viewing=null;setTab('perfil',true)}
   if(a==='pendAbrir'){pendEst.vistos[ds.k]=Date.now();pendSalvar();viewing=ds.id;form=null;render();window.scrollTo(0,0)}
   if(a==='pendAdiar'){if(pendEst.atual)pendEst.adiadas[pendEst.atual]=Date.now()+3*864e5;pendEst.atual='';pendEst.feitoEm=Date.now();pendSalvar();keep(render)}
-  if(a==='pendFechar'){pendFeitoAgora=false;keep(render)}
+  if(a==='pendFechar'){pendFeitoAgora=false;clearTimeout(pendOkTimer);pendOkTimer=null;keep(render)}
 });
 const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Perfil em festa no aniversário','Faltando um mês, seu perfil pode virar festa com confete, coroa e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🎨','Personalizar o visual','Cores do app, temas, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
 function renderPlus(){
@@ -4503,7 +4507,7 @@ async function start(){
   const err=()=>toast('Conexão perdida. Recarregue a página.');
   const coll=(path,setter)=>db.collection(path).onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});setter(n);refresh(Object.keys(n))},err);
   coll('profiles',n=>{raw.profiles=n;profilesOk=true;applyRaw();lgManutencao()});
-  coll('follows',n=>{raw.follows=n;applyRaw()});
+  coll('follows',n=>{raw.follows=n;followsOk=true;applyRaw()});
   coll('acoes',n=>{raw.acoes=n;applyRaw()});
   coll('agradecimentos',n=>agrad=n);
   coll('sorteios',n=>{raw.sorteios=n;applyRaw()});
