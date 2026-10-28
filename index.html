@@ -2779,6 +2779,9 @@ function instalarPraMostrar(){
   if(instEstado.nunca||emAppInterno())return false;
   const f=config.instalarFreq||'inteligente';
   if(f==='sempre')return true;
+  // nunca no primeiro dia da conta: a pessoa primeiro usa o app (vê a lista, reserva, segue alguém)
+  if((typeof convidadoNovo!=='undefined'&&convidadoNovo)||(typeof fichaBoasVindas!=='undefined'&&fichaBoasVindas))return false;
+  {const cr=idade&&idade.criado;const t=cr&&cr.toDate?cr.toDate().getTime():+cr;if(t&&Date.now()-t<864e5)return false}
   const visto=instEstado.n>0||!!instEstado.dia;
   if(f==='uma')return !visto;
   if(f==='dia')return instEstado.dia!==hoje();
