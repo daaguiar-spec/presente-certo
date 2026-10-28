@@ -89,6 +89,10 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 .avatar-btn{border:2px solid var(--accent-soft);background:none;padding:0;border-radius:50%;cursor:pointer;display:flex}
 .avatar-btn img{width:34px;height:34px;border-radius:50%;object-fit:cover}
 body.lg-gate nav.tabs,body.lg-gate .mais-ov{display:none!important}
+.bvm{background:linear-gradient(150deg,var(--accent-soft),var(--surface));border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.bvm-tit{font-size:18px;line-height:1.3}.bvm-pct span{font-size:14px;color:var(--muted)}.bvm-pct .pend-bar{margin-top:6px}
+.bvm-lista{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px}.bvm-lista li::before{content:'✓ ';color:var(--accent);font-weight:800}
+.bvm-aniv{background:var(--surface);border-radius:10px;padding:8px 10px;font-size:14px}.bvm-btn{width:100%;justify-content:center;font-size:16px;padding:13px}
 .cv-bv{display:flex;gap:12px;align-items:flex-start;background:var(--accent-soft);border-radius:16px;padding:14px}
 .cv-bv>span{font-size:26px;line-height:1}.cv-bv b{display:block;margin-bottom:3px}.cv-bv div>span{display:block;color:var(--muted);font-size:14px}.cv-bv .row{margin-top:10px}
 nav.tabs{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:8;padding:0 12px;pointer-events:none}
@@ -1198,7 +1202,8 @@ function render(){try{atualizarFotoTab()}catch(e){}
   if(lgBloqueio())return;
   if(!dqMostrado)setTimeout(tentarDestaque,0);
   if(viewing&&String(viewing).startsWith('loja:'))renderLoja(viewing.slice(5));
-  else if(viewing){renderPerson(viewing);app.insertAdjacentHTML('beforeend',denunciaHtml(viewing));if(convidadoNovo&&viewing!==myId&&(convidadoNovo===true||convidadoNovo===viewing)){convidadoNovo=viewing;const v=app.querySelector('.view');if(v)v.insertAdjacentHTML('afterbegin',`<div class="cv-bv"><span aria-hidden="true">🎉</span><div><b>Conta criada! Bem-vindo ao PresenteCerto.</b><span>Veja a lista de ${esc(nm(viewing))} e reserve um presente. Quando puder, monte a sua ficha também, para seus amigos acertarem no seu presente.</span><div class="row"><button class="btn small" data-act="cvFicha">Montar minha ficha</button><button class="link" data-act="cvFechar">Depois</button></div></div></div>`)}}
+  else if(viewing){renderPerson(viewing);app.insertAdjacentHTML('beforeend',denunciaHtml(viewing));if(posReserva&&viewing===posReserva&&profiles[myId]&&completude(profiles[myId]).pct<30){const v=app.querySelector('.view');if(v)v.insertAdjacentHTML('afterbegin',`<div class="cv-bv"><span aria-hidden="true">✅</span><div><b>Pronto, reservado!</b><span>Agora é a sua vez: monte sua lista para quem gosta de você também acertar no presente.</span><div class="row"><button class="btn small" data-act="cvFicha">Montar minha ficha</button><button class="link" data-act="cvFechar">Depois</button></div></div></div>`)}
+    else if(convidadoNovo&&viewing!==myId&&(convidadoNovo===true||convidadoNovo===viewing)){convidadoNovo=viewing;const segue=following().includes(viewing);const v=app.querySelector('.view');if(v)v.insertAdjacentHTML('afterbegin',`<div class="cv-bv"><span aria-hidden="true">🎉</span><div><b>Conta criada! Bem-vindo ao PresenteCerto.</b><span>${segue?`Agora você segue ${esc(nm(viewing))}: vai ver as novidades e ser avisado antes do aniversário. Veja a lista e reserve um presente.`:`Siga ${esc(nm(viewing))} para ver as novidades e ser avisado antes do aniversário. Depois, veja a lista e reserve um presente.`}</span><div class="row">${segue?'':`<button class="btn small" data-act="follow" data-id="${esc(viewing)}">Seguir ${esc(nm(viewing))}</button>`}<button class="${segue?'btn small':'btn small ghost'}" data-act="cvFicha">Montar minha ficha</button><button class="link" data-act="cvFechar">Depois</button></div></div></div>`)}}
   else if(tab==='privacidade')renderPrivacidade();
   else if(tab==='responsavel')renderResponsavel();
   else if(tab==='mural')renderMural();
@@ -1530,15 +1535,17 @@ function renderMural(){
   const filtros=[['tudo','Tudo'],['datas','Datas'],['listas','Listas'],['parabens','Parabéns']];
   const hr=new Date().getHours(),saud=hr<5?'Boa noite':hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite';const pn=String(myName||'').trim().split(/\s+/)[0];
   let h=`<div class="view"><div><p class="ola">${saud}${pn?', <b>'+esc(pn)+'</b>':''}! 👋</p><h2 class="mural-tit">Novidades</h2><p class="lede">O que está acontecendo com as listas e as datas de quem você segue.</p></div>`;
+  const novatoMural=!!profiles[myId]&&completude(profiles[myId]).pct<30;
+  if(novatoMural)h+=boasVindasMural();
   h+=ljMuralAvisos();
   const fech=avisosFechados();
   avisosList().filter(x=>avisoPraMim(x)&&!fech.includes(x.id)).forEach(x=>{trackView('av:'+x.id);h+=avisoHtml(x,true)});
-  if(meusEvOk&&planosOk){const cards=[];
+  if(meusEvOk&&planosOk&&!novatoMural){const cards=[];
     if(!Object.keys(meusEv).length)cards.push(`<section class="panel hl ev-promo"><span class="ev-novo">Novo: Lista Premium ⭐</span><b>🎉 Vai casar, ter um bebê ou mudar de casa?</b><span class="small">Crie uma lista de presentes, compartilhe o link e seus convidados escolhem sem repetir. Na Premium, ainda tem capa com foto e você sabe quem deu cada presente para agradecer.</span><div class="row"><button class="btn small" data-ev="abrirLista">Criar lista de evento</button></div></section>`);
     if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ Deixe seu perfil com a sua cara</b><span class="small">Com o Plus, o topo do seu perfil ganha temas, moldura, enfeites e vira festa no mês do seu aniversário. E você vê quem visitou seu perfil.</span><div class="row"><button class="btn small" data-act="cabAbrir">🎨 Testar grátis</button><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
   h+=cabFestaHtml();
-  h+=previaAvisoHtml()||pendCard();
+  h+=previaAvisoHtml()||(novatoMural?'':pendCard());
   if(lojasVisiveis().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   const ofH=ofertasSemana()+maisDesejadosHtml(5);let ofPosto=false;
@@ -2422,6 +2429,18 @@ function pendLista(){
   if(pushAtivo===false&&(pushSuportado()||ehIOS))L.push({id:'push',ic:'🔔',t:'Ative os avisos no celular',d:'Receba um lembrete antes do aniversário de quem você segue.',b:'Ativar avisos',a:'data-menu="pushOn"'});
   Object.entries(meusEv||{}).filter(([,e])=>!e.publicado).slice(0,1).forEach(([id,e])=>L.push({id:'ev:'+id,ic:'🎉',t:`Sua lista “${e.titulo||'de evento'}” ainda é rascunho`,d:'Publique para mandar o link aos convidados.',b:'Abrir a lista',a:`data-ev="abrir" data-id="${esc(id)}"`}));
   const agora=Date.now();return L.filter(x=>!(pendEst.adiadas[x.id]>agora));
+}
+function boasVindasMural(){
+  const me=profiles[myId]||{};const c=completude(me);
+  const fol=following().filter(id=>profiles[id]&&canSee(id)&&completude(profiles[id]).pct>=50);
+  const nb=bdayDays(me);
+  let extra='';
+  if(nb!==null&&nb!==undefined&&nb<=60)extra=`<div class="bvm-aniv">🎂 ${nb===0?'Hoje é o seu aniversário!':`Seu aniversário é em <b>${nb} ${nb===1?'dia':'dias'}</b>.`} Monte sua lista para seus amigos já irem se preparando.</div>`;
+  else if(fol.length)extra=`<div class="bvm-aniv">👥 <b>${esc(nm(fol[0]))}</b>${fol.length>1?` e mais ${fol.length-1} ${fol.length-1===1?'pessoa':'pessoas'} que você segue já montaram`:' já montou'} a ficha.</div>`;
+  return `<section class="bvm"><b class="bvm-tit">🎁 Falta pouco para seus amigos acertarem no seu presente</b>
+    <div class="bvm-pct"><span>Seu perfil está <b>${c.pct}%</b> completo</span><div class="pend-bar"><i style="width:${Math.max(c.pct,4)}%"></i></div></div>
+    <ul class="bvm-lista"><li>Seus amigos vão saber seu tamanho, suas cores e o que você quer</li><li>Eles são avisados antes do seu aniversário</li><li>Nada de presente repetido ou que não serve</li></ul>
+    ${extra}<button class="btn bvm-btn" data-act="editarFicha">Montar minha ficha · 2 min</button></section>`;
 }
 async function previaDefinir(v){try{await gravarPerfil({previa:!!v});raw.profiles[myId]={...(raw.profiles[myId]||{}),previa:!!v};applyRaw();toast(v?'Prévia ligada! Quem receber seu link já vê sua lista.':'Prévia desligada.')}catch(e){toast('Não foi possível salvar. Tente de novo.')}}
 function previaAvisoHtml(){
@@ -3854,8 +3873,8 @@ app.addEventListener('click',async e=>{
         const ativas=(pr.listasAtivas||[]).filter(x=>x!==k);
         await gravarPerfil({[k]:[],listasAtivas:ativas});draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
       catch(e){toast('Não foi possível transformar a lista. Tente de novo.')}break}
-    case 'cvFicha': convidadoNovo=false;fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true);break;
-    case 'cvFechar': convidadoNovo=false;keep(render);break;
+    case 'cvFicha': convidadoNovo=false;posReserva=null;fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true);break;
+    case 'cvFechar': convidadoNovo=false;posReserva=null;keep(render);break;
     case 'editarFicha': if(viewing===myId)viewing=null;fichaVoltarPerfil=false;fichaStep=null;draft=null;dirty=false;setTab('perfil',true);break;
     case 'marcaLojas': {const cur=marcaSel[ds.id];marcaSel[ds.id]=cur&&cur.g===ds.g&&cur.m===ds.v?null:{g:ds.g,m:ds.v};keep(render);break}
     case 'marcasMais': marcasAbertas[ds.k]=!marcasAbertas[ds.k];keep(render);break;
@@ -3875,7 +3894,7 @@ app.addEventListener('click',async e=>{
     case 'addGrupo': {const n=val('gNome');if(!n){toast('Dê um nome ao grupo');break}saveGrupos([...grupos,{id:uid(),nome:n.slice(0,30),membros:[]}],'Grupo criado');form={type:'grupos'};break}
     case 'delGrupo': if(grupoFiltro===ds.id)grupoFiltro='';saveGrupos(grupos.filter(g=>g.id!==ds.id),'Grupo excluído');form={type:'grupos'};break;
     case 'grupoMembro': {const keepForm=form;saveGrupos(grupos.map(g=>g.id!==ds.g?g:{...g,membros:(g.membros||[]).includes(ds.id)?g.membros.filter(x=>x!==ds.id):[...(g.membros||[]),ds.id]}));form=keepForm;break}
-    case 'reserve': {const st=itemStatus(ds.owner,ds.item);if(st.reservers.length||st.vaq){toast('Este item acabou de ser reservado');keep(render);break}A.reservas.push({owner:ds.owner,item:ds.item});saveAcoes(A,'Reservado. Ninguém mais vai comprar este item.');break}
+    case 'reserve': {const st=itemStatus(ds.owner,ds.item);if(st.reservers.length||st.vaq){toast('Este item acabou de ser reservado');keep(render);break}A.reservas.push({owner:ds.owner,item:ds.item});saveAcoes(A,'Reservado. Ninguém mais vai comprar este item.');if(profiles[myId]&&completude(profiles[myId]).pct<30)posReserva=ds.owner;break}
     case 'unreserve': A.reservas=A.reservas.filter(r=>!(r.owner===ds.owner&&r.item===ds.item));saveAcoes(A,'Reserva desfeita');break;
     case 'formVaq': form={type:'vaq',owner:ds.owner,item:ds.item};keep(render);break;
     case 'formCota': form={type:'cota',owner:ds.owner,item:ds.item};keep(render);break;
@@ -4191,8 +4210,9 @@ function handleStatus(v){
   if(!handleLivre(v))return {cls:'err',txt:'✗ Esse @ já está em uso. Escolha outro.'};
   return {cls:'ok',txt:'✓ Disponível'};
 }
+function nomeRuim(){const n=String(myName||'').trim(),loc=String(myEmail||'').split('@')[0].trim().toLowerCase();return n.length<2||n.toLowerCase()===loc||/[@+]/.test(n)}
 function sugestoesHandle(ano){
-  const partes=(myName||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/).filter(Boolean);
+  const partes=((lgForm&&lgForm.nome)||(nomeRuim()?'':myName)||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/).filter(Boolean);
   if(!partes.length)return [];
   const p0=partes[0],pl=partes.length>1?partes[partes.length-1]:'';
   // sem ano de nascimento nas sugestões (o @ é público e entregaria a idade)
@@ -4208,11 +4228,12 @@ function renderIdade(){
   const tit=so?'Atualizamos nossos termos':soHandle?'Escolha seu @':'Antes de continuar';
   const lede=so?'Leia e aceite a nova versão para seguir usando o PresenteCerto.':soHandle?'Com o seu @, seus amigos acham você na busca. Leva 10 segundos.':'Só três coisas rápidas. Você responde uma vez só.';
   let h=`<div class="view lg"><div><h1>${tit}</h1><p class="lede">${lede}</p></div>`;
+  if(pedeHandle&&nomeRuim())h+=`<section class="panel"><h2>Seu nome</h2><span class="small" style="color:var(--muted)">É como seus amigos vão ver você no PresenteCerto.</span><label class="f">Nome e sobrenome<input id="lgNomeG" maxlength="40" autocomplete="name" autocapitalize="words" value="${esc(f.nome||'')}" placeholder="Ex.: Maria Souza"></label></section>`;
   if(pedeHandle){const st=handleStatus(f.handle);const sug=sugestoesHandle(f.ano||(idade&&idade.data||'').slice(0,4));
     h+=`<section class="panel"><h2>Seu nome de usuário (@)</h2><span class="small" style="color:var(--muted)">É assim que seus amigos vão achar você, mesmo que exista alguém com o mesmo nome.</span>
      <div class="lg-handle"><span>@</span><input id="lgHandle" maxlength="20" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="email" value="${esc(f.handle)}" aria-describedby="lgHst"></div>
      <span class="small lg-hst ${st.cls}" id="lgHst">${esc(st.txt)}</span>
-     ${sug.length?`<div class="flabel">Sugestões: toque para usar</div><div class="chips">${sug.map(s=>`<button class="chip" data-lg="handleSug" data-v="${esc(s)}">@${esc(s)}</button>`).join('')}</div>`:''}</section>`}
+     <div id="lgSugBox">${sug.length?`<div class="flabel">Sugestões: toque para usar</div><div class="chips">${sug.map(s=>`<button class="chip" data-lg="handleSug" data-v="${esc(s)}">@${esc(s)}</button>`).join('')}</div>`:''}</div></section>`}
   if(!temIdade)h+=`<section class="panel"><h2>Sua data de nascimento</h2>
    <div class="grid2"><label class="f">Dia<select id="lgDia"><option value="">—</option>${dias.map(d=>`<option value="${d}" ${+f.dia===d?'selected':''}>${d}</option>`).join('')}</select></label>
    <label class="f">Mês<select id="lgMes"><option value="">—</option>${MESES_LONGOS.map((m,i)=>`<option value="${i+1}" ${+f.mes===i+1?'selected':''}>${m}</option>`).join('')}</select></label>
@@ -4228,6 +4249,7 @@ function renderIdade(){
   h+=`<div class="err" role="alert">${esc(f.erro||'')}</div>
    <div class="row"><button class="btn" data-lg="idadeSalvar" ${lgOcupado?'disabled':''}>${lgOcupado?'Salvando…':'Continuar'}</button><button class="link" data-lg="sair">Sair da conta</button></div></div>`;
   app.innerHTML=h;
+  const inpN=app.querySelector('#lgNomeG');if(inpN)inpN.addEventListener('input',()=>{f.nome=inpN.value.trim();const box=app.querySelector('#lgSugBox');if(!box)return;const sg=sugestoesHandle(f.ano||(idade&&idade.data||'').slice(0,4));box.innerHTML=sg.length?`<div class="flabel">Sugestões: toque para usar</div><div class="chips">${sg.map(x=>`<button class="chip" data-lg="handleSug" data-v="${esc(x)}">@${esc(x)}</button>`).join('')}</div>`:''});
   const inp=app.querySelector('#lgHandle');
   if(inp)inp.addEventListener('input',()=>{const v=limpaHandle(inp.value);if(v!==inp.value)inp.value=v;f.handle=v;const st=handleStatus(v);const el=app.querySelector('#lgHst');if(el){el.textContent=st.txt;el.className='small lg-hst '+st.cls}});
 }
@@ -4251,6 +4273,8 @@ async function lgIdadeSalvar(){
   const aceite=termosOk||!!app.querySelector('#lgAceite')?.checked;f.aceite=aceite;
   const erro=m=>{f.erro=m;lgOcupado=false;renderIdade()};
   const novato=!raw.profiles[myId]||completude(profiles[myId]||{}).pct<30;
+  // 0. nome (quando o cadastro não trouxe um nome de verdade)
+  let nomeNovo='';if(pedeHandle&&nomeRuim()){nomeNovo=String(app.querySelector('#lgNomeG')?.value||f.nome||'').trim().replace(/\s+/g,' ').slice(0,40);f.nome=nomeNovo;if(nomeNovo.length<2||/[@+]/.test(nomeNovo))return erro('Escreva seu nome, do jeito que seus amigos conhecem você.')}
   // 1. @
   let h='';
   if(pedeHandle){h=limpaHandle(app.querySelector('#lgHandle')?.value||f.handle);f.handle=h;
@@ -4278,13 +4302,14 @@ async function lgIdadeSalvar(){
     const menor=anos!==null?anos<18:souMenor();
     try{await reservarHandle(h,menor,data||(idade&&idade.data)||'')}catch(e){return erro(e&&e.code==='em-uso'?'Esse @ acabou de ser escolhido por outra pessoa. Escolha outro.':'Não foi possível salvar o @. Tente de novo.')}
   }
+  if(nomeNovo){try{if(user&&user.atualizarConta)await user.atualizarConta({nome:nomeNovo});myName=nomeNovo;names[myId]={...(names[myId]||{}),name:nomeNovo};if(raw.profiles[myId])gravarPerfil({nome:nomeNovo}).catch(()=>{})}catch(e){}}
   lgOcupado=false;lgForm=null;
   const veioDeLink=!!pendingOpen||(!!viewing&&viewing!==myId);
   if(pedeHandle&&novato&&veioDeLink){convidadoNovo=true;render();tryPendingOpen();window.scrollTo(0,0)}
   else if(pedeHandle&&novato){fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true)}
   else render();
 }
-let fichaBoasVindas=false,convidadoNovo=false;
+let fichaBoasVindas=false,convidadoNovo=false,posReserva=null;
 function renderEsperaResp(){
   const link=respLink();const msg=`Oi! Estou criando minha conta no PresenteCerto, o app de lista de presentes. Como tenho menos de 16 anos, preciso que você seja meu responsável no app. É só abrir este link e entrar com a sua conta: ${link}`;
   app.innerHTML=`<div class="view lg"><div><h1>Falta só o seu responsável</h1><p class="lede">Para quem tem menos de 16 anos, a lei pede que a conta fique ligada à de um responsável: pai, mãe ou quem cuida de você. Mande o convite. Ele abre o link, entra no PresenteCerto com a conta dele e confirma.</p></div>
