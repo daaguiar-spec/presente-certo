@@ -88,6 +88,9 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 .urow img{width:36px;height:36px;border-radius:50%;object-fit:cover}
 .avatar-btn{border:2px solid var(--accent-soft);background:none;padding:0;border-radius:50%;cursor:pointer;display:flex}
 .avatar-btn img{width:34px;height:34px;border-radius:50%;object-fit:cover}
+body.lg-gate nav.tabs,body.lg-gate .mais-ov{display:none!important}
+.cv-bv{display:flex;gap:12px;align-items:flex-start;background:var(--accent-soft);border-radius:16px;padding:14px}
+.cv-bv>span{font-size:26px;line-height:1}.cv-bv b{display:block;margin-bottom:3px}.cv-bv div>span{display:block;color:var(--muted);font-size:14px}.cv-bv .row{margin-top:10px}
 nav.tabs{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:8;padding:0 12px;pointer-events:none}
 .tabs-in{max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:0 10px 30px rgba(40,20,60,.18);pointer-events:auto}
 .tab{background:none;border:0;color:var(--fg);height:58px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;padding:0;-webkit-tap-highlight-color:transparent}
@@ -1194,7 +1197,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   if(lgBloqueio())return;
   if(!dqMostrado)setTimeout(tentarDestaque,0);
   if(viewing&&String(viewing).startsWith('loja:'))renderLoja(viewing.slice(5));
-  else if(viewing){renderPerson(viewing);app.insertAdjacentHTML('beforeend',denunciaHtml(viewing))}
+  else if(viewing){renderPerson(viewing);app.insertAdjacentHTML('beforeend',denunciaHtml(viewing));if(convidadoNovo&&viewing!==myId&&(convidadoNovo===true||convidadoNovo===viewing)){convidadoNovo=viewing;const v=app.querySelector('.view');if(v)v.insertAdjacentHTML('afterbegin',`<div class="cv-bv"><span aria-hidden="true">🎉</span><div><b>Conta criada! Bem-vindo ao PresenteCerto.</b><span>Veja a lista de ${esc(nm(viewing))} e reserve um presente. Quando puder, monte a sua ficha também, para seus amigos acertarem no seu presente.</span><div class="row"><button class="btn small" data-act="cvFicha">Montar minha ficha</button><button class="link" data-act="cvFechar">Depois</button></div></div></div>`)}}
   else if(tab==='privacidade')renderPrivacidade();
   else if(tab==='responsavel')renderResponsavel();
   else if(tab==='mural')renderMural();
@@ -3841,6 +3844,8 @@ app.addEventListener('click',async e=>{
         const ativas=(pr.listasAtivas||[]).filter(x=>x!==k);
         await gravarPerfil({[k]:[],listasAtivas:ativas});draft=null;toast('Pronto! Sua lista de evento foi criada');setTab('eventos');evAbrir(ref.id)}
       catch(e){toast('Não foi possível transformar a lista. Tente de novo.')}break}
+    case 'cvFicha': convidadoNovo=false;fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true);break;
+    case 'cvFechar': convidadoNovo=false;keep(render);break;
     case 'editarFicha': if(viewing===myId)viewing=null;fichaVoltarPerfil=false;fichaStep=null;draft=null;dirty=false;setTab('perfil',true);break;
     case 'marcaLojas': {const cur=marcaSel[ds.id];marcaSel[ds.id]=cur&&cur.g===ds.g&&cur.m===ds.v?null:{g:ds.g,m:ds.v};keep(render);break}
     case 'marcasMais': marcasAbertas[ds.k]=!marcasAbertas[ds.k];keep(render);break;
@@ -4156,7 +4161,8 @@ async function lgMigrarAdmin(manual){
 }
 
 // ----- telas de bloqueio: data de nascimento, termos, espera pelo responsável, convite de responsável -----
-function lgBloqueio(){
+function lgBloqueio(){const r=lgBloqueio0();try{document.body.classList.toggle('lg-gate',r)}catch(e){}return r}
+function lgBloqueio0(){
   if(idadeIndisp)return false;
   if(!idadeOk){app.innerHTML='<div class="view"><h1>Carregando a sua experiência…</h1></div>';return true}
   if(idade&&(!profilesOk||!usernamesOk)){app.innerHTML='<div class="view"><h1>Carregando a sua experiência…</h1></div>';return true}
@@ -4263,10 +4269,12 @@ async function lgIdadeSalvar(){
     try{await reservarHandle(h,menor,data||(idade&&idade.data)||'')}catch(e){return erro(e&&e.code==='em-uso'?'Esse @ acabou de ser escolhido por outra pessoa. Escolha outro.':'Não foi possível salvar o @. Tente de novo.')}
   }
   lgOcupado=false;lgForm=null;
-  if(pedeHandle&&novato){fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true)}
+  const veioDeLink=!!pendingOpen||(!!viewing&&viewing!==myId);
+  if(pedeHandle&&novato&&veioDeLink){convidadoNovo=true;render();tryPendingOpen();window.scrollTo(0,0)}
+  else if(pedeHandle&&novato){fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true)}
   else render();
 }
-let fichaBoasVindas=false;
+let fichaBoasVindas=false,convidadoNovo=false;
 function renderEsperaResp(){
   const link=respLink();const msg=`Oi! Estou criando minha conta no PresenteCerto, o app de lista de presentes. Como tenho menos de 16 anos, preciso que você seja meu responsável no app. É só abrir este link e entrar com a sua conta: ${link}`;
   app.innerHTML=`<div class="view lg"><div><h1>Falta só o seu responsável</h1><p class="lede">Para quem tem menos de 16 anos, a lei pede que a conta fique ligada à de um responsável: pai, mãe ou quem cuida de você. Mande o convite. Ele abre o link, entra no PresenteCerto com a conta dele e confirma.</p></div>
@@ -4366,8 +4374,8 @@ async function lgExcluirConta(){
     if((u.providerData||[]).some(x=>x.providerId==='password')){if(!senha)return erro('Digite sua senha.');await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,senha))}
     else{const prov=new firebase.auth.GoogleAuthProvider();prov.setCustomParameters({prompt:'select_account'});await u.reauthenticateWithPopup(prov)}
   }catch(e){return erro(e&&/wrong-password|invalid-credential/.test(e.code||'')?'Senha incorreta.':e&&e.code==='auth/user-mismatch'?'Entre com a mesma conta que você quer excluir.':'Não foi possível confirmar quem é você. Tente de novo.')}
-  try{const t=await u.getIdToken(true);const r=await fetch('/api/servicos?f=excluir-conta',{method:'POST',headers:{Authorization:'Bearer '+t}});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.erro||'api')}
-  catch(e){return erro('Não conseguimos apagar seus dados agora. Tente de novo em instantes ou escreva para '+LG_CONTATO+'.')}
+  try{const t=await u.getIdToken(true);const r=await fetch('/api/servicos?f=excluir-conta',{method:'POST',headers:{Authorization:'Bearer '+t}});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error((j.erro||('HTTP '+r.status))+(j.detalhe?': '+j.detalhe:''))}
+  catch(e){return erro('Não conseguimos apagar seus dados agora. Tente de novo em instantes ou escreva para '+LG_CONTATO+'. (Código: '+String(e&&e.message||'rede').slice(0,300)+')')}
   try{await u.delete()}catch(e){}
   try{localStorage.clear()}catch(e){}
   location.href=location.pathname+'?conta=excluida';
