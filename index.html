@@ -28,6 +28,25 @@ img{max-width:100%}
 [hidden]{display:none!important}
 .logged-out nav.tabs,.logged-out #meChip{display:none!important}
 .login{max-width:420px;margin:0 auto;padding-top:28px;display:flex;flex-direction:column;gap:16px}
+.login.com-previa{max-width:520px;padding-top:16px}
+.pv-intro{display:flex;gap:12px;align-items:flex-start;background:var(--accent-soft);border-radius:16px;padding:14px}
+.pv-intro-ic{font-size:28px;line-height:1}
+.pv-intro b{display:block;font-size:17px;margin-bottom:3px}.pv-intro span{color:var(--muted);font-size:14px}
+.pv-perfil .pf-head{margin:0}
+.pv-sec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
+.pv-mais{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
+.pv-btn{width:100%;justify-content:center;text-align:center;font-size:17px;padding:14px}
+.pv-cad{text-align:center;margin:10px 0 0;font-size:20px}
+.pv-lock{display:block;margin-top:8px;font-size:14px;color:var(--muted)}
+.pv{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pv-top{display:flex;gap:12px;align-items:center}.pv-top .small{display:block;color:var(--muted)}
+.pv-av{width:58px;height:58px;border-radius:50%;object-fit:cover;flex:none}.pv-ini{display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:20px}
+.pv-nm{font-size:20px;display:block}.pv-frase{color:var(--muted);font-style:italic}
+.pv-aniv{background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.pv-lista{display:flex;flex-direction:column;gap:6px}.pv-eb{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.pv-it{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}.pv-t{flex:1;min-width:0}.pv-pr{color:var(--muted);font-size:13px}
+.pv-fech{flex-direction:row;align-items:flex-start}.pv-fech .pv-ic{font-size:24px}.pv-fech .small{display:block;color:var(--muted)}
+.pv-cta{text-align:center;display:flex;flex-direction:column;gap:2px}.pv-cta .small{color:var(--muted)}
 .login .g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font:600 15px var(--body,system-ui);padding:12px;border-radius:999px;border:1px solid var(--line,#ddd);background:#fff;color:#2e2536;cursor:pointer}
 .login .sep{display:flex;align-items:center;gap:10px;color:var(--muted,#888);font-size:13px}
 .login .sep::before,.login .sep::after{content:"";flex:1;height:1px;background:var(--line,#ddd)}
@@ -574,6 +593,13 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .ptr.pronto svg{transform:rotate(180deg)}
 .ptr.girando svg{animation:ptrgira .8s linear infinite}
 @keyframes ptrgira{to{transform:rotate(360deg)}}
+.appint{background:var(--accent-soft);border-bottom:1px solid var(--line);padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+.appint-in{display:flex;gap:10px;align-items:flex-start;max-width:720px;margin:0 auto}
+.appint-ic{font-size:22px;line-height:1}
+.appint-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;font-size:14px}
+.appint-tx span{color:var(--muted)}
+.appint-bt{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.appint-x{background:none;border:0;font-size:16px;color:var(--muted);padding:2px 4px;cursor:pointer}
 .dq-ov{position:fixed;inset:0;background:rgba(20,14,26,.62);z-index:45;display:grid;place-items:center;padding:16px;animation:dqfade .2s ease}
 .dq-box{position:relative;background:var(--surface);color:var(--fg);border-radius:22px;width:min(400px,100%);max-height:calc(100vh - 40px);overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:dqsobe .25s ease}
 .dq-img{display:block;width:100%;max-height:300px;object-fit:cover;border-radius:22px 22px 0 0;background:var(--sunk)}
@@ -786,15 +812,30 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 
   /* ---------- tela de login ---------- */
   let modo='entrar',erro='',ocupado=false;
-  const MSG={'auth/invalid-email':'Este e-mail não parece válido.','auth/missing-password':'Digite sua senha.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.',
-    'auth/email-already-in-use':'Já existe uma conta com este e-mail. Toque em Entrar.','auth/invalid-credential':'E-mail ou senha incorretos.','auth/wrong-password':'E-mail ou senha incorretos.',
-    'auth/user-not-found':'Não encontramos conta com este e-mail. Toque em Criar conta.','auth/too-many-requests':'Muitas tentativas. Espere alguns minutos e tente de novo.',
-    'auth/network-request-failed':'Sem conexão com a internet.','auth/popup-closed-by-user':'','auth/cancelled-popup-request':'','auth/unauthorized-domain':'Este endereço ainda não foi autorizado no Firebase. Veja o passo 6 do guia LEIA-ME.'};
-  const msgDe=e=>(e&&e.code in MSG)?MSG[e.code]:'Não foi possível entrar agora. Tente de novo.';
+  // Prévia do perfil para quem chegou por um link (?u=@fulano) e ainda não tem conta
+  let previa;const previaU=(()=>{try{return (new URLSearchParams(location.search).get('u')||'').replace(/^@/,'')}catch(e){return ''}})();
+  const E=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function carregarPrevia(){if(!previaU||previa!==undefined)return;previa=null;
+    fetch('/api/servicos?f=previa&u='+encodeURIComponent(previaU)).then(r=>r.ok?r.json():null).then(j=>{previa=j&&j.ok?j:false;if(previa&&previa.tipo!=='restrito')modo='criar';if(window.__loggedOut)showLogin()}).catch(()=>{previa=false})}
+  function previaHtml(){
+    const p=previa;if(!p||p.tipo==='restrito')return '';
+    const prim=E(p.primeiro||(p.nome||'').split(/\s+/)[0]||'Seu amigo');
+    const intro=`<div class="pv-intro"><span class="pv-intro-ic" aria-hidden="true">🎁</span><div><b>${prim} compartilhou com você ${p.tipo==='fechado'?'o perfil de presentes':'a lista de presentes'}</b><span>No PresenteCerto, amigos e família contam o que gostariam de ganhar. Assim você acerta no presente e ninguém dá repetido.</span></div></div>`;
+    const ini=(p.nome||'?').split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();
+    if(p.tipo==='semprevia')return intro+`<div class="pv pv-fech"><span class="pv-ic" aria-hidden="true">🎁</span><div style="min-width:0"><b class="pv-nm">A lista de ${prim} está esperando por você</b><span class="pv-lock">Crie sua conta grátis para ver o aniversário, a lista de desejos e reservar um presente.</span></div></div>
+      <a class="btn pv-btn" href="#lgForm" data-pvcta>Criar minha conta grátis</a>`;
+    if(p.tipo==='fechado')return intro+`<div class="pv pv-fech"><span class="pv-ic" aria-hidden="true">🔒</span><div style="min-width:0"><b class="pv-nm">${prim} deixou o perfil fechado</b><span class="pv-lock">Só quem ${prim} aprova vê o aniversário e a lista. Crie sua conta grátis e toque em <b>“Pedir para seguir”</b>.</span></div></div>
+      <a class="btn pv-btn" href="#lgForm" data-pvcta>Criar minha conta grátis</a>`;
+    let corpo='';try{corpo=window.__pcPrevia?window.__pcPrevia(p,prim):''}catch(e){corpo=''}
+    if(!corpo)return intro;
+    return intro+corpo+`<div class="pv-cta"><a class="btn pv-btn" href="#lgForm" data-pvcta>🎁 Quero ver tudo e reservar um presente</a><span class="small">É grátis e leva 1 minuto. Quando você reserva, os outros veem que aquele presente já tem dono.</span></div>`;
+  }
   function showLogin(){
     document.body.classList.add('logged-out');window.__loggedOut=true;
-    app.innerHTML=`<div class="login">
-      <div><h1>Entre no PresenteCerto</h1><p class="lede">Monte sua ficha de presentes e descubra o que seus amigos querem ganhar.</p></div>${/conta=excluida/.test(location.search)?'<div class="notice">Sua conta e seus dados foram excluídos. Obrigado por ter usado o PresenteCerto.</div>':''}
+    carregarPrevia();const pv=previaHtml();
+    app.innerHTML=`<div class="login${pv?' com-previa':''}">
+      ${pv||`<div><h1>Entre no PresenteCerto</h1><p class="lede">Monte sua ficha de presentes e descubra o que seus amigos querem ganhar.</p></div>`}${/conta=excluida/.test(location.search)?'<div class="notice">Sua conta e seus dados foram excluídos. Obrigado por ter usado o PresenteCerto.</div>':''}
+      ${pv?'<h2 id="lgCad" class="pv-cad">Crie sua conta grátis</h2>':''}
       <button class="g-btn" id="lgGoogle" ${ocupado?'disabled':''}><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.4 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.8c-.5-1.4-.8-3-.8-4.8s.3-3.3.8-4.8l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.7 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>Entrar com Google</button>
       <div class="sep">ou com e-mail</div>
       <div class="seg"><button id="lgM1" aria-pressed="${modo==='entrar'}">Entrar</button><button id="lgM2" aria-pressed="${modo==='criar'}">Criar conta</button></div>
@@ -808,6 +849,8 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
       </form>
       <p class="small login-legal">Ao continuar, você concorda com os <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. Menores de 16 anos precisam de um responsável.</p></div>`;
     const v=id=>(document.getElementById(id)?.value||'').trim();
+    app.querySelectorAll('.pv-perfil .pf-acts,.pv-perfil .pf-capa-btns').forEach(x=>x.remove());
+    app.querySelectorAll('[data-pvcta]').forEach(x=>x.onclick=e=>{e.preventDefault();modo='criar';erro='';showLogin();setTimeout(()=>{const t=document.getElementById('lgCad');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});const n=document.getElementById('lgNome');if(n)n.focus({preventScroll:true})},50)});
     document.getElementById('lgM1').onclick=()=>{modo='entrar';erro='';showLogin()};
     document.getElementById('lgM2').onclick=()=>{modo='criar';erro='';showLogin()};
     document.getElementById('lgGoogle').onclick=async()=>{
@@ -1487,7 +1530,7 @@ function renderMural(){
     if(!isPlus(myId)&&!isOwner)cards.push(`<section class="panel hl"><b>⭐ Deixe seu perfil com a sua cara</b><span class="small">Com o Plus, o topo do seu perfil ganha temas, moldura, enfeites e vira festa no mês do seu aniversário. E você vê quem visitou seu perfil.</span><div class="row"><button class="btn small" data-act="cabAbrir">🎨 Testar grátis</button><button class="btn small" data-act="tab" data-id="plus">Ver todos os benefícios</button></div></section>`);
     if(cards.length)h+=cards[destaqueVez%cards.length];}
   h+=cabFestaHtml();
-  h+=pendCard();
+  h+=previaAvisoHtml()||pendCard();
   if(lojasVisiveis().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   const ofH=ofertasSemana()+maisDesejadosHtml(5);let ofPosto=false;
@@ -2239,6 +2282,19 @@ function pfHeadHtml(id,p,self,opt){
   h+=`<div class="pf-pills">${pill(bdayDays(p))}<span class="pf-pill">🎂 ${esc(bdayText(p))}</span></div>${self||opt.preview?'':`<div class="pf-acts">${followBtn(id)}</div>`}</div>`;
   return h;
 }
+// prévia pública do perfil (tela de entrada, sem conta): usa o mesmo cabeçalho e os mesmos cartões do perfil
+window.__pcPrevia=function(p,prim){let corpo='';
+      const pid='__previa__';const bak={pl:planos[pid],nm:names[pid],pf:profiles[pid],un:p.handle?usernames[p.handle]:undefined};
+      if(p.plus)planos[pid]={plus:true,ate:new Date(Date.now()+864e5).toISOString()};
+      names[pid]={name:p.nome,avatar:p.foto||initialsAvatar(p.nome)};
+      if(p.handle)usernames[p.handle]={uid:pid};
+      const pf={nome:p.nome,dia:p.dia?String(p.dia):'',mes:p.mes?String(p.mes):'',frase:p.frase||'',cab:p.cab||null,capa:p.capa||'',usuario:p.handle||'',desejos:p.desejos||[]};profiles[pid]=pf;
+      try{
+        corpo=`<div class="pv-perfil">${pfHeadHtml(pid,pf,false,{})}</div>`;
+        const lista=(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(pid,p.desejos,false)}</div>${p.total>p.desejos.length?`<div class="pv-mais">+ ${p.total-p.desejos.length} ${p.total-p.desejos.length===1?'presente':'presentes'} na lista completa</div>`:''}`:`<div class="muted">A lista de desejos ainda está vazia, mas você já pode seguir para saber quando ${prim} adicionar.</div>`;
+        corpo+=`<section class="pf-sec pv-sec"><h3 class="pf-h"><span aria-hidden="true">🎁</span>O que ${prim} quer ganhar</h3>${lista}</section>`;
+      }finally{planos[pid]=bak.pl;names[pid]=bak.nm;profiles[pid]=bak.pf;if(p.handle){if(bak.un===undefined)delete usernames[p.handle];else usernames[p.handle]=bak.un}}
+  return corpo};
 /* visitas ao perfil */
 function cabDiscreto(){return !!(cabPriv&&cabPriv.discreto)}
 function cabRegistrarVisita(id){
@@ -2357,6 +2413,11 @@ function pendLista(){
   Object.entries(meusEv||{}).filter(([,e])=>!e.publicado).slice(0,1).forEach(([id,e])=>L.push({id:'ev:'+id,ic:'🎉',t:`Sua lista “${e.titulo||'de evento'}” ainda é rascunho`,d:'Publique para mandar o link aos convidados.',b:'Abrir a lista',a:`data-ev="abrir" data-id="${esc(id)}"`}));
   const agora=Date.now();return L.filter(x=>!(pendEst.adiadas[x.id]>agora));
 }
+async function previaDefinir(v){try{await gravarPerfil({previa:!!v});raw.profiles[myId]={...(raw.profiles[myId]||{}),previa:!!v};applyRaw();toast(v?'Prévia ligada! Quem receber seu link já vê sua lista.':'Prévia desligada.')}catch(e){toast('Não foi possível salvar. Tente de novo.')}}
+function previaAvisoHtml(){
+  const rp=(raw.profiles||{})[myId];if(!rp||rp.fechado||'previa' in rp||souMenor()||!idade)return '';
+  return `<section class="pend pv-aviso"><span class="pend-ic" aria-hidden="true">🔗</span><div style="min-width:0;flex:1"><span class="pend-eb">Novidade</span><b>Deixe sua lista visível no link</b><span class="small">Quem recebe o link do seu perfil poderá ver sua lista de desejos antes de criar conta. Assim mais gente acerta no seu presente. Idade, cidade e quem reservou nunca aparecem. Você pode desligar quando quiser em Privacidade e dados.</span><div class="pend-acts"><button class="btn small" data-act="previaSim">Ativar</button><button class="link" data-act="previaNao">Agora não</button></div></div></section>`;
+}
 function pendCard(){
   if(!myId||Date.now()-pendIni<4000||!pendPronto())return '';
   if(pendFeitoAgora){if(!pendOkTimer)pendOkTimer=setTimeout(()=>{pendOkTimer=null;pendFeitoAgora=false;const el=document.querySelector('.pend.ok');if(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400)}},8000);
@@ -2377,10 +2438,11 @@ function pendCard(){
 setTimeout(()=>{try{if(tab==='mural'&&!viewing)softRender()}catch(e){}},4300);
 app.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-pendbtn]')&&pendEst.atual){pendEst.clicou=pendEst.atual;pendSalvar()}},true);
 app.addEventListener('click',e=>{
-  const b=e.target.closest&&e.target.closest('[data-act]');if(!b)return;const ds=b.dataset,a=ds.act;if(!/^pend/.test(a))return;
+  const b=e.target.closest&&e.target.closest('[data-act]');if(!b)return;const ds=b.dataset,a=ds.act;if(!/^(pend|previa)/.test(a))return;
   if(a==='pendFicha'){fichaStep=+ds.v||0;if(viewing===myId)viewing=null;setTab('perfil',true)}
   if(a==='pendAbrir'){pendEst.vistos[ds.k]=Date.now();pendSalvar();viewing=ds.id;form=null;render();window.scrollTo(0,0)}
   if(a==='pendAdiar'){if(pendEst.atual)pendEst.adiadas[pendEst.atual]=Date.now()+3*864e5;pendEst.atual='';pendEst.feitoEm=Date.now();pendSalvar();keep(render)}
+  if(a==='previaSim'||a==='previaNao'){previaDefinir(a==='previaSim').then(()=>keep(render));return}
   if(a==='pendFechar'){pendFeitoAgora=false;clearTimeout(pendOkTimer);pendOkTimer=null;keep(render)}
 });
 const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, moldura na foto, enfeites, adesivos e nome brilhante no topo do seu perfil.'],['🎂','Perfil em festa no aniversário','Faltando um mês, seu perfil pode virar festa com confete, coroa e contagem regressiva.'],['👀','Quem visitou seu perfil','Veja quem abriu o seu perfil nos últimos 7 dias.'],['🚫','Menos anúncios','Sem os quadros de propaganda no Mural e nas fichas das pessoas.'],['🎨','Capa colorida e selo Plus','Sua ficha ganha uma capa de cor e o selo Plus ao lado do seu nome.'],['🎨','Personalizar o visual','Cores do app, temas, fundo e tela inicial do jeito que você gosta.'],['🎄','Lista de Natal','Uma lista separada só para o Natal, além da sua lista de desejos.'],['🎅','Amigo secreto sem limite','Sorteios com quantas pessoas quiser (no grátis, o máximo é '+LIMITE_SORTEIO+').'],['🎉','2 listas de evento grátis','Crie até 2 listas de casamento, chá de bebê ou casa nova, sem pagar, e compartilhe o link com os convidados.']];
@@ -2683,6 +2745,23 @@ let instEstado={n:0,ate:'',nunca:false};
 try{const v=localStorage.getItem('instalarPop')||'';if(v.startsWith('{'))instEstado={...instEstado,...JSON.parse(v)};else if(v==='nunca')instEstado.nunca=true;else if(v)instEstado={n:1,ate:'',nunca:false,dia:v}}catch(e){}
 let instVisitas=0;try{instVisitas=(+(localStorage.getItem('pc_visitas'))||0)+1;localStorage.setItem('pc_visitas',String(instVisitas))}catch(e){instVisitas=3}
 const emAppInterno=()=>/Instagram|FBAN|FBAV|FB_IAB|FBIOS|Line\/|MicroMessenger|TikTok|musical_ly|Snapchat|Pinterest|WhatsApp/i.test(navigator.userAgent||'');
+/* ---------- Aberto dentro do Instagram/Facebook/TikTok: pede para abrir no navegador ---------- */
+function avisoAppInterno(){
+  try{if(!emAppInterno()||sessionStorage.getItem('pc_appint')==='x'||document.querySelector('.appint'))return}catch(e){if(!emAppInterno())return}
+  const u=navigator.userAgent||'',so=sistema();
+  const nomeApp=/Instagram/i.test(u)?'Instagram':/FBAN|FBAV|FB_IAB|FBIOS/i.test(u)?'Facebook':/TikTok|musical_ly/i.test(u)?'TikTok':/WhatsApp/i.test(u)?'WhatsApp':/Snapchat/i.test(u)?'Snapchat':/Pinterest/i.test(u)?'Pinterest':'outro aplicativo';
+  const nav=so==='ios'?'Safari':so==='android'?'Chrome':'navegador';
+  const passo=so==='ios'?'Toque em <b>⋯</b> no canto da tela e depois em <b>“Abrir no navegador”</b>.':so==='android'?'Toque no botão abaixo ou em <b>⋮</b> no canto da tela e depois em <b>“Abrir no Chrome”</b>.':'Abra este link no navegador do seu celular.';
+  const link=location.href;const intent='intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(link)+';end';
+  const d=document.createElement('div');d.className='appint';d.setAttribute('role','alert');
+  d.innerHTML=`<div class="appint-in"><span class="appint-ic" aria-hidden="true">🧭</span><div class="appint-tx"><b>Abra no ${nav} para tudo funcionar</b><span>Você abriu pelo ${nomeApp}. Aqui dentro o login pode se perder e não dá para instalar. ${passo}</span>
+    <div class="appint-bt">${so==='android'?`<a class="btn small" href="${intent}">Abrir no Chrome</a>`:''}<button class="btn small ghost" data-appint="copiar">Copiar link</button></div></div><button class="appint-x" data-appint="fechar" aria-label="Fechar aviso">✕</button></div>`;
+  d.addEventListener('click',e=>{const b=e.target.closest('[data-appint]');if(!b)return;
+    if(b.dataset.appint==='fechar'){try{sessionStorage.setItem('pc_appint','x')}catch(x){}d.remove()}
+    if(b.dataset.appint==='copiar'){const ok=()=>{b.textContent='Link copiado! Cole no '+nav};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(link).then(ok,()=>{prompt('Copie o link:',link)});else prompt('Copie o link:',link)}});
+  document.body.insertBefore(d,document.body.firstChild);
+}
+try{if(document.body)avisoAppInterno();else document.addEventListener('DOMContentLoaded',avisoAppInterno)}catch(e){}
 function instGuardar(){try{localStorage.setItem('instalarPop',JSON.stringify(instEstado))}catch(e){}
   if(myId&&db)db.doc(`data/users/${myId}/destaques`).set({instalar:{n:instEstado.n||0,ate:instEstado.ate||'',nunca:!!instEstado.nunca}},{merge:true}).catch(()=>{})}
 function instalarPraMostrar(){
@@ -3967,9 +4046,9 @@ app.addEventListener('click',async e=>{
 
 /* ---------- LGPD e ECA Digital: idade, responsável, perfil fechado, privacidade e dados ---------- */
 const TERMOS_VER='1.1';
-const LG_CONTATO='comercial@sinapseon-line.com';
+const LG_CONTATO='comercial@sinapseonline.com';
 // Campos que continuam públicos mesmo com o perfil fechado (o resto da ficha vai para fichas/{uid})
-const PUB_KEYS=new Set(['fechado','aprovados','recusados','parabensOcultos','usuario','cab','capa','aviso','atualizado','frase','exemplo','nome']);
+const PUB_KEYS=new Set(['previa','fechado','aprovados','recusados','parabensOcultos','usuario','cab','capa','aviso','atualizado','frase','exemplo','nome']);
 let idade=null,idadeOk=false,idadeIndisp=false,respContas={},lgForm=null,lgExcluir=null,lgOcupado=false,denAlvo=null,denuncias={};
 let fichasRaw={},fichaSubs={},fichaCarregada={},lgManutFeita=false,lgMigrouAdm=false,lgMigrMsg='';
 let respPend=null;const respNomeOk={};
@@ -4099,8 +4178,9 @@ function handleStatus(v){
 function sugestoesHandle(ano){
   const partes=(myName||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/).filter(Boolean);
   if(!partes.length)return [];
-  const p0=partes[0],pl=partes.length>1?partes[partes.length-1]:'';const a2=String(ano||'').slice(-2);
-  const c=[pl?p0+'.'+pl:p0,pl?p0+pl:p0+'.oficial',pl?p0+'_'+pl:p0+'_',a2?(pl?p0+'.'+pl+a2:p0+a2):(pl?pl+'.'+p0:p0+'.pc'),p0+'.presentes'];
+  const p0=partes[0],pl=partes.length>1?partes[partes.length-1]:'';
+  // sem ano de nascimento nas sugestões (o @ é público e entregaria a idade)
+  const c=[pl?p0+'.'+pl:p0,pl?p0+pl:p0+'.oficial',pl?p0+'_'+pl:p0+'_',pl?pl+'.'+p0:p0+'.pc',p0+'.presentes',pl?p0[0]+'.'+pl:p0+'.oi',pl?p0+'.'+pl+'.pc':p0+'_pc'];
   return [...new Set(c.map(x=>x.slice(0,20)).filter(x=>HANDLE_RE.test(x)&&handleLivre(x)))].slice(0,3);
 }
 function precisaHandle(){return !handleOf(myId)}
@@ -4146,7 +4226,7 @@ async function reservarHandle(h,menor,nascData){
     if(!snap.exists)t.set(ref,{uid:myId});
     if(old&&old!==h){const o=usernames[old];if(o&&o.uid===myId)t.delete(db.doc('usernames/'+old))}
     if(ps.exists){const pd=ps.data()||{};t.update(pref,{usuario:h,...(!pd.dia&&!pd.mes&&!pd.fechado?dm:{})})}
-    else t.set(pref,{usuario:h,...(menor?{}:dm),fechado:!!menor,aprovados:[],recusados:[],atualizado:new Date().toISOString()});
+    else t.set(pref,{usuario:h,...(menor?{}:dm),fechado:!!menor,...(menor?{}:{previa:true}),aprovados:[],recusados:[],atualizado:new Date().toISOString()});
   });
   usernames[h]={uid:myId};raw.profiles[myId]={...(raw.profiles[myId]||{fechado:!!menor,aprovados:[],recusados:[]}),usuario:h};applyRaw();
 }
@@ -4226,10 +4306,11 @@ function renderPrivacidade(){
     ${souMenor16()?`<dt>Responsável</dt><dd>${idade.resp?esc(nm(idade.resp)):'aguardando confirmação'}</dd>`:''}</dl>
     ${menor?`<div class="lg-menor"><b>🧒 Proteções para menores de 18 anos</b><span class="small">Perfil fechado por padrão · ano de nascimento e cidade nunca aparecem · suas visitas a outros perfis não são registradas · sem anúncios escolhidos pelos seus gostos.</span></div>`:''}</section>`;
   // quem vê a ficha
-  h+=`<section class="panel"><h2>Quem vê sua ficha</h2><div class="lg-status ${fechado?'fech':'ab'}"><b>${fechado?'🔒 Perfil fechado':'🌍 Perfil aberto'}</b><span class="small">${fechado?'Só quem você aprovar vê aniversário, gostos, tamanhos e listas. Os outros veem só nome, foto e @.':'Qualquer pessoa com conta no PresenteCerto vê sua ficha completa.'}</span></div>`;
+  h+=`<section class="panel"><h2>Quem vê sua ficha</h2><div class="lg-status ${fechado?'fech':'ab'}"><b>${fechado?'🔒 Perfil fechado':'🌍 Perfil aberto'}</b><span class="small">${fechado?'Só quem você aprovar vê aniversário, gostos, tamanhos e listas. Os outros veem só nome, foto e @.':'Qualquer pessoa com conta no PresenteCerto vê sua ficha completa.'+((raw.profiles[myId]||{}).previa===true?' Quem recebe o seu link vê uma prévia, mesmo sem conta.':'')}</span></div>`;
   if(lgForm&&lgForm.t==='abrir')h+=`<div class="inline-form"><b>Abrir seu perfil para todos?</b><span class="small">Qualquer pessoa com conta no PresenteCerto, inclusive quem você não conhece, vai ver seu aniversário, gostos, tamanhos e listas de desejos.${menor?' Como você é menor de idade, seu ano de nascimento e sua cidade continuam escondidos.':''}</span><div class="row"><button class="btn small" data-lg="abrirOk">Sim, abrir</button><button class="link" data-lg="cancelar">Cancelar</button></div></div>`;
   else if(fechado)h+=possoAbrirPerfil()?`<div class="row"><button class="btn small ghost" data-lg="abrir">Abrir meu perfil</button></div>`:`<span class="small" style="color:var(--muted)">Para abrir o perfil para todos, seu responsável precisa liberar na conta dele.</span>`;
   else h+=`<div class="row"><button class="btn small ghost" data-lg="fechar">Fechar meu perfil</button></div>`;
+  if(!fechado&&!menor){const pv=(raw.profiles[myId]||{}).previa===true;h+=`<div class="lg-status ${pv?'ab':'fech'}" style="margin-top:6px"><b>🔗 Prévia no link: ${pv?'ligada':'desligada'}</b><span class="small">${pv?'Quem recebe o link do seu perfil vê, mesmo sem conta, seu nome, foto, @, frase, dia e mês do aniversário e os primeiros itens da lista de desejos. Nunca a idade, a cidade ou quem reservou.':'Quem recebe o link do seu perfil só vê seu primeiro nome e precisa criar conta para ver o resto.'}</span></div><div class="row"><button class="btn small ghost" data-lg="${pv?'previaOff':'previaOn'}">${pv?'Desligar a prévia':'Ligar a prévia'}</button></div>`}
   h+='</section>';
   // visitas
   h+=`<section class="panel"><h2>Visitas ao perfil</h2>${menor?'<span class="small" style="color:var(--muted)">Como você é menor de idade, suas visitas a outros perfis não são registradas e você não vê quem visitou o seu.</span>':`<span class="small" style="color:var(--muted)">Quando você abre o perfil de alguém, registramos que você visitou e quando. O dono do perfil pode ver isso por 7 dias; depois o registro é apagado.</span>
@@ -4357,6 +4438,7 @@ document.addEventListener('click',async e=>{
   if(a==='abrir'){lgForm={t:'abrir'};keep(render);return}
   if(a==='abrirOk')return lgMudarFechado(false);
   if(a==='fechar')return lgMudarFechado(true);
+  if(a==='previaOn'||a==='previaOff')return previaDefinir(a==='previaOn').then(()=>render());
   if(a==='cancelar'){lgForm=null;lgExcluir=null;keep(render);return}
   if(a==='baixar')return lgBaixar();
   if(a==='excluir'){lgExcluir={};keep(render);return}
