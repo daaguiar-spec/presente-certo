@@ -463,6 +463,7 @@ button.pf-marca[aria-pressed="true"]{background:var(--accent);color:var(--accent
 .cab-festa-b{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .cab-festa-ok{display:flex;gap:8px;align-items:flex-start;background:#e5f6ec;border:1px solid #bfe6cf;color:#14532d;border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.45}
 .cab-cafe{text-align:center;font-size:13px;color:var(--accent);font-weight:700;background:var(--accent-soft);border-radius:99px;padding:6px}
+.so-wa{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
 .secret{background:var(--accent-soft);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .secret b.big{font-family:var(--display);font-size:22px}
 .idea{background:var(--sunk);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
@@ -1233,9 +1234,11 @@ const LISTAS_LEGADO={lista_casamento:['Casamento','casamento'],lista_chabebe:['C
 const legadoAviso=(k,n)=>`<div class="notice" style="display:flex;flex-direction:column;gap:8px"><span>A <b>Lista de ${esc(LISTAS_LEGADO[k][0])}</b> agora funciona como <b>Lista de evento</b>: com link para os convidados escolherem sem repetir. Transforme a sua com um toque; os ${n} ${n===1?'item vai':'itens vão'} junto.</span><div><button class="btn small" data-act="legadoEv" data-k="${k}">Transformar em lista de evento</button></div></div>`;
 const LIMITE_SORTEIO=15;
 try{const u=new URLSearchParams(location.search).get('u');if(u)pendingOpen=u.replace(/^@/,'').toLowerCase()}catch(e){}
+let pendingTab=null;try{const t=new URLSearchParams(location.search).get('t');if(t==='sorteio')pendingTab=t}catch(e){}
 const handleOf=id=>{const h=profiles[id]?.usuario;return h&&usernames[h]&&usernames[h].uid===id?h:''};
 const profileLink=id=>`${APP_URL}/?u=${encodeURIComponent(handleOf(id)||id)}`;
 function tryPendingOpen(){
+  if(pendingTab&&myId){const t=pendingTab;pendingTab=null;try{history.replaceState(null,'',location.pathname)}catch(e){}setTab(t)}
   if(!pendingOpen)return;
   const id=usernames[pendingOpen]?.uid||(profiles[pendingOpen]?pendingOpen:Object.keys(profiles).find(k=>k.toLowerCase()===pendingOpen));
   if(!id||!profiles[id])return;
@@ -1293,6 +1296,8 @@ function buildNotifs(){
   const aviso=+(me.aviso||15);const marcos=new Set([aviso,7,1,0]);
   fol.forEach(id=>eventsFor(id).forEach(e=>{if(!marcos.has(e.dias))return;const ano=new Date(t0+e.dias*864e5).getFullYear();
     out.push({id:`dt:${id}:${e.label}:${ano}:${e.dias}`,t:t0,tipo:'datas',av:id,html:e.dias===0?`Hoje é dia de <b>${esc(e.label.toLowerCase())}</b> de ${N(id)}! Deixe seus parabéns.`:`${esc(e.label)} de ${N(id)} ${e.dias===1?'é amanhã':'em '+e.dias+' dias'}. Veja a lista de presentes.`,go:{open:id}})}));
+  // amigo secreto: fui colocado num grupo (antes do sorteio)
+  allSorteios().forEach(x=>{const em=x.entrou&&x.entrou[myId];if(!em||x.org===myId||x.pares||x.sorteado||!(x.membros||[]).includes(myId))return;out.push({id:'si:'+x.org+':'+x.id,t:Date.parse(em)||0,tipo:'sorteio',av:x.org,html:`${N(x.org)} colocou você no amigo secreto <b>${esc(x.nome)}</b>. Complete sua ficha para quem te tirar acertar no presente.`,go:{tab:'sorteio'}})});
   // amigo secreto sorteado
   allSorteios().forEach(x=>{if(!(x.pares||x.sorteado)||!(x.org===myId||(x.membros||[]).includes(myId)))return;out.push({id:'so:'+x.org+':'+x.id,t:Date.parse(x.sorteadoEm||'')||Date.parse(x.data||'')||0,tipo:'sorteio',av:x.org,html:`O sorteio do amigo secreto <b>${esc(x.nome)}</b> foi feito. Veja quem você tirou!`,go:{tab:'sorteio'}})});
   // vaquinhas que eu organizo
@@ -1843,6 +1848,8 @@ function renderSorteio(){
     else if(feito)h+=`<div class="muted">Sorteio feito. ${[s.org,...(s.membros||[])].includes(myId)?'Seu resultado ainda não chegou. Atualize a página em instantes.':'Você não está entre os participantes.'}</div>`;
     else if(s.org===myId)h+=`<div class="row"><button class="btn green" data-act="sortear" data-id="${esc(s.id)}" ${membros.length<3?'disabled':''}>Sortear agora</button><button class="btn small ghost" data-act="editSorteio" data-id="${esc(s.id)}">Adicionar ou tirar participantes</button></div>${membros.length<3?'<span class="small" style="color:var(--muted)">Adicione pelo menos 3 participantes para sortear.</span>':''}`;
     else h+=`<div class="muted">Aguardando ${esc(nm(s.org))} fazer o sorteio.</div>`;
+    if(s.org===myId&&!editing){const lk=APP_URL+'/?t=sorteio';const txt=feito?`O sorteio do nosso amigo secreto *${s.nome}* foi feito! 🎁 Entre no PresenteCerto para ver quem você tirou (e a ficha de presentes da pessoa):\n${lk}`:`Oi! Coloquei você no nosso amigo secreto *${s.nome}* no PresenteCerto 🎁${dt?'\nTroca em '+dt+'.':''}${s.valor?' Valor sugerido: '+s.valor+'.':''}\nEntre e complete sua ficha de presentes, para quem te tirar acertar no presente:\n${lk}`;
+      h+=`<div class="so-wa"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">📲 ${feito?'Avisar o grupo que o sorteio foi feito':'Avisar o grupo no WhatsApp'}</a><button class="btn small ghost" data-act="copy" data-text="${esc(txt)}">Copiar mensagem</button></div>`}
     h+='</section>';
   });
   app.innerHTML=h+'</div>';
@@ -3972,9 +3979,9 @@ app.addEventListener('click',async e=>{
     case 'novoSorteio': delete msgEd['so-novo'];form={type:'novoSorteio',membros:[],nome:'',data:'',valor:'',busca:''};keep(render);break;
     case 'sMembro': form.membros=form.membros.includes(ds.id)?form.membros.filter(x=>x!==ds.id):[...form.membros,ds.id];keep(render);break;
     case 'editSorteio': {const s=((sorteios[myId]?.lista)||[]).find(x=>x.id===ds.id);if(!s)break;form={type:'editSorteio',id:s.id,membros:[...(s.membros||[])].filter(x=>x!==myId),busca:'',nome:s.nome,data:s.data,valor:s.valor,convite:s.convite||''};delete msgEd['so-'+s.id];keep(render);break}
-    case 'saveSorteioMembros': {const membros=form.membros.filter(x=>x!==myId);if(!isPlus(myId)&&membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}const conv=String(form.convite||'').slice(0,300);saveSorteios(((sorteios[myId]?.lista)||[]).map(s=>s.id===ds.id&&!s.pares&&!s.sorteado?{...s,membros,convite:conv}:s.id===ds.id?{...s,convite:conv}:s),'Amigo secreto atualizado');break}
+    case 'saveSorteioMembros': {const membros=form.membros.filter(x=>x!==myId);if(!isPlus(myId)&&membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}const conv=String(form.convite||'').slice(0,300);const agoraIso=new Date().toISOString();saveSorteios(((sorteios[myId]?.lista)||[]).map(s=>s.id===ds.id&&!s.pares&&!s.sorteado?{...s,membros,convite:conv,entrou:Object.fromEntries(membros.map(id=>[id,(s.entrou&&s.entrou[id])||agoraIso]))}:s.id===ds.id?{...s,convite:conv}:s),'Amigo secreto atualizado');break}
     case 'criarSorteio': {const nome=(form.nome||'').trim();if(!nome){toast('Dê um nome ao amigo secreto');break}if(!isPlus(myId)&&form.membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}if(form.membros.length<2){toast('Escolha pelo menos mais 2 pessoas');break}
-      const lista=[...((sorteios[myId]?.lista)||[]),{id:uid(),nome:nome.slice(0,50),data:form.data||'',valor:(form.valor||'').slice(0,30),membros:form.membros,convite:String(form.convite||'').slice(0,300)}];delete msgEd['so-novo'];saveSorteios(lista,'Amigo secreto criado');break}
+      const lista=[...((sorteios[myId]?.lista)||[]),{id:uid(),nome:nome.slice(0,50),data:form.data||'',valor:(form.valor||'').slice(0,30),membros:form.membros,entrou:Object.fromEntries(form.membros.map(id=>[id,new Date().toISOString()])),convite:String(form.convite||'').slice(0,300)}];delete msgEd['so-novo'];saveSorteios(lista,'Amigo secreto criado');break}
     case 'sortear': {if(el.disabled)break;el.disabled=true;el.textContent='Sorteando…';try{const {r,j}=await soApi({acao:'sortear',id:ds.id});if(r.ok&&j.ok)toast('Sorteio feito. Cada um já pode ver quem tirou.');else toast(j.erro==='poucos'?'Adicione pelo menos 3 participantes.':'Não foi possível sortear agora. Tente de novo.')}catch(err){toast(failMsg)}el.disabled=false;el.textContent='Sortear agora';break}
     case 'delSorteio': saveSorteios(((sorteios[myId]?.lista)||[]).filter(s=>s.id!==ds.id),'Amigo secreto excluído');break;
     case 'preview': if(dirty){toast('Salve primeiro para ver a versão final');break}viewing=myId;render();window.scrollTo(0,0);break;
