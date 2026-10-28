@@ -824,7 +824,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   function previaHtml(){
     const p=previa;if(!p||p.tipo==='restrito')return '';
     const prim=E(p.primeiro||(p.nome||'').split(/\s+/)[0]||'Seu amigo');
-    const intro=`<div class="pv-intro"><span class="pv-intro-ic" aria-hidden="true">🎁</span><div><b>${prim} compartilhou com você ${p.tipo==='fechado'?'o perfil de presentes':'a lista de presentes'}</b><span>No PresenteCerto, amigos e família contam o que gostariam de ganhar. Assim você acerta no presente e ninguém dá repetido.</span></div></div>`;
+    const intro=`<div class="pv-intro"><span class="pv-intro-ic" aria-hidden="true">🎁</span><div><b>${prim} compartilhou com você ${p.tipo==='fechado'?'o perfil de presentes':'a lista dele de presentes'}</b><span>No PresenteCerto, seus amigos e familiares compartilham o que gostariam de ganhar.</span><span style="display:block;margin-top:6px">Escolha com carinho, acerte no presente e evite ganhar ou dar presentes repetidos ou errados!</span></div></div>`;
     const ini=(p.nome||'?').split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();
     if(p.tipo==='semprevia')return intro+`<div class="pv pv-fech"><span class="pv-ic" aria-hidden="true">🎁</span><div style="min-width:0"><b class="pv-nm">A lista de ${prim} está esperando por você</b><span class="pv-lock">Crie sua conta grátis para ver o aniversário, a lista de desejos e reservar um presente.</span></div></div>
       <a class="btn pv-btn" href="#lgForm" data-pvcta>Criar minha conta grátis</a>`;
