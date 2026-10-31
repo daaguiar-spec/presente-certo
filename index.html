@@ -679,6 +679,14 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-body{display:flex;flex-direction:column;gap:22px;margin-top:18px}
 .pf-sec{display:flex;flex-direction:column;gap:10px}
 .pf-h{margin:0;font-size:17px;font-weight:800;display:flex;gap:8px;align-items:center;color:var(--fg)}
+.pg-wrap{position:relative}
+.pg-wrap .pf-gifts{scrollbar-width:none;-webkit-overflow-scrolling:touch}.pg-wrap .pf-gifts::-webkit-scrollbar{display:none}
+.pg-wrap.tem-mais::after{content:"";position:absolute;top:0;right:0;bottom:10px;width:44px;background:linear-gradient(90deg,transparent,var(--pg-fade,var(--bg)));pointer-events:none}
+.pv-sec{--pg-fade:var(--surface)}
+.pg-seta{position:absolute;top:62px;z-index:2;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--accent);font-size:28px;line-height:1;font-weight:700;display:grid;place-items:center;padding:0 0 3px;cursor:pointer;box-shadow:0 4px 14px rgba(40,20,70,.18)}
+.pg-seta.esq{left:-8px}.pg-seta.dir{right:-8px}.pg-seta[hidden]{display:none}
+.pg-dica{text-align:center;font-size:13px;color:var(--muted);margin-top:-2px}.pg-dica[hidden]{display:none}
+.pg-cont{font-size:13px;font-weight:600;color:var(--muted);margin-left:8px;white-space:nowrap}
 .pf-gifts{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;margin:0 -2px;align-items:flex-start}
 .pf-gift{flex:0 0 min(46%,190px);scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:4px;min-width:0;box-shadow:0 2px 10px rgba(80,40,140,.06)}
 .pf-gift:has(.inline-form),.pf-gift:has(.status .msg){flex-basis:min(82%,300px)}
@@ -1475,6 +1483,24 @@ function ofSetas(){document.querySelectorAll('.of-wrap').forEach(w=>{const l=w.q
   w.querySelector('.of-seta.esq').hidden=l.scrollLeft<=4;w.querySelector('.of-seta.dir').hidden=l.scrollLeft>=max;w.classList.toggle('tem-mais',l.scrollLeft<max)})}
 document.addEventListener('scroll',e=>{if(e.target.classList&&e.target.classList.contains('ofertas'))ofSetas()},true);
 addEventListener('resize',()=>ofSetas());
+/* ---------- Carrosséis de presentes: setas, borda esmaecida, contador e "deslize" ---------- */
+function pgSetas(w){const l=w.querySelector('.pf-gifts');if(!l)return;const max=l.scrollWidth-l.clientWidth-4;const tem=max>4;
+  w.querySelector('.pg-seta.esq').hidden=!tem||l.scrollLeft<=4;w.querySelector('.pg-seta.dir').hidden=!tem||l.scrollLeft>=max;
+  w.classList.toggle('tem-mais',tem&&l.scrollLeft<max);const d=w.nextElementSibling;if(d&&d.classList.contains('pg-dica'))d.hidden=!tem||l.scrollLeft>8}
+function pgPreparar(){document.querySelectorAll('#app .pf-gifts').forEach(l=>{
+  if(!l.parentNode.classList.contains('pg-wrap')){
+    const w=document.createElement('div');w.className='pg-wrap';l.parentNode.insertBefore(w,l);w.appendChild(l);
+    const b=(c,t,lab)=>{const x=document.createElement('button');x.type='button';x.className='pg-seta '+c;x.textContent=t;x.setAttribute('aria-label',lab);x.hidden=true;
+      x.onclick=()=>{const c1=l.querySelector('.pf-gift');const passo=c1?(c1.offsetWidth+10)*Math.max(1,Math.floor(l.clientWidth/(c1.offsetWidth+10))):l.clientWidth*.8;l.scrollBy({left:passo*(c==='esq'?-1:1),behavior:'smooth'})};return x};
+    w.insertBefore(b('esq','‹','Presentes anteriores'),l);w.appendChild(b('dir','›','Mais presentes'));
+    const dica=document.createElement('div');dica.className='pg-dica';dica.textContent='Deslize para ver mais →';dica.hidden=true;w.after(dica);
+    l.addEventListener('scroll',()=>pgSetas(w),{passive:true});
+    const n=l.querySelectorAll(':scope > .pf-gift').length;const h=(w.closest('section')||{}).querySelector?w.closest('section').querySelector('.pf-h'):null;
+    if(h&&n>1&&!w.closest('.pv-sec')&&!h.querySelector('.pg-cont')){const sp=document.createElement('span');sp.className='pg-cont';sp.textContent=n+' itens';const ed=h.querySelector('.pf-editar');h.insertBefore(sp,ed||null)}
+  }
+  pgSetas(l.parentNode)})}
+try{const alvo=document.getElementById('app');if(alvo){let pgT=0;new MutationObserver(()=>{clearTimeout(pgT);pgT=setTimeout(pgPreparar,30)}).observe(alvo,{childList:true,subtree:true})}}catch(e){}
+addEventListener('resize',()=>document.querySelectorAll('.pg-wrap').forEach(pgSetas));
 function renderOfertas(){
   const of=ofertasAtivas();of.forEach(o=>trackView('of:'+o.id));
   app.innerHTML=`<div class="view"><button class="back" data-act="ofVoltar">← Voltar</button><div><h1>Ofertas da semana</h1><p class="lede">Produtos selecionados de lojas parceiras. Ao comprar por estes links, você ajuda o PresenteCerto a continuar gratuito, sem pagar nada a mais.</p></div>
