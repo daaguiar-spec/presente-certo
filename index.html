@@ -679,6 +679,10 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-body{display:flex;flex-direction:column;gap:22px;margin-top:18px}
 .pf-sec{display:flex;flex-direction:column;gap:10px}
 .pf-h{margin:0;font-size:17px;font-weight:800;display:flex;gap:8px;align-items:center;color:var(--fg)}
+.sp-nota{display:flex;gap:12px;align-items:flex-start;background:var(--accent-soft);border-radius:16px;padding:14px;margin-bottom:4px}
+.sp-nota>span{font-size:24px;line-height:1}.sp-nota b{display:block;margin-bottom:2px}.sp-nota div>span{display:block;color:var(--muted);font-size:14px}
+.sp-nota .row{margin-top:10px;align-items:center}.sp-nota .sp-quem{color:var(--fg);margin-top:6px}.sp-ok{font-size:14px;font-weight:700;color:var(--ribbon,#1f8a5b)}
+.sp-nota.lista{background:var(--sunk)}
 .pg-wrap{position:relative}
 .pg-wrap .pf-gifts{scrollbar-width:none;-webkit-overflow-scrolling:touch}.pg-wrap .pf-gifts::-webkit-scrollbar{display:none}
 .pg-wrap.tem-mais::after{content:"";position:absolute;top:0;right:0;bottom:10px;width:44px;background:linear-gradient(90deg,transparent,var(--pg-fade,var(--bg)));pointer-events:none}
@@ -1031,7 +1035,9 @@ function initialsAvatar(name){const ini=String(name||'?').split(/\s+/).map(w=>w[
   return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#f0eafb"/><text x="32" y="41" font-family="sans-serif" font-size="24" font-weight="700" fill="#7b4fd1" text-anchor="middle">${ini.replace(/[<&]/g,'')}</text></svg>`)}
 const av=id=>isEx(id)?initialsAvatar(profiles[id].nome):(names[id]?.avatar||initialsAvatar(nm(id)));
 const following=()=>(followsAll[myId]?.ids)||[];
-const myAcoes=()=>{const a=acoes[myId]||{};return{reservas:[...(a.reservas||[])],vaquinhas:[...(a.vaquinhas||[])],cotas:[...(a.cotas||[])]}};
+const myAcoes=()=>{const a=acoes[myId]||{};return{reservas:[...(a.reservas||[])],vaquinhas:[...(a.vaquinhas||[])],cotas:[...(a.cotas||[])],outros:[...(a.outros||[])]}};
+// quem avisou que vai dar "outra coisa" (fora da lista) para alguém
+const outrosPara=owner=>Object.entries(acoes||{}).filter(([u,a])=>u!==owner&&(a.outros||[]).some(o=>o.owner===owner)).map(([u])=>u);
 function canSee(id){const p=profiles[id];if(!p)return false;return id===myId||!p.fechado||(p.aprovados||[]).includes(myId)||!!respContas[id]||isOwner}
 function pendingRequests(){const me=profiles[myId];if(!me||!me.fechado)return[];const ok=new Set([...(me.aprovados||[]),...(me.recusados||[])]);return Object.keys(followsAll).filter(id=>id!==myId&&(followsAll[id].ids||[]).includes(myId)&&!ok.has(id))}
 const safeLink=u=>/^https:\/\//i.test(u||'')||/^http:\/\//i.test(u||'');
@@ -1785,11 +1791,19 @@ function renderPerson(id,aba){
   }
   else if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
   if(self)h+=`<div class="pf-atalhos"><button class="chip style" data-rolar="pf-desejos">🎁 Minha lista (${(p.desejos||[]).length})</button><button class="chip style" data-rolar="pf-recebidos">✓ Já ganhei (${(p.recebidos||[]).length})</button></div>`;
+  {const pref=p.surpresa==='surpresa'?'surpresa':p.surpresa==='lista'?'lista':'';const temGostos=sz.length||gTags.length||(p.cores||[]).length||kv.length;const fn=esc(firstName(id));const outros=outrosPara(id);
+    if(self){if(outros.length)h+=`<div class="sp-nota"><span aria-hidden="true">🎁</span><div><b>${outros.length===1?'1 pessoa vai':outros.length+' pessoas vão'} te dar uma surpresa</b><span>Alguém avisou que vai dar algo fora da sua lista. Não contamos quem, para não estragar a surpresa.</span></div></div>`}
+    else{const eu=outros.includes(myId);const outrosSemMim=outros.filter(u=>u!==myId);
+      const txt=pref==='surpresa'?`<b>${fn} adora surpresas!</b><span>A lista é só uma ideia. Veja os tamanhos, as cores e os gostos para escolher outra coisa.</span>`:pref==='lista'?`<b>${fn} prefere ganhar algo da lista</b><span>Assim o presente é útil de verdade. Se mesmo assim quiser surpreender, veja os gostos e tamanhos.</span>`:`<b>Não precisa ser da lista!</b><span>Veja os tamanhos, as cores e os gostos de ${fn} para escolher outra coisa.</span>`;
+      h+=`<div class="sp-nota ${pref}"><span aria-hidden="true">${pref==='lista'?'📋':pref==='surpresa'?'🎉':'💡'}</span><div>${txt}
+        ${outrosSemMim.length?`<span class="sp-quem">🎁 ${esc(nm(outrosSemMim[0]))}${outrosSemMim.length>1?` e mais ${outrosSemMim.length-1}`:''} já ${outrosSemMim.length>1?'avisaram':'avisou'} que vai dar outra coisa.</span>`:''}
+        <div class="row">${temGostos?`<button class="btn small ghost" data-rolar="pf-gostos">Ver o que ${fn} gosta</button>`:''}${eu?`<span class="sp-ok">✓ Você vai dar outra coisa</span><button class="link" data-act="outroDesfazer" data-id="${esc(id)}">Desfazer</button>`:`<button class="btn small ghost" data-act="outroDar" data-id="${esc(id)}">Vou dar outra coisa</button>`}</div></div></div>`}}
   h+=`<div id="pf-desejos"></div>`+sec('🎁','Lista de desejos',(p.desejos||[]).length?`<div class="pf-gifts">${pfItems(id,p.desejos,!self,'desejos')}</div>`:`<div class="muted">Nenhum pedido no momento.</div>`);
   h+=sec('🚨','Precisando com urgência',(p.precisa||[]).length?`<div class="pf-gifts">${pfItems(id,p.precisa,!self,'precisa')}</div>`:`<div class="muted">Nada listado no momento.</div>`,'pf-need');
   if(self)h+=`<div id="pf-recebidos"></div>`+recebidosBlock();
   if(isPlus(id))Object.entries(LISTAS_EXTRA).forEach(([k,n])=>{if((p[k]||[]).length)h+=sec('🎄','Lista de '+esc(n),`<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
   if(isPlus(id))Object.entries(LISTAS_LEGADO).forEach(([k,L])=>{if((p[k]||[]).length)h+=sec('📝','Lista de '+esc(L[0]),`${self?legadoAviso(k,p[k].length):''}<div class="pf-gifts">${pfItems(id,p[k],!self)}</div>`)});
+  h+='<div id="pf-gostos"></div>';
   if(sz.length)h+=sec('📏','Tamanhos',`<div class="pf-sizes" style="--cols:${pfCols(sz.length)}">${sz.map(s=>{const c=PF_TAM[s[0]]||['👕','#7b4fd1'];return `<div class="pf-size" style="--c:${c[1]}"><span class="e" aria-hidden="true">${c[0]}</span><span class="l">${s[0]}</span><b>${esc(s[1])}</b></div>`}).join('')}</div>`);
   if(gTags.length)h+=sec('💜','Gosta de',`<div class="pf-ints" style="--cols:${pfCols(gTags.length)}">${gTags.map(t=>`<div class="pf-int"><span class="e" aria-hidden="true">${PF_GOSTO[t]||'✨'}</span><span class="l">${esc(t)}</span></div>`).join('')}</div>`);
   {const mh=marcasHtml(id,p);if(mh)h+=sec('🏷️','Marcas favoritas',mh)}
@@ -3812,7 +3826,7 @@ function renderMine(){
     ${!souMenor()&&d.alergiasOk?`<label class="f">Outras alergias<input id="alergias" value="${esc(d.alergias)}" placeholder="Ex.: corante"></label>`:''}
     <label class="f">Observações<textarea id="obs" placeholder="Ex.: estou de mudança, prefiro coisas pequenas">${esc(d.obs)}</textarea></label>
    </div></details></section>`;
-  if(st===4){h+=listEditor('desejos','Lista de desejos','O que você gostaria de ganhar. Escolha a categoria e toque nos presentes. Até 10 itens.','Ex.: Fone sem fio');
+  if(st===4){h+=`<section class="panel"><h2>Como você prefere ganhar presentes?</h2><span class="small" style="color:var(--muted)">Aparece para quem visita o seu perfil.</span><div class="chips">${[['surpresa','🎉 Pode me surpreender'],['lista','📋 Prefiro algo da lista'],['tantofaz','🤷 Tanto faz']].map(([v,l])=>`<button class="chip style" data-act="pickOne" data-key="surpresa" data-v="${v}" aria-pressed="${(d.surpresa||'tantofaz')===v}">${l}</button>`).join('')}</div></section>`;h+=listEditor('desejos','Lista de desejos','O que você gostaria de ganhar. Escolha a categoria e toque nos presentes. Até 10 itens.','Ex.: Fone sem fio');
     if(isPlus(myId))(d.listasAtivas||[]).filter(k=>LISTAS_EXTRA[k]).forEach(k=>{h+=listEditor(k,'Lista de '+LISTAS_EXTRA[k],'Lista extra do seu Plus. Até 10 itens.','Ex.: Panetone artesanal')});
     else h+=`<div class="notice">Quer uma lista separada só para o Natal? Ela faz parte do PresenteCerto Plus, em Mais opções.</div>`;
     Object.keys(LISTAS_LEGADO).forEach(k=>{const n=((profiles[myId]||{})[k]||[]).length;if(n)h+=legadoAviso(k,n)});}
@@ -3921,6 +3935,8 @@ app.addEventListener('click',async e=>{
     case 'delGrupo': if(grupoFiltro===ds.id)grupoFiltro='';saveGrupos(grupos.filter(g=>g.id!==ds.id),'Grupo excluído');form={type:'grupos'};break;
     case 'grupoMembro': {const keepForm=form;saveGrupos(grupos.map(g=>g.id!==ds.g?g:{...g,membros:(g.membros||[]).includes(ds.id)?g.membros.filter(x=>x!==ds.id):[...(g.membros||[]),ds.id]}));form=keepForm;break}
     case 'reserve': {const st=itemStatus(ds.owner,ds.item);if(st.reservers.length||st.vaq){toast('Este item acabou de ser reservado');keep(render);break}A.reservas.push({owner:ds.owner,item:ds.item});saveAcoes(A,'Reservado. Ninguém mais vai comprar este item.');if(profiles[myId]&&completude(profiles[myId]).pct<30)posReserva=ds.owner;break}
+    case 'outroDar': {if(!A.outros.some(o=>o.owner===ds.id))A.outros.push({owner:ds.id,em:new Date().toISOString()});saveAcoes(A,'Combinado! Quem visitar o perfil vai saber que alguém já cuida de uma surpresa.');break}
+    case 'outroDesfazer': A.outros=A.outros.filter(o=>o.owner!==ds.id);saveAcoes(A,'Aviso desfeito');break;
     case 'unreserve': A.reservas=A.reservas.filter(r=>!(r.owner===ds.owner&&r.item===ds.item));saveAcoes(A,'Reserva desfeita');break;
     case 'formVaq': form={type:'vaq',owner:ds.owner,item:ds.item};keep(render);break;
     case 'formCota': form={type:'cota',owner:ds.owner,item:ds.item};keep(render);break;
