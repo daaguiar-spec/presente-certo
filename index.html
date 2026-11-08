@@ -659,6 +659,11 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .marca-grupo summary::before{content:'▸ ';color:var(--accent)}
 .marca-grupo[open] summary::before{content:'▾ '}
 .marca-grupo .chips{margin-top:8px}
+.st-card{background:var(--surface);border-radius:22px;padding:18px;width:min(420px,94vw);max-height:94vh;overflow:auto;position:relative;display:flex;flex-direction:column;gap:12px;align-items:center}
+.st-tit{font-size:17px;padding-right:30px}.st-img{width:min(260px,62vw);border-radius:14px;box-shadow:0 8px 24px rgba(40,20,70,.25)}
+.st-bts{display:flex;flex-direction:column;gap:8px;width:100%}.st-bts .btn{width:100%;justify-content:center}
+.st-dica{font-size:13px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.st-bt{width:100%;justify-content:center;margin-top:10px}.st-chip{background:var(--accent-soft);color:var(--accent);font-weight:700}
 .add-box{margin-top:12px;border:2px dashed var(--accent);background:var(--accent-soft);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px}
 .add-box label{font-weight:800;color:var(--accent);font-size:15px}.add-box .small{color:var(--muted)}.add-box .row{margin-top:6px}.add-box input{flex:1;min-width:0;background:var(--surface)}.add-box .btn{color:#fff;opacity:1}
 .marca-outra{margin-top:8px}
@@ -1281,12 +1286,56 @@ function sugestoes(){
   });
 }
 const msgConvite=link=>`${(typeof minhasMsgs!=='undefined'&&minhasMsgs.convite)||CONVITE_PADRAO}\n${link}`;
+/* ---------- Imagem para Status do WhatsApp / Stories do Instagram ---------- */
+function storyRet(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function storyCorta(c,t,max){t=String(t||'');if(c.measureText(t).width<=max)return t;while(t.length>1&&c.measureText(t+'…').width>max)t=t.slice(0,-1);return t+'…'}
+function storyFoto(src){return new Promise(ok=>{if(!src)return ok(null);const i=new Image();if(!/^data:/.test(src))i.crossOrigin='anonymous';i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src;setTimeout(()=>ok(null),5000)})}
+async function storyGerar(){
+  const p=profiles[myId]||{};const W=1080,H=1920;const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+  const F=(peso,tam)=>`${peso} ${tam}px Inter, "Segoe UI", system-ui, -apple-system, sans-serif`;
+  const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#6d3fd0');g.addColorStop(.55,'#9b4fd1');g.addColorStop(1,'#d9539f');c.fillStyle=g;c.fillRect(0,0,W,H);
+  let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;const cores=['#ffd84d','#ffffff','#7fe3d0','#ff9ccf'];
+  for(let k=0;k<70;k++){c.globalAlpha=.25+rnd()*.5;c.fillStyle=cores[k%4];c.beginPath();c.arc(rnd()*W,rnd()*H,4+rnd()*9,0,7);c.fill()}c.globalAlpha=1;
+  c.textAlign='center';c.fillStyle='#fff';c.font=F(800,54);c.fillText('🎁 PresenteCerto',W/2,150);
+  const cx=W/2,cy=470,R=190;const foto=await storyFoto(names[myId]&&names[myId].avatar);
+  c.fillStyle='#fff';c.beginPath();c.arc(cx,cy,R+14,0,7);c.fill();
+  c.save();c.beginPath();c.arc(cx,cy,R,0,7);c.clip();
+  if(foto){const s=Math.max(2*R/foto.width,2*R/foto.height);c.drawImage(foto,cx-foto.width*s/2,cy-foto.height*s/2,foto.width*s,foto.height*s)}
+  else{c.fillStyle='#efe7ff';c.fillRect(cx-R,cy-R,2*R,2*R);c.fillStyle='#6d3fd0';c.font=F(800,150);c.textBaseline='middle';c.fillText(String(myName||'?').split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase(),cx,cy+6);c.textBaseline='alphabetic'}
+  c.restore();
+  c.fillStyle='#fff';c.font=F(800,78);c.fillText(storyCorta(c,myName||nm(myId),W-140),W/2,770);
+  const hd=handleOf(myId);if(hd){c.globalAlpha=.85;c.font=F(600,42);c.fillText('@'+hd,W/2,835);c.globalAlpha=1}
+  const nb=bdayDays(p);const chamada=nb===0?'🎉 Hoje é meu aniversário!':nb!==null&&nb!==undefined&&nb<=60?`🎂 Meu aniversário é em ${nb} ${nb===1?'dia':'dias'}!`:'';
+  let y=900;
+  if(chamada){c.font=F(800,50);const pw=Math.min(W-120,c.measureText(chamada).width+90);c.fillStyle='#ffd84d';storyRet(c,(W-pw)/2,y,pw,104,52);c.fill();c.fillStyle='#2a1b44';c.fillText(chamada,W/2,y+70);y+=170}
+  else y+=40;
+  // cartão de chamada (sem listar os presentes)
+  const ch=430;c.fillStyle='rgba(255,255,255,.96)';storyRet(c,90,y,W-180,ch,48);c.fill();
+  c.font=F(400,150);c.fillStyle='#000';c.fillText('🎁',W/2,y+175);
+  c.fillStyle='#2a1b44';c.font=F(800,64);c.fillText('Confira o que eu',W/2,y+280);c.fillText('quero ganhar!',W/2,y+355);
+  const fy=Math.max(y+ch+150,1640);
+  c.fillStyle='#fff';c.font=F(800,48);c.fillText('Acerte no presente 👇',W/2,fy);
+  c.globalAlpha=.9;c.font=F(600,36);c.fillText(storyCorta(c,profileLink(myId).replace(/^https?:\/\//,''),W-120),W/2,fy+70);c.globalAlpha=1;
+  return cv;
+}
+async function storyAbrir(){
+  toast('Criando sua imagem…');let cv;try{cv=await storyGerar()}catch(e){return toast('Não foi possível criar a imagem agora.')}
+  const url=cv.toDataURL('image/png');const link=profileLink(myId);
+  const ov=document.createElement('div');ov.className='dq-ov st-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-label','Imagem para Status e Stories');
+  ov.innerHTML=`<div class="st-card"><button class="dq-x" aria-label="Fechar">×</button><b class="st-tit">📲 Sua imagem para Status e Stories</b><img class="st-img" src="${url}" alt="Prévia da imagem"><div class="st-bts"><button class="btn st-share">Compartilhar imagem</button><button class="btn ghost st-baixar">Baixar imagem</button></div><div class="st-dica"><span><b>Dica:</b> no <b>Status do WhatsApp</b>, cole o seu link na legenda. No <b>Instagram</b>, use o adesivo <b>“Link”</b>.</span><button class="link st-copiar">Copiar meu link</button></div></div>`;
+  document.body.appendChild(ov);const fechar=()=>ov.remove();ov.querySelector('.dq-x').onclick=fechar;ov.onclick=e=>{if(e.target===ov)fechar()};
+  const baixar=()=>{const a=document.createElement('a');a.href=url;a.download='presentecerto-status.png';document.body.appendChild(a);a.click();a.remove()};
+  ov.querySelector('.st-baixar').onclick=baixar;
+  ov.querySelector('.st-copiar').onclick=()=>copyText(link);
+  ov.querySelector('.st-share').onclick=()=>{cv.toBlob(b=>{const arq=new File([b],'presentecerto-status.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[arq]})){copyText(link);navigator.share({files:[arq],text:'Veja minha lista no PresenteCerto: '+link}).catch(()=>{})}else{baixar();toast('Imagem baixada. Agora poste no Status ou nos Stories.')}},'image/png')};
+}
 function shareBox(){
   const link=profileLink(myId);
   const msg=msgConvite(link);
   return `<section class="panel hl"><h2>👋 Convidar amigos</h2><span class="muted">Mande seu link para amigos e família. Quem abrir já cai na sua ficha, com o botão Seguir.</span>
    <div class="pix-code" style="user-select:all">${esc(link)}</div>
-   <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="shareNative" data-text="${esc(msg)}" data-url="${esc(link)}">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(link)}">Copiar link</button></div>${conviteEditorBox()}</section>`;
+   <div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a><button class="btn small ghost" data-act="shareNative" data-text="${esc(msg)}" data-url="${esc(link)}">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(link)}">Copiar link</button></div><button class="btn st-bt" data-act="storyAbrir">📲 Criar imagem para Status e Stories</button>${conviteEditorBox()}</section>`;
 }
 function personRow(id,right,meta){
   return `<div class="person tap" data-act="open" data-id="${esc(id)}" tabindex="0" role="button"><img src="${esc(av(id))}" alt=""><div style="min-width:0"><div class="nm">${esc(nm(id))}${selo(id)}</div><div class="meta">${handleOf(id)?'@'+esc(handleOf(id))+' · ':''}${esc(meta)}</div></div>${right}</div>`;
@@ -1792,7 +1841,7 @@ function renderPerson(id,aba){
     h+=`<div class="small" style="color:var(--muted)">Mande para a família e acabe com os presentes errados. Abaixo, é assim que os outros veem sua ficha. As reservas e vaquinhas ficam escondidas de você para manter a surpresa.</div>`;
   }
   else if(following().includes(id)&&meusGrupos.length)h+=`<div class="sec" style="gap:6px"><div class="eyebrow">Seus grupos</div><div class="chips">${meusGrupos.map(x=>`<button class="chip style" data-act="grupoMembro" data-g="${esc(x.id)}" data-id="${esc(id)}" aria-pressed="${(x.membros||[]).includes(id)}">${esc(x.nome)}</button>`).join('')}</div></div>`;
-  if(self)h+=`<div class="pf-atalhos"><button class="chip style" data-rolar="pf-desejos">🎁 Minha lista (${(p.desejos||[]).length})</button><button class="chip style" data-rolar="pf-recebidos">✓ Já ganhei (${(p.recebidos||[]).length})</button></div>`;
+  if(self)h+=`<div class="pf-atalhos"><button class="chip style" data-rolar="pf-desejos">🎁 Minha lista (${(p.desejos||[]).length})</button><button class="chip style" data-rolar="pf-recebidos">✓ Já ganhei (${(p.recebidos||[]).length})</button><button class="chip style st-chip" data-act="storyAbrir">📲 Postar no Status</button></div>`;
   {const pref=p.surpresa==='surpresa'?'surpresa':p.surpresa==='lista'?'lista':'';const temGostos=sz.length||gTags.length||(p.cores||[]).length||kv.length;const fn=esc(firstName(id));const outros=outrosPara(id);
     if(self){if(outros.length)h+=`<div class="sp-nota"><span aria-hidden="true">🎁</span><div><b>${outros.length===1?'1 pessoa vai':outros.length+' pessoas vão'} te dar uma surpresa</b><span>Alguém avisou que vai dar algo fora da sua lista. Não contamos quem, para não estragar a surpresa.</span></div></div>`}
     else{const eu=outros.includes(myId);const outrosSemMim=outros.filter(u=>u!==myId);
@@ -3997,6 +4046,7 @@ app.addEventListener('click',async e=>{
     case 'criarExemplos': criarExemplos();break;
     case 'apagarEx': form={type:'apagarEx'};keep(render);break;
     case 'apagarExOk': form=null;apagarExemplos();break;
+    case 'storyAbrir': storyAbrir();break;
     case 'shareNative': if(navigator.share){navigator.share(String(ds.text||'').includes(ds.url)?{title:'Minha ficha no PresenteCerto',text:ds.text}:{title:'Minha ficha no PresenteCerto',text:ds.text,url:ds.url}).catch(()=>{})}else copyText(ds.url);break;
     case 'logout': if(user&&user.logout)user.logout().then(()=>location.reload());break;
     case 'importSeed': form={type:'importar'};keep(render);break;
