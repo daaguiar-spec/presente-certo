@@ -664,6 +664,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .st-bts{display:flex;flex-direction:column;gap:8px;width:100%}.st-bts .btn{width:100%;justify-content:center}
 .st-dica{font-size:13px;color:var(--muted);text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
 .st-bt{width:100%;justify-content:center;margin-top:10px}.st-chip{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.cad-lista{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}.cad-lista summary{cursor:pointer;font-weight:700;color:var(--accent);padding:6px 0}
 .cad-graf{display:flex;align-items:flex-end;gap:4px;height:150px;margin-top:14px;padding-top:18px}
 .cad-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
 .cad-col i{display:block;width:100%;max-width:26px;background:var(--accent);border-radius:6px 6px 2px 2px;min-height:2px}
@@ -2790,10 +2791,11 @@ async function importSeed(){
     await batch.commit();toast(n+' registros importados');keep(render);
   }catch(e){toast('Não foi possível importar. Confira se está entrando com a conta de administrador.')}
 }
-let admIdades=null,admIdadesEm=0;
+let admIdades=null,admIdadesEm=0,admListaDias=30,admListaAberta=false,admNomesPedidos=false;
+document.addEventListener('toggle',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('cad-lista'))admListaAberta=t.open},true);
 const ORIG_NOME={instagram:'Anúncio / Instagram',facebook:'Facebook',perfil:'Link de perfil de alguém',sorteio:'Link de amigo secreto',site:'Outro site',direto:'Direto (digitou ou favorito)'};
 function adminCadastros(){
-  if(!admIdades||Date.now()-admIdadesEm>60000){admIdadesEm=Date.now();db.collection('idades').get().then(s=>{const n={};s.docs.forEach(d=>{n[d.id]=d.data()});admIdades=n;softRender()}).catch(()=>{admIdades=admIdades||{}})}
+  if(!admIdades||Date.now()-admIdadesEm>60000){admIdadesEm=Date.now();admNomesPedidos=false;db.collection('idades').get().then(s=>{const n={};s.docs.forEach(d=>{n[d.id]=d.data()});admIdades=n;softRender()}).catch(()=>{admIdades=admIdades||{}})}
   if(!admIdades)return `<section class="panel"><h2>Novos cadastros</h2><span class="muted">Carregando…</span></section>`;
   const dia=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
   const tempo=Object.entries(admIdades).map(([id,x])=>({id,t:+(x.criado||0)})).filter(x=>x.t&&x.id!==myId);
@@ -2809,6 +2811,16 @@ function adminCadastros(){
     <div class="cad-graf" role="img" aria-label="Cadastros por dia nos últimos 14 dias">${dias.map(d=>`<div class="cad-col" title="${d.lab}: ${d.n}"><span class="cad-n">${d.n||''}</span><i style="height:${Math.round(d.n/max*100)}%"></i><span class="cad-d">${d.mostra?d.lab:'&nbsp;'}</span></div>`).join('')}</div>
     <h3 style="margin:14px 0 6px;font-size:15px">De onde vieram (últimos 30 dias)</h3>
     ${linhas.length?`<table class="cad-tab"><tbody>${linhas.map(([n,q])=>`<tr><td>${esc(n)}</td><td><b>${q}</b></td><td class="muted">${Math.round(q/comOrig*100)}%</td></tr>`).join('')}</tbody></table>`:'<span class="muted small">Ainda sem dados. A origem passa a ser registrada a partir desta atualização, para cada conta nova.</span>'}
+    <details class="cad-lista" ${admListaAberta?'open':''}><summary>👥 Ver a lista de novos cadastros</summary>
+      <div class="chips" style="margin:10px 0">${[[7,'7 dias'],[30,'30 dias'],[0,'Todos']].map(([v,l])=>`<button class="chip" data-act="admListaDias" data-v="${v}" aria-pressed="${admListaDias===v}">${l}</button>`).join('')}</div>
+      ${(()=>{const lim=admListaDias?agora-admListaDias*864e5:0;const ls=tempo.filter(x=>x.t>=lim).sort((a,b)=>b.t-a.t);
+        if(!ls.length)return '<span class="muted small">Ninguém nesse período.</span>';
+        const falta=ls.map(x=>x.id).filter(i=>!names[i]);if(falta.length&&!admNomesPedidos){admNomesPedidos=true;resolveNames(falta).then(()=>softRender())}
+        return `<div class="small muted" style="margin-bottom:6px">${ls.length} ${ls.length===1?'pessoa':'pessoas'}</div>`+ls.map(x=>{const pf=raw.profiles[x.id]||{};const o=(allMet[x.id]||{}).origem;const hd=handleOf(x.id)||pf.usuario||'';const c=pf&&Object.keys(pf).length?completude(profiles[x.id]||pf).pct:0;const d=new Date(x.t);
+          const quando=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+          const org=o?(ORIG_NOME[o.src]||o.src)+(o.ref&&o.src==='perfil'?' (@'+o.ref+')':''):'';
+          return `<div class="urow"><img src="${esc(av(x.id))}" alt=""><div style="min-width:0;flex:1"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm(x.id))}${hd?` <span class="muted" style="font-weight:500">@${esc(hd)}</span>`:''}</div><div class="small" style="color:var(--muted)">${quando}${org?' · '+esc(org):''} · ficha ${c}%</div></div>${pf.usuario||raw.profiles[x.id]?`<button class="btn small ghost" data-act="open" data-id="${esc(x.id)}">Ver</button>`:''}</div>`}).join('')})()}
+    </details>
     <span class="small muted" style="display:block;margin-top:8px">Data do cadastro = quando a pessoa passou pela tela "Antes de continuar". Contas antigas aparecem com a data em que aceitaram os termos.</span></section>`;
 }
 function renderAdmin(){
@@ -4073,6 +4085,7 @@ app.addEventListener('click',async e=>{
     case 'qGrau': {const q=quickSel[ds.key]||{};quickSel[ds.key]={...q,grau:q.grau===ds.v?'':ds.v};keep(renderMine);break}
     case 'qItem': quickItem(ds.key,ds.v);break;
     case 'outro': form={type:'outro',key:ds.key};keep(renderMine);setTimeout(()=>app.querySelector('#'+ds.key+'T')?.focus(),0);break;
+    case 'admListaDias': admListaDias=+ds.v;admListaAberta=true;keep(render);break;
     case 'addTag': addTag(ds.key,app.querySelector('#add-'+ds.key));break;
     case 'addMarca': addMarca(ds.g,app.querySelector('#mo'+ds.i));break;
     case 'pickOne': draft[ds.key]=draft[ds.key]===ds.v?'':ds.v;dirty=true;keep(renderMine);break;
