@@ -28,6 +28,9 @@ img{max-width:100%}
 [hidden]{display:none!important}
 .logged-out nav.tabs,.logged-out #meChip{display:none!important}
 .login{max-width:420px;margin:0 auto;padding-top:28px;display:flex;flex-direction:column;gap:16px}
+.cv-card span{display:block;font-size:15px}.cv-card .pv-nm{margin-bottom:4px}
+.cg-box{margin-top:12px;padding:12px;border:2px dashed var(--accent);border-radius:14px;background:var(--accent-soft);display:flex;flex-direction:column;gap:6px}.cg-box .row{margin-top:4px}
+.cg-seg{display:flex;gap:8px;align-items:flex-start;font-size:14px}
 .lp{display:flex;flex-direction:column;gap:14px}.lp-tit{font-size:32px;line-height:1.12;margin:0}
 .lp-ben{display:flex;flex-direction:column;gap:10px;margin-top:4px}.lp-ben>div{display:grid;grid-template-columns:40px 1fr;column-gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
 .lp-ben span{grid-row:span 2;font-size:28px;text-align:center}.lp-ben b{font-size:15px}.lp-ben small{color:var(--muted);font-size:13px}
@@ -856,6 +859,15 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   const E=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function carregarPrevia(){if(!previaU||previa!==undefined)return;previa=null;
     fetch('/api/servicos?f=previa&u='+encodeURIComponent(previaU)).then(r=>r.ok?r.json():null).then(j=>{previa=j&&j.ok?j:false;if(previa&&previa.tipo!=='restrito')modo='criar';if(window.__loggedOut)showLogin()}).catch(()=>{previa=false})}
+  let convite;const convP=(()=>{try{const q=new URLSearchParams(location.search);const g=q.get('g'),c=q.get('c');return g&&c?{g,c}:null}catch(e){return null}})();
+  function carregarConvite(){if(!convP||convite!==undefined)return;convite=null;
+    fetch('/api/servicos?f=sorteio-entrar&g='+encodeURIComponent(convP.g)+'&c='+encodeURIComponent(convP.c)).then(r=>r.ok?r.json():null).then(j=>{convite=j&&j.ok?j:false;if(convite)modo='criar';if(window.__loggedOut)showLogin()}).catch(()=>{convite=false})}
+  function conviteHtml(){const v=convite;if(!v)return '';
+    const dt=v.data?new Date(v.data+'T12:00:00').toLocaleDateString('pt-BR'):'';
+    return `<div class="pv-intro"><span class="pv-intro-ic" aria-hidden="true">🎄</span><div><b>${E(v.org)} te convidou para o amigo secreto</b><span>No PresenteCerto o sorteio sai pelo app e cada um vê a ficha de quem tirou: tamanho, gostos e lista de desejos.</span></div></div>
+      <div class="pv cv-card"><b class="pv-nm">${E(v.nome)}</b>${[dt&&('🗓️ Troca em '+dt),v.valor&&('💰 Valor sugerido: '+E(v.valor)),'👥 '+v.n+(v.n===1?' participante':' participantes')].filter(Boolean).map(x=>`<span>${x}</span>`).join('')}
+      ${v.sorteado?'<span class="pv-lock">O sorteio deste grupo já foi feito, então não dá mais para entrar.</span>':v.cheio?'<span class="pv-lock">Este grupo já está cheio.</span>':''}</div>
+      ${v.sorteado||v.cheio?'':`<a class="btn pv-btn" href="#lgCad" data-pvcta>Criar conta e entrar no grupo</a><span class="lp-sub">Grátis · leva 1 minuto · já tem conta? <button class="link" type="button" id="lpEntrar">Entrar</button></span>`}`}
   function previaHtml(){
     const p=previa;if(!p||p.tipo==='restrito')return '';
     const prim=E(p.primeiro||(p.nome||'').split(/\s+/)[0]||'Seu amigo');
@@ -871,7 +883,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   }
   function showLogin(){
     document.body.classList.add('logged-out');window.__loggedOut=true;
-    carregarPrevia();const pv=previaHtml();
+    carregarPrevia();carregarConvite();const pv=conviteHtml()||previaHtml();
     app.innerHTML=`<div class="login${pv?' com-previa':''}">
       ${pv||(jaTeveConta?`<div><h1>Entre no PresenteCerto</h1><p class="lede">Monte sua ficha de presentes e descubra o que seus amigos querem ganhar.</p></div>`:`<div class="lp">
         <h1 class="lp-tit">Nunca mais dê (nem ganhe) presente errado 🎁</h1>
@@ -1282,13 +1294,37 @@ try{const u=new URLSearchParams(location.search).get('u');if(u)pendingOpen=u.rep
 (function(){try{if(localStorage.getItem('pc_origem'))return;const q=new URLSearchParams(location.search);let o;
   if(q.get('utm_source'))o={src:q.get('utm_source').slice(0,30),med:(q.get('utm_medium')||'').slice(0,30),camp:(q.get('utm_campaign')||'').slice(0,40)};
   else if(q.get('u'))o={src:'perfil',ref:q.get('u').replace(/^@/,'').slice(0,40)};
-  else if(q.get('t')==='sorteio')o={src:'sorteio'};
+  else if(q.get('t')==='sorteio'||q.get('g'))o={src:'sorteio'};
   else{let h='';try{h=document.referrer?new URL(document.referrer).hostname:''}catch(e){}o=h&&h!==location.hostname?{src:'site',ref:h.slice(0,60)}:{src:'direto'}}
   o.em=Date.now();localStorage.setItem('pc_origem',JSON.stringify(o))}catch(e){}})();
+(function(){try{const q=new URLSearchParams(location.search);const g=q.get('g'),c=q.get('c');if(g&&c&&/^[\w-]+\.[\w-]+$/.test(g)&&/^[\w-]{8,40}$/.test(c))localStorage.setItem('pc_convite',JSON.stringify({g,c,em:Date.now()}))}catch(e){}})();
 let pendingTab=null;try{const t=new URLSearchParams(location.search).get('t');if(t==='sorteio')pendingTab=t}catch(e){}
 const handleOf=id=>{const h=profiles[id]?.usuario;return h&&usernames[h]&&usernames[h].uid===id?h:''};
 const profileLink=id=>`${APP_URL}/?u=${encodeURIComponent(handleOf(id)||id)}`;
+let conviteGrupo=null,conviteInfo=null;
+function lerConvite(){try{const c=JSON.parse(localStorage.getItem('pc_convite')||'null');if(c&&Date.now()-c.em<7*864e5)return c;localStorage.removeItem('pc_convite')}catch(e){}return null}
+function tentarConvite(){
+  if(!myId||document.querySelector('.cg-ov'))return;const c=lerConvite();if(!c)return;
+  if(typeof lgBloqueio==='function'&&lgBloqueio0())return;
+  conviteGrupo=c;try{localStorage.removeItem('pc_convite')}catch(e){}
+  fetch('/api/servicos?f=sorteio-entrar&g='+encodeURIComponent(c.g)+'&c='+encodeURIComponent(c.c)).then(r=>r.json()).then(j=>{if(!j||!j.ok){toast('Este convite de amigo secreto não vale mais.');return}conviteInfo=j;abrirConvite()}).catch(()=>{})}
+function abrirConvite(){
+  const v=conviteInfo,c=conviteGrupo;if(!v||!c)return;const org=c.g.split('.')[0];
+  if((sorteios[org]?.lista||[]).some(x=>String(x.id)===c.g.split('.')[1]&&(x.membros||[]).includes(myId))){toast('Você já está nesse amigo secreto.');setTab('sorteio');return}
+  const dt=v.data?new Date(v.data+'T12:00:00').toLocaleDateString('pt-BR'):'';const segue=following().includes(org)||org===myId;
+  const ov=document.createElement('div');ov.className='dq-ov cg-ov';ov.setAttribute('role','dialog');
+  ov.innerHTML=`<div class="st-card" style="align-items:stretch;text-align:left"><button class="dq-x" aria-label="Fechar">×</button><span style="font-size:44px;text-align:center">🎄</span><b class="st-tit" style="text-align:center;padding:0">Entrar no amigo secreto?</b>
+    <div class="pv cv-card"><b class="pv-nm">${esc(v.nome)}</b>${[`👤 Organizado por ${esc(v.org)}`,dt&&('🗓️ Troca em '+dt),v.valor&&('💰 Valor sugerido: '+esc(v.valor)),'👥 '+v.n+(v.n===1?' participante':' participantes')].filter(Boolean).map(x=>`<span>${x}</span>`).join('')}</div>
+    ${v.sorteado?'<div class="muted">O sorteio já foi feito, então não dá mais para entrar.</div>':v.cheio?'<div class="muted">Este grupo já está cheio.</div>':`${segue?'':`<label class="cg-seg"><input type="checkbox" id="cgSeguir" checked> Seguir ${esc(v.org)} também (para ver a lista e o aniversário)</label>`}<button class="btn cg-sim" style="justify-content:center">Entrar no grupo</button>`}<button class="link cg-nao" style="align-self:center">Agora não</button></div>`;
+  document.body.appendChild(ov);const fechar=()=>ov.remove();ov.querySelector('.dq-x').onclick=fechar;ov.querySelector('.cg-nao').onclick=fechar;
+  const b=ov.querySelector('.cg-sim');if(b)b.onclick=async()=>{b.disabled=true;b.textContent='Entrando…';
+    try{const u=firebase.auth().currentUser;const t=await u.getIdToken();const r=await fetch('/api/servicos?f=sorteio-entrar',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({g:c.g,c:c.c})});const j=await r.json().catch(()=>({}));
+      if(!j.ok){b.disabled=false;b.textContent='Entrar no grupo';return toast(j.erro==='sorteado'?'O sorteio já foi feito.':j.erro==='cheio'?'O grupo está cheio.':'Não deu para entrar agora. Tente de novo.')}
+      const sg=ov.querySelector('#cgSeguir');if(sg&&sg.checked&&!following().includes(org)){try{await toggleFollow(org)}catch(e){}}
+      fechar();convidadoNovo=false;fichaBoasVindas=false;toast(j.ja?'Você já estava nesse amigo secreto.':'Pronto! Você está no amigo secreto. 🎁');setTab('sorteio')}catch(e){b.disabled=false;b.textContent='Entrar no grupo';toast('Não deu para entrar agora. Tente de novo.')}};
+}
 function tryPendingOpen(){
+  setTimeout(tentarConvite,600);
   if(pendingTab&&myId){const t=pendingTab;pendingTab=null;try{history.replaceState(null,'',location.pathname)}catch(e){}setTab(t)}
   if(!pendingOpen)return;
   const id=usernames[pendingOpen]?.uid||(profiles[pendingOpen]?pendingOpen:Object.keys(profiles).find(k=>k.toLowerCase()===pendingOpen));
@@ -1971,7 +2007,10 @@ function renderSorteio(){
     else if(feito)h+=`<div class="muted">Sorteio feito. ${[s.org,...(s.membros||[])].includes(myId)?'Seu resultado ainda não chegou. Atualize a página em instantes.':'Você não está entre os participantes.'}</div>`;
     else if(s.org===myId)h+=`<div class="row"><button class="btn green" data-act="sortear" data-id="${esc(s.id)}" ${membros.length<3?'disabled':''}>Sortear agora</button><button class="btn small ghost" data-act="editSorteio" data-id="${esc(s.id)}">Adicionar ou tirar participantes</button></div>${membros.length<3?'<span class="small" style="color:var(--muted)">Adicione pelo menos 3 participantes para sortear.</span>':''}`;
     else h+=`<div class="muted">Aguardando ${esc(nm(s.org))} fazer o sorteio.</div>`;
-    if(s.org===myId&&!editing){const lk=APP_URL+'/?t=sorteio';const txt=feito?`O sorteio do nosso amigo secreto *${s.nome}* foi feito! 🎁 Entre no PresenteCerto para ver quem você tirou (e a ficha de presentes da pessoa):\n${lk}`:`Oi! Coloquei você no nosso amigo secreto *${s.nome}* no PresenteCerto 🎁${dt?'\nTroca em '+dt+'.':''}${s.valor?' Valor sugerido: '+s.valor+'.':''}\nEntre e complete sua ficha de presentes, para quem te tirar acertar no presente:\n${lk}`;
+    if(s.org===myId&&!editing&&!feito&&s.conv){const ln=APP_URL+'/?g='+s.org+'.'+s.id+'&c='+s.conv;const tx=`Oi! Vamos fazer nosso amigo secreto *${s.nome}* pelo PresenteCerto 🎁${dt?'\nTroca em '+dt+'.':''}${s.valor?' Valor sugerido: '+s.valor+'.':''}\nToque no link para entrar no grupo (é grátis). Lá você monta sua ficha com tamanho e gostos, para quem te tirar acertar:\n${ln}`;
+      h+=`<div class="cg-box"><b>🔗 Convide pelo link</b><span class="small muted">Quem tocar no link cria a conta e entra no grupo sozinho, sem você precisar adicionar.</span><div class="row"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(tx)}" target="_blank" rel="noopener">📲 Mandar convite no WhatsApp</a><button class="btn small ghost" data-act="copy" data-text="${esc(ln)}">Copiar link</button></div></div>`}
+    else if(s.org===myId&&!editing&&!feito&&!s.conv)h+=`<div class="cg-box"><b>🔗 Convide pelo link</b><span class="small muted">Gere um link para as pessoas entrarem no grupo sozinhas.</span><div class="row"><button class="btn small" data-act="soGerarConv" data-id="${esc(s.id)}">Gerar link de convite</button></div></div>`;
+    if(s.org===myId&&!editing&&feito){const lk=APP_URL+'/?t=sorteio';const txt=feito?`O sorteio do nosso amigo secreto *${s.nome}* foi feito! 🎁 Entre no PresenteCerto para ver quem você tirou (e a ficha de presentes da pessoa):\n${lk}`:`Oi! Coloquei você no nosso amigo secreto *${s.nome}* no PresenteCerto 🎁${dt?'\nTroca em '+dt+'.':''}${s.valor?' Valor sugerido: '+s.valor+'.':''}\nEntre e complete sua ficha de presentes, para quem te tirar acertar no presente:\n${lk}`;
       h+=`<div class="so-wa"><a class="btn small green" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">📲 ${feito?'Avisar o grupo que o sorteio foi feito':'Avisar o grupo no WhatsApp'}</a><button class="btn small ghost" data-act="copy" data-text="${esc(txt)}">Copiar mensagem</button></div>`}
     h+='</section>';
   });
@@ -4169,8 +4208,9 @@ app.addEventListener('click',async e=>{
     case 'sMembro': form.membros=form.membros.includes(ds.id)?form.membros.filter(x=>x!==ds.id):[...form.membros,ds.id];keep(render);break;
     case 'editSorteio': {const s=((sorteios[myId]?.lista)||[]).find(x=>x.id===ds.id);if(!s)break;form={type:'editSorteio',id:s.id,membros:[...(s.membros||[])].filter(x=>x!==myId),busca:'',nome:s.nome,data:s.data,valor:s.valor,convite:s.convite||''};delete msgEd['so-'+s.id];keep(render);break}
     case 'saveSorteioMembros': {const membros=form.membros.filter(x=>x!==myId);if(!isPlus(myId)&&membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}const conv=String(form.convite||'').slice(0,300);const agoraIso=new Date().toISOString();saveSorteios(((sorteios[myId]?.lista)||[]).map(s=>s.id===ds.id&&!s.pares&&!s.sorteado?{...s,membros,convite:conv,entrou:Object.fromEntries(membros.map(id=>[id,(s.entrou&&s.entrou[id])||agoraIso]))}:s.id===ds.id?{...s,convite:conv}:s),'Amigo secreto atualizado');break}
-    case 'criarSorteio': {const nome=(form.nome||'').trim();if(!nome){toast('Dê um nome ao amigo secreto');break}if(!isPlus(myId)&&form.membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}if(form.membros.length<2){toast('Escolha pelo menos mais 2 pessoas');break}
-      const lista=[...((sorteios[myId]?.lista)||[]),{id:uid(),nome:nome.slice(0,50),data:form.data||'',valor:(form.valor||'').slice(0,30),membros:form.membros,entrou:Object.fromEntries(form.membros.map(id=>[id,new Date().toISOString()])),convite:String(form.convite||'').slice(0,300)}];delete msgEd['so-novo'];saveSorteios(lista,'Amigo secreto criado');break}
+    case 'soGerarConv': {const cod=uid()+uid();saveSorteios(((sorteios[myId]?.lista)||[]).map(x=>x.id===ds.id&&!x.conv?{...x,conv:cod}:x),'Link de convite criado');break}
+    case 'criarSorteio': {const nome=(form.nome||'').trim();if(!nome){toast('Dê um nome ao amigo secreto');break}if(!isPlus(myId)&&form.membros.length+1>LIMITE_SORTEIO){toast(`No plano grátis, até ${LIMITE_SORTEIO} participantes. Com o Plus, sem limite.`);break}
+      const lista=[...((sorteios[myId]?.lista)||[]),{id:uid(),nome:nome.slice(0,50),data:form.data||'',valor:(form.valor||'').slice(0,30),membros:form.membros,conv:uid()+uid(),entrou:Object.fromEntries(form.membros.map(id=>[id,new Date().toISOString()])),convite:String(form.convite||'').slice(0,300)}];delete msgEd['so-novo'];saveSorteios(lista,'Amigo secreto criado');break}
     case 'sortear': {if(el.disabled)break;el.disabled=true;el.textContent='Sorteando…';try{const {r,j}=await soApi({acao:'sortear',id:ds.id});if(r.ok&&j.ok)toast('Sorteio feito. Cada um já pode ver quem tirou.');else toast(j.erro==='poucos'?'Adicione pelo menos 3 participantes.':'Não foi possível sortear agora. Tente de novo.')}catch(err){toast(failMsg)}el.disabled=false;el.textContent='Sortear agora';break}
     case 'delSorteio': saveSorteios(((sorteios[myId]?.lista)||[]).filter(s=>s.id!==ds.id),'Amigo secreto excluído');break;
     case 'preview': if(dirty){toast('Salve primeiro para ver a versão final');break}viewing=myId;render();window.scrollTo(0,0);break;
@@ -4472,8 +4512,9 @@ async function lgIdadeSalvar(){
   }
   if(nomeNovo){try{if(user&&user.atualizarConta)await user.atualizarConta({nome:nomeNovo});myName=nomeNovo;names[myId]={...(names[myId]||{}),name:nomeNovo};if(raw.profiles[myId])gravarPerfil({nome:nomeNovo}).catch(()=>{})}catch(e){}}
   lgOcupado=false;lgForm=null;
-  const veioDeLink=!!pendingOpen||(!!viewing&&viewing!==myId);
+  const veioDeLink=!!pendingOpen||(!!viewing&&viewing!==myId);const veioDeGrupo=!!lerConvite();
   if(pedeHandle&&novato&&veioDeLink){convidadoNovo=true;render();tryPendingOpen();window.scrollTo(0,0)}
+  else if(pedeHandle&&novato&&veioDeGrupo){render();setTimeout(tentarConvite,300)}
   else if(pedeHandle&&novato){fichaBoasVindas=true;fichaVoltarPerfil=false;fichaStep=0;draft=null;dirty=false;viewing=null;setTab('perfil',true)}
   else render();
 }
