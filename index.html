@@ -608,13 +608,15 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .ptr.pronto svg{transform:rotate(180deg)}
 .ptr.girando svg{animation:ptrgira .8s linear infinite}
 @keyframes ptrgira{to{transform:rotate(360deg)}}
-.appint{background:var(--accent-soft);border-bottom:1px solid var(--line);padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
-.appint-in{display:flex;gap:10px;align-items:flex-start;max-width:720px;margin:0 auto}
-.appint-ic{font-size:22px;line-height:1}
-.appint-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;font-size:14px}
-.appint-tx span{color:var(--muted)}
-.appint-bt{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.appint-x{background:none;border:0;font-size:16px;color:var(--muted);padding:2px 4px;cursor:pointer}
+.appint{background:var(--accent-soft);border-bottom:1px solid var(--line);padding:7px 12px;padding-top:calc(7px + env(safe-area-inset-top,0px));font-size:14px}
+.appint-in{display:flex;gap:8px;align-items:center;max-width:720px;margin:0 auto}
+.appint-ic{font-size:17px;line-height:1}
+.appint-tx{flex:1;min-width:0;color:var(--fg)}
+.appint-como{background:none;border:0;color:var(--accent);font-weight:700;font-size:14px;padding:4px 2px;cursor:pointer;text-decoration:underline}
+.appint-x{background:none;border:0;font-size:15px;color:var(--muted);padding:2px 4px;cursor:pointer}
+.appint-mais{max-width:720px;margin:6px auto 2px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.appint-mais[hidden]{display:none}
+.appint-bt{display:flex;gap:8px;flex-wrap:wrap}
 .dq-ov{position:fixed;inset:0;background:rgba(20,14,26,.62);z-index:45;display:grid;place-items:center;padding:16px;animation:dqfade .2s ease}
 .dq-box{position:relative;background:var(--surface);color:var(--fg);border-radius:22px;width:min(400px,100%);max-height:calc(100vh - 40px);overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:dqsobe .25s ease}
 .dq-img{display:block;width:100%;max-height:300px;object-fit:cover;border-radius:22px 22px 0 0;background:var(--sunk)}
@@ -2971,15 +2973,17 @@ const emAppInterno=()=>/Instagram|FBAN|FBAV|FB_IAB|FBIOS|Line\/|MicroMessenger|T
 /* ---------- Aberto dentro do Instagram/Facebook/TikTok: pede para abrir no navegador ---------- */
 function avisoAppInterno(){
   try{if(!emAppInterno()||sessionStorage.getItem('pc_appint')==='x'||document.querySelector('.appint'))return}catch(e){if(!emAppInterno())return}
-  const u=navigator.userAgent||'',so=sistema();
-  const nomeApp=/Instagram/i.test(u)?'Instagram':/FBAN|FBAV|FB_IAB|FBIOS/i.test(u)?'Facebook':/TikTok|musical_ly/i.test(u)?'TikTok':/WhatsApp/i.test(u)?'WhatsApp':/Snapchat/i.test(u)?'Snapchat':/Pinterest/i.test(u)?'Pinterest':'outro aplicativo';
+  // só aparece no Mural, depois que a pessoa já preencheu parte da ficha (não atrapalha o começo)
+  if(tab!=='mural'||viewing||completude(profiles[myId]||{}).pct<30){setTimeout(()=>{try{avisoAppInterno()}catch(e){}},4000);return}
+  const so=sistema();
   const nav=so==='ios'?'Safari':so==='android'?'Chrome':'navegador';
-  const passo=so==='ios'?'Toque em <b>⋯</b> no canto da tela e depois em <b>“Abrir no navegador”</b>.':so==='android'?'Toque no botão abaixo ou em <b>⋮</b> no canto da tela e depois em <b>“Abrir no Chrome”</b>.':'Abra este link no navegador do seu celular.';
-  const link=location.href;const intent='intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(link)+';end';
-  const d=document.createElement('div');d.className='appint';d.setAttribute('role','alert');
-  d.innerHTML=`<div class="appint-in"><span class="appint-ic" aria-hidden="true">🧭</span><div class="appint-tx"><b>Abra no ${nav} para tudo funcionar</b><span>Você abriu pelo ${nomeApp}. Aqui dentro o login pode se perder e não dá para instalar. ${passo}</span>
-    <div class="appint-bt">${so==='android'?`<a class="btn small" href="${intent}">Abrir no Chrome</a>`:''}<button class="btn small ghost" data-appint="copiar">Copiar link</button></div></div><button class="appint-x" data-appint="fechar" aria-label="Fechar aviso">✕</button></div>`;
+  const passo=so==='ios'?'Toque em <b>⋯</b> no canto da tela e depois em <b>“Abrir no navegador”</b>. No Safari, use <b>Compartilhar → Adicionar à Tela de Início</b>.':so==='android'?'Toque no botão abaixo ou em <b>⋮</b> no canto da tela e depois em <b>“Abrir no Chrome”</b>.':'Abra este link no navegador do seu celular.';
+  const link=location.origin+'/';const intent='intent://'+location.host+'/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(link)+';end';
+  const d=document.createElement('div');d.className='appint';d.setAttribute('role','status');
+  d.innerHTML=`<div class="appint-in"><span class="appint-ic" aria-hidden="true">📲</span><span class="appint-tx">Para instalar o app, abra no ${nav}.</span><button class="appint-como" data-appint="como">Como?</button><button class="appint-x" data-appint="fechar" aria-label="Fechar aviso">✕</button></div>
+    <div class="appint-mais" hidden><span>${passo}</span><div class="appint-bt">${so==='android'?`<a class="btn small" href="${intent}">Abrir no Chrome</a>`:''}<button class="btn small ghost" data-appint="copiar">Copiar link</button></div></div>`;
   d.addEventListener('click',e=>{const b=e.target.closest('[data-appint]');if(!b)return;
+    if(b.dataset.appint==='como'){const m=d.querySelector('.appint-mais');m.hidden=!m.hidden;b.textContent=m.hidden?'Como?':'Fechar'}
     if(b.dataset.appint==='fechar'){try{sessionStorage.setItem('pc_appint','x')}catch(x){}d.remove()}
     if(b.dataset.appint==='copiar'){const ok=()=>{b.textContent='Link copiado! Cole no '+nav};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(link).then(ok,()=>{prompt('Copie o link:',link)});else prompt('Copie o link:',link)}});
   document.body.insertBefore(d,document.body.firstChild);
