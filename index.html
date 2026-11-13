@@ -856,6 +856,11 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   const interno=/Instagram|FBAN|FBAV|FB_IAB|FBIOS|TikTok|musical_ly|Snapchat|Pinterest|Line\//i.test(navigator.userAgent||'');
   const jaTeveConta=(()=>{try{return !!localStorage.getItem('pc_conta')}catch(e){return false}})();
   let modo=jaTeveConta?'entrar':'criar',erro='',ocupado=false,lgVal={};
+  const MSG={'auth/invalid-email':'Este e-mail não parece válido.','auth/missing-password':'Digite sua senha.','auth/weak-password':'A senha precisa ter pelo menos 6 caracteres.',
+    'auth/email-already-in-use':'Já existe uma conta com este e-mail. Toque em Entrar.','auth/invalid-credential':'E-mail ou senha incorretos.','auth/wrong-password':'E-mail ou senha incorretos.',
+    'auth/user-not-found':'Não encontramos conta com este e-mail. Toque em Criar conta.','auth/too-many-requests':'Muitas tentativas. Espere alguns minutos e tente de novo.',
+    'auth/network-request-failed':'Sem conexão com a internet.','auth/popup-closed-by-user':'','auth/cancelled-popup-request':'','auth/unauthorized-domain':'Este endereço ainda não foi autorizado no Firebase. Veja o passo 6 do guia LEIA-ME.'};
+  const msgDe=e=>(e&&e.code in MSG)?MSG[e.code]:'Não foi possível entrar agora. Tente de novo.';
   // Prévia do perfil para quem chegou por um link (?u=@fulano) e ainda não tem conta
   let previa;const previaU=(()=>{try{return (new URLSearchParams(location.search).get('u')||'').replace(/^@/,'')}catch(e){return ''}})();
   const E=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -928,7 +933,6 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
       const vigia=setTimeout(()=>{if(!ocupado||started)return;if(auth.currentUser){location.reload();return}
         ocupado=false;erro='A conexão demorou demais. Toque de novo no botão. Se não der, toque nos 3 pontinhos (…) e escolha "Abrir no navegador".';showLogin()},20000);
       try{
-        if(interno)await Promise.race([auth.setPersistence(firebase.auth.Auth.Persistence.SESSION),new Promise(r=>setTimeout(r,3000))]).catch(()=>{});
         if(modo==='criar'){const c=await auth.createUserWithEmailAndPassword(email,senha);try{await c.user.updateProfile({displayName:nome||nomeDe(c.user)})}catch(e){}if(!started)salvarUsuario(c.user)}
         else await auth.signInWithEmailAndPassword(email,senha);
         lgVal={};
