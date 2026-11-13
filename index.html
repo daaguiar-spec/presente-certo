@@ -853,7 +853,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   /* ---------- tela de login ---------- */
   const interno=/Instagram|FBAN|FBAV|FB_IAB|FBIOS|TikTok|musical_ly|Snapchat|Pinterest|Line\//i.test(navigator.userAgent||'');
   const jaTeveConta=(()=>{try{return !!localStorage.getItem('pc_conta')}catch(e){return false}})();
-  let modo=jaTeveConta?'entrar':'criar',erro='',ocupado=false;
+  let modo=jaTeveConta?'entrar':'criar',erro='',ocupado=false,lgVal={};
   // Prévia do perfil para quem chegou por um link (?u=@fulano) e ainda não tem conta
   let previa;const previaU=(()=>{try{return (new URLSearchParams(location.search).get('u')||'').replace(/^@/,'')}catch(e){return ''}})();
   const E=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -897,9 +897,9 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
       ${interno?'':'<div class="sep">ou com e-mail</div>'}
       <div class="seg"><button id="lgM1" aria-pressed="${modo==='entrar'}">Entrar</button><button id="lgM2" aria-pressed="${modo==='criar'}">Criar conta</button></div>
       <form id="lgForm" class="panel" novalidate>
-        ${modo==='criar'?'<label class="f">Seu nome<input id="lgNome" autocomplete="name" required></label>':''}
-        <label class="f">E-mail<input id="lgEmail" type="email" autocomplete="${modo==='criar'?'email':'username'}" inputmode="email" autocapitalize="off" required></label>
-        <label class="f">Senha<input id="lgSenha" type="password" autocomplete="${modo==='criar'?'new-password':'current-password'}" minlength="6" required></label>
+        ${modo==='criar'?'<label class="f">Seu nome<input id="lgNome" autocomplete="name" value="'+esc(lgVal.nome||'')+'" required></label>':''}
+        <label class="f">E-mail<input id="lgEmail" value="${esc(lgVal.email||'')}" type="email" autocomplete="${modo==='criar'?'email':'username'}" inputmode="email" autocapitalize="off" required></label>
+        <label class="f">Senha<input id="lgSenha" value="${esc(lgVal.senha||'')}" type="password" autocomplete="${modo==='criar'?'new-password':'current-password'}" minlength="6" required></label>
         <div class="err" role="alert">${esc(erro)}</div>
         <button class="btn" type="submit" ${ocupado?'disabled':''}>${ocupado?'Aguarde…':modo==='criar'?'Criar minha conta':'Entrar'}</button>
         ${modo==='entrar'?'<button class="link" type="button" id="lgReset">Esqueci minha senha</button>':''}
@@ -918,13 +918,19 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
         else{erro=msgDe(e);showLogin()}}
     };
     document.getElementById('lgForm').onsubmit=async ev=>{
-      ev.preventDefault();const email=v('lgEmail'),senha=document.getElementById('lgSenha').value;
-      if(modo==='criar'&&!v('lgNome')){erro='Digite seu nome.';return showLogin()}
+      ev.preventDefault();const email=v('lgEmail'),senha=document.getElementById('lgSenha').value,nome=v('lgNome');
+      lgVal={nome,email,senha};
+      if(modo==='criar'&&!nome){erro='Digite seu nome.';return showLogin()}
       ocupado=true;erro='';showLogin();
+      // vigia: se a conexão travar (comum no navegador do Instagram), libera o botão e explica
+      const vigia=setTimeout(()=>{if(!ocupado||started)return;if(auth.currentUser){location.reload();return}
+        ocupado=false;erro='A conexão demorou demais. Toque de novo no botão. Se não der, toque nos 3 pontinhos (…) e escolha "Abrir no navegador".';showLogin()},20000);
       try{
-        if(modo==='criar'){const c=await auth.createUserWithEmailAndPassword(email,senha);await c.user.updateProfile({displayName:v('lgNome')||nomeDe(c.user)});await salvarUsuario(c.user)}
+        if(interno)await Promise.race([auth.setPersistence(firebase.auth.Auth.Persistence.SESSION),new Promise(r=>setTimeout(r,3000))]).catch(()=>{});
+        if(modo==='criar'){const c=await auth.createUserWithEmailAndPassword(email,senha);try{await c.user.updateProfile({displayName:nome||nomeDe(c.user)})}catch(e){}if(!started)salvarUsuario(c.user)}
         else await auth.signInWithEmailAndPassword(email,senha);
-      }catch(e){ocupado=false;erro=msgDe(e);showLogin()}
+        lgVal={};
+      }catch(e){clearTimeout(vigia);ocupado=false;if(e&&e.code==='auth/email-already-in-use'){modo='entrar';lgVal={email,senha:''}}erro=msgDe(e);showLogin()}
     };
     const rs=document.getElementById('lgReset');
     if(rs)rs.onclick=async()=>{const email=v('lgEmail');if(!email){erro='Digite seu e-mail acima e toque de novo em Esqueci minha senha.';return showLogin()}
@@ -933,7 +939,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
   async function salvarUsuario(u){try{const ref=fs.doc('usuarios/'+u.uid);const s=await ref.get();const x=s.exists?s.data():{};
     const d={atualizado:new Date().toISOString()};if(!x.nomeProprio)d.nome=nomeDe(u);if(!x.fotoPropria)d.foto=u.photoURL||'';await ref.set(d,{merge:true})}catch(e){}}
 
-  auth.getRedirectResult().catch(e=>{erro=msgDe(e)});
+  if(!interno)auth.getRedirectResult().catch(e=>{erro=msgDe(e)});
   let started=false;
   auth.onAuthStateChanged(async u=>{
     if(!u){if(started){location.reload();return}showLogin();return}
@@ -2845,7 +2851,7 @@ async function importSeed(){
 }
 let admIdades=null,admIdadesEm=0,admListaDias=30,admListaAberta=false,admNomesPedidos=false;
 document.addEventListener('toggle',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('cad-lista'))admListaAberta=t.open},true);
-const ORIG_NOME={instagram:'Anúncio / Instagram',facebook:'Facebook',perfil:'Link de perfil de alguém',sorteio:'Link de amigo secreto',site:'Outro site',direto:'Direto (digitou ou favorito)'};
+const ORIG_NOME={ig:'Instagram (link da bio ou Story)',instagram:'Anúncio / Instagram',facebook:'Facebook',perfil:'Link de perfil de alguém',sorteio:'Link de amigo secreto',site:'Outro site',direto:'Direto (digitou ou favorito)'};
 function adminCadastros(){
   if(!admIdades||Date.now()-admIdadesEm>60000){admIdadesEm=Date.now();admNomesPedidos=false;db.collection('idades').get().then(s=>{const n={};s.docs.forEach(d=>{n[d.id]=d.data()});admIdades=n;softRender()}).catch(()=>{admIdades=admIdades||{}})}
   if(!admIdades)return `<section class="panel"><h2>Novos cadastros</h2><span class="muted">Carregando…</span></section>`;
