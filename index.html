@@ -608,6 +608,11 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .ptr.pronto svg{transform:rotate(180deg)}
 .ptr.girando svg{animation:ptrgira .8s linear infinite}
 @keyframes ptrgira{to{transform:rotate(360deg)}}
+.pw{position:relative;display:block}
+.pw input{width:100%;padding-right:52px}
+.pw-ver{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;padding:8px;color:var(--muted);cursor:pointer;display:flex;border-radius:10px}
+.pw-ver.on{color:var(--accent)}
+.pw-ver.on .pw-risco{display:none}
 .appint{background:var(--accent-soft);border-bottom:1px solid var(--line);padding:7px 12px;padding-top:calc(7px + env(safe-area-inset-top,0px));font-size:14px}
 .appint-in{display:flex;gap:8px;align-items:center;max-width:720px;margin:0 auto}
 .appint-ic{font-size:17px;line-height:1}
@@ -906,7 +911,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
       <form id="lgForm" class="panel" novalidate>
         ${modo==='criar'?'<label class="f">Seu nome<input id="lgNome" autocomplete="name" value="'+esc(lgVal.nome||'')+'" required></label>':''}
         <label class="f">E-mail<input id="lgEmail" value="${esc(lgVal.email||'')}" type="email" autocomplete="${modo==='criar'?'email':'username'}" inputmode="email" autocapitalize="off" required></label>
-        <label class="f">Senha<input id="lgSenha" value="${esc(lgVal.senha||'')}" type="password" autocomplete="${modo==='criar'?'new-password':'current-password'}" minlength="6" required></label>
+        <label class="f">Senha<span class="pw"><input id="lgSenha" value="${esc(lgVal.senha||'')}" type="password" autocomplete="${modo==='criar'?'new-password':'current-password'}" minlength="6" required><button type="button" class="pw-ver" id="lgVer" aria-label="Mostrar senha" aria-pressed="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><line class="pw-risco" x1="3" y1="3" x2="21" y2="21"/></svg></button></span></label>
         <div class="err" role="alert">${esc(erro)}</div>
         <button class="btn" type="submit" ${ocupado?'disabled':''}>${ocupado?'Aguarde…':modo==='criar'?'Criar minha conta':'Entrar'}</button>
         ${modo==='entrar'?'<button class="link" type="button" id="lgReset">Esqueci minha senha</button>':''}
@@ -938,6 +943,9 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
         lgVal={};
       }catch(e){clearTimeout(vigia);ocupado=false;if(e&&e.code==='auth/email-already-in-use'){modo='entrar';lgVal={email,senha:''}}erro=msgDe(e);showLogin()}
     };
+    const ver=document.getElementById('lgVer');
+    if(ver)ver.onclick=e=>{e.preventDefault();const i=document.getElementById('lgSenha');const mostra=i.type==='password';i.type=mostra?'text':'password';
+      ver.setAttribute('aria-pressed',String(mostra));ver.setAttribute('aria-label',mostra?'Esconder senha':'Mostrar senha');ver.classList.toggle('on',mostra)};
     const rs=document.getElementById('lgReset');
     if(rs)rs.onclick=async()=>{const email=v('lgEmail');if(!email){erro='Digite seu e-mail acima e toque de novo em Esqueci minha senha.';return showLogin()}
       try{await auth.sendPasswordResetEmail(email);erro='';app.querySelector('.err').textContent='Enviamos um link para redefinir a senha. Confira seu e-mail.'}catch(e){erro=msgDe(e);showLogin()}};
