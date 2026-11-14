@@ -459,6 +459,21 @@ button.pf-marca[aria-pressed="true"]{background:var(--accent);color:var(--accent
 .md-item .shop{margin-top:8px;gap:6px;align-items:center}
 .md-item .shop>span{display:none}
 .md-item .shop a{background:var(--accent-soft);color:var(--accent);font-weight:700;text-decoration:none;padding:5px 10px;border-radius:99px;font-size:12.5px}
+.cel-ov{position:fixed;inset:0;background:rgba(20,10,40,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.cel-c{background:var(--surface);color:var(--fg);border-radius:22px;padding:24px 22px;text-align:center;max-width:340px;display:flex;flex-direction:column;align-items:stretch}.cel-c h2{margin:6px 0}.cel-c p{color:var(--muted);margin:0 0 14px}
+.ind{background:linear-gradient(135deg,#6a3fc8,#a14fd6);color:#fff;border-radius:18px;padding:16px;position:relative;cursor:pointer}
+.ind b{font-size:18px;display:block;line-height:1.25;padding-right:26px}.ind .s{opacity:.92;font-size:14px;display:block;margin-top:4px}
+.ind-x{position:absolute;right:8px;top:6px;background:none;border:0;color:#fff;opacity:.85;font-size:16px;padding:6px;cursor:pointer}
+.ind-row{display:flex;gap:8px;margin:12px 0 4px}.ind-sl{flex:1;height:44px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800}
+.ind-sl.on{background:#ffd54a;color:#3c1e78}.ind-bar{height:10px;border-radius:9px;background:rgba(255,255,255,.22);overflow:hidden;margin:12px 0 4px}.ind-bar i{display:block;height:100%;background:#ffd54a;border-radius:9px}
+.ind-bts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.ind-wa{flex:1;min-width:150px;background:#25d366;color:#fff;border:0;border-radius:12px;padding:11px;font-weight:700;font-size:15px;cursor:pointer}
+.ind-cp{background:#fff;color:#5b2fc0;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-weight:700;font-size:15px;cursor:pointer}
+.ip-st{display:flex;gap:10px;align-items:flex-start;margin:8px 0}.ip-n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.ip-lv{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.ip-lv:first-of-type{border-top:0}
+.ip-tag{flex:none;font-size:12px;font-weight:800;border-radius:20px;padding:4px 10px;white-space:nowrap}.ip-ok{background:#e3f7ea;color:#16794a}.ip-wt{background:#fff4d6;color:#8a6100}.ip-lk{background:var(--sunk);color:var(--muted)}
+.ip-fr{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}.ip-av{width:38px;height:38px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.ip-fr>div{flex:1;min-width:0}.ip-fr small{display:block;color:var(--muted)}
+.ip-link{background:var(--sunk);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--muted);word-break:break-all;margin:8px 0}
 .pend{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:16px;padding:12px 14px;position:relative}
 .pend-ic{font-size:26px;line-height:1.1;flex:none}
 .pend b{display:block;font-size:15px;line-height:1.3}
@@ -1290,6 +1305,7 @@ function render(){try{atualizarFotoTab()}catch(e){}
   else if(tab==='empresa')renderEmpresas();
   else if(tab==='aparencia')renderAparencia();
   else if(tab==='plus')renderPlus();
+  else if(tab==='indicar')renderIndicar();
   else if(tab==='lojas')renderLojasTab();
   else if(tab==='minhaloja')renderMinhaLoja();
   else if(tab==='cabecalho')renderCabecalho();
@@ -1548,7 +1564,7 @@ function renderMenu(){
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
    <button class="menu-item" data-menu="conta">👤 Editar perfil e foto</button>
    ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
-   <button class="menu-item" data-menu="enviar">👋 Convidar amigos</button>
+   <button class="menu-item" data-menu="indicar">🎁 Indique e ganhe</button>
    ${lojasVisiveis().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    ${!appInstalado()&&sistema()&&!dqInstalou?'<button class="menu-item" data-menu="instalar">📲 Instalar no celular</button>':''}
    <button class="menu-item" data-menu="noturno">${modoNoturnoAtivo()?'☀️ Modo diurno':'🌙 Modo noturno'}</button>
@@ -1577,6 +1593,7 @@ document.addEventListener('click',e=>{
   if(a==='pushOff'){desativarPush();return}
   if(a==='eventos'){evFechar();setTab('eventos')}
   if(a==='plus')setTab('plus');
+  if(a==='indicar')setTab('indicar');
   if(a==='aparencia'){aparDraft=null;setTab('aparencia')}
   if(a==='conta'){contaDraft=null;setTab('conta')}
   if(a==='painel')setTab('admin');
@@ -1710,6 +1727,7 @@ function renderMural(){
     if(cards.length)h+=cards[destaqueVez%cards.length];}
   h+=cabFestaHtml();
   h+=previaAvisoHtml()||(novatoMural?'':pendCard());
+  if(!novatoMural)h+=indCard();
   if(lojasVisiveis().length)h+=`<button class="mural-lojas" data-act="tab" data-id="lojas"><span>🛍️ Lojas parceiras</span><span class="seg-tag">Cupons</span><span class="mural-lojas-seta" aria-hidden="true">›</span></button>`;
   if(fol.length)h+=`<div class="chips">${filtros.map(([k,l])=>`<button class="chip" data-act="feedFiltro" data-id="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>`;
   const ofH=ofertasSemana()+maisDesejadosHtml(5);let ofPosto=false;
@@ -2622,6 +2640,52 @@ function previaAvisoHtml(){
   const rp=(raw.profiles||{})[myId];if(!rp||rp.fechado||'previa' in rp||souMenor()||!idade)return '';
   return `<section class="pend pv-aviso"><span class="pend-ic" aria-hidden="true">🔗</span><div style="min-width:0;flex:1"><span class="pend-eb">Novidade</span><b>Deixe sua lista visível no link</b><span class="small">Quem recebe o link do seu perfil poderá ver sua lista de desejos antes de criar conta. Assim mais gente acerta no seu presente. Idade, cidade e quem reservou nunca aparecem. Você pode desligar quando quiser em Privacidade e dados.</span><div class="pend-acts"><button class="btn small" data-act="previaSim">Ativar</button><button class="link" data-act="previaNao">Agora não</button></div></div></section>`;
 }
+// ---------- Indique e ganhe ----------
+// O servidor (api/_indicacao.js) registra quem convidou e libera o Plus. A indicação vale quando o amigo monta 30% da ficha.
+let indic={},indicOk=false;
+const IND_NIVEIS=[{n:3,txt:'1 mês de Plus'},{n:10,txt:'6 meses de Plus'}];
+function indLS(v){try{if(v===undefined)return localStorage.getItem('pc_ind')||'';localStorage.setItem('pc_ind',v)}catch(e){}return ''}
+function indApi(acao,extra){const u=firebase.auth().currentUser;if(!u)return Promise.resolve(null);
+  return u.getIdToken().then(t=>fetch('/api/servicos?f=indicacao',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({acao,...(extra||{})})})).then(r=>r.json()).catch(()=>null)}
+function indTentar(){let ref='';try{ref=localStorage.getItem('pc_indReg')||''}catch(e){}
+  if(ref&&!indLS())indApi('registrar',{ref}).then(j=>{if(!j||!j.ok)return;try{localStorage.removeItem('pc_indReg')}catch(e){}indLS(j.registrado||j.ja?(j.valeu?'ok':'pend'):'x')});
+  else indConferir()}
+function indConferir(){if(indLS()!=='pend'||completude(profiles[myId]||{}).pct<30)return;indApi('conferir').then(j=>{if(j&&j.ok&&!j.falta)indLS('ok')})}
+function indValidos(){return Object.values(indic.amigos||{}).filter(a=>a&&a.ok).length}
+function indGanhou(n){return (indic.premios||[]).some(p=>p&&p.n===n)}
+function indProx(){const v=indValidos();return IND_NIVEIS.find(l=>!indGanhou(l.n)&&v<l.n)||null}
+function indMsg(){return msgConvite(profileLink(myId))}
+function indBotoes(){return `<div class="ind-bts"><button class="ind-wa" data-act="indWhats">Convidar no WhatsApp</button><button class="ind-cp" data-act="indCopiar">Copiar link</button></div>`}
+function indCard(){
+  if(!indicOk||!myId||!profiles[myId]||completude(profiles[myId]).pct<30)return '';
+  let ate=0;try{ate=+localStorage.getItem('pc_indX')||0}catch(e){}if(Date.now()<ate)return '';
+  const prox=indProx();if(!prox)return '';
+  const v=indValidos(),falta=prox.n-v;
+  const tit=prox.n===3?'🎁 Convide 3 amigos e ganhe<br>1 mês de Plus grátis':'🎁 Chegue a 10 amigos e ganhe<br>6 meses de Plus grátis';
+  const sub=falta===prox.n?'Vale quando o amigo cria a conta pelo seu link e monta a ficha.':falta===1?'Falta só 1! Vale quando o amigo cria a conta e monta a ficha.':`Faltam só ${falta}! Vale quando o amigo cria a conta e monta a ficha.`;
+  const prog=prox.n===3?`<div class="ind-row">${[0,1,2].map(i=>`<div class="ind-sl${i<v?' on':''}">${i<v?'✓':i+1}</div>`).join('')}</div>`
+    :`<div class="ind-bar"><i style="width:${Math.round(v/prox.n*100)}%"></i></div><span class="s">${v} de ${prox.n} amigos</span>`;
+  return `<section class="ind" data-act="indAbrir"><button class="ind-x" data-act="indFechar" aria-label="Fechar">✕</button><b>${tit}</b><span class="s">${sub}</span>${prog}${indBotoes()}</section>`;
+}
+function renderIndicar(){
+  const v=indValidos(),am=Object.entries(indic.amigos||{}).sort((a,b)=>String(b[1].em||'').localeCompare(String(a[1].em||'')));
+  const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'?';
+  let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>Indique e ganhe 🎁</h1><p class="lede">Seus amigos ganham uma lista de presentes. Você ganha Plus.</p></div>
+  <section class="panel"><b>Como funciona</b>
+   <div class="ip-st"><span class="ip-n">1</span><span>Mande seu link para amigos e família.</span></div>
+   <div class="ip-st"><span class="ip-n">2</span><span>Eles criam a conta pelo seu link e montam a ficha (pelo menos 30%).</span></div>
+   <div class="ip-st"><span class="ip-n">3</span><span>Com <b>3 amigos</b>, você ganha <b>1 mês de Plus grátis</b>. Com <b>10</b>, ganha <b>6 meses</b>.</span></div></section>
+  <section class="panel"><b>Seus prêmios</b>${IND_NIVEIS.map(l=>`<div class="ip-lv"><span>${l.n} amigos → ${l.txt}</span>${indGanhou(l.n)?'<span class="ip-tag ip-ok">✓ Ganhou</span>':`<span class="ip-tag ${v>0&&(l.n===3||indGanhou(3))?'ip-wt':'ip-lk'}">${Math.min(v,l.n)} de ${l.n}</span>`}</div>`).join('')}
+   <span class="small" style="color:var(--muted);display:block;margin-top:6px">O Plus ganho por indicação não inclui as listas de evento grátis.</span></section>
+  <section class="panel"><b>Seus convidados</b>${am.length?am.map(([id,a])=>`<div class="ip-fr"><span class="ip-av">${esc(ini(a.nome))}</span><div><b>${esc(a.nome||'Amigo')}</b><small>${a.ok?'Montou a ficha':'Criou a conta, falta montar a ficha'}</small></div><span class="ip-tag ${a.ok?'ip-ok':'ip-wt'}">${a.ok?'✓ Valeu':'Quase'}</span></div>`).join('')
+    :'<span class="small" style="color:var(--muted);display:block;margin-top:6px">Ninguém ainda. Mande seu link e acompanhe aqui quem entrou.</span>'}</section>
+  <section class="panel"><b>Seu link</b><div class="ip-link">${esc(profileLink(myId))}</div>${indBotoes()}</section>`;
+  app.innerHTML=h+'</div>';
+}
+function indPremioCheck(){const n=(indic.premios||[]).length;let vis=0;try{vis=+localStorage.getItem('pc_indVis_'+myId)||0}catch(e){}
+  if(n>vis){try{localStorage.setItem('pc_indVis_'+myId,String(n))}catch(e){}const p=indic.premios[n-1]||{};
+    const d=document.createElement('div');d.className='cel-ov';d.innerHTML=`<div class="cel-c" role="dialog" aria-modal="true"><div style="font-size:60px">🎉</div><h2>Você ganhou ${p.n===10?'mais 5 meses':'1 mês'} de Plus!</h2><p>${p.n||3} amigos entraram pelo seu link. Obrigado por espalhar o PresenteCerto!</p><button class="btn" data-cel="plus">Ver o que o Plus tem</button><button class="link" data-cel="ok" style="margin-top:8px">Fechar</button></div>`;
+    d.addEventListener('click',e=>{const b=e.target.closest('[data-cel]');if(!b&&e.target!==d)return;d.remove();if(b&&b.dataset.cel==='plus')setTab('plus')});document.body.appendChild(d)}}
 function pendCard(){
   if(!myId||Date.now()-pendIni<4000||!pendPronto())return '';
   if(pendFeitoAgora){if(!pendOkTimer)pendOkTimer=setTimeout(()=>{pendOkTimer=null;pendFeitoAgora=false;const el=document.querySelector('.pend.ok');if(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400)}},8000);
@@ -2653,7 +2717,7 @@ const PLUS_BENEF=[['🎨','Cabeçalho do seu jeito','Temas para cada época, mol
 function renderPlus(){
   const on=isPlus(myId);
   let h=`<div class="view"><button class="back" data-act="tab" data-id="mural">← Voltar</button><div><h1>PresenteCerto Plus ${on?'<span class="plus-badge">Ativo</span>':''}</h1><p class="lede">${on?'Seu Plus vale até <b>'+esc(plusAte(myId))+'</b>. Estes são os benefícios que você tem:':'Mais recursos para quem adora presentear. Veja tudo o que você ganha:'}</p></div>
-  <section class="panel hl">${PLUS_BENEF.map(([i,t,d])=>`<div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px"><span style="font-size:24px;line-height:1.2">${i}</span><div><b>${t}</b><div class="small" style="color:var(--muted)">${d}</div></div></div>`).join('')}</section>`;
+  <section class="panel hl">${PLUS_BENEF.filter(b=>!(on&&plusDaIndicacao()&&/listas de evento/.test(b[1]))).map(([i,t,d])=>`<div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px"><span style="font-size:24px;line-height:1.2">${i}</span><div><b>${t}</b><div class="small" style="color:var(--muted)">${d}</div></div></div>`).join('')}</section>`;
   if(on)h+=`<section class="panel"><div class="row"><button class="btn small" data-act="tab" data-id="aparencia">Personalizar visual</button><button class="btn small ghost" data-menu="compartilhar">Escolher capa e listas</button></div></section>`;
   else h+=`<section class="panel"><h2>Quero ser Plus</h2>${safeLink(config.plusLink)?`<div class="row"><a class="btn" href="${esc(config.plusLink)}" target="_blank" rel="noopener">Assinar o Plus${config.plusPreco?' · '+esc(config.plusPreco):''}</a></div><span class="small" style="color:var(--muted)">Na compra, use o mesmo e-mail da sua conta${myEmail?` (<b>${esc(myEmail)}</b>)`:''}. Assim o Plus liga sozinho logo depois do pagamento.</span>`:'<span class="muted">Em breve o botão de assinatura estará aqui.</span>'}
    <label class="f">Tenho um código de ativação<div class="row" style="flex-wrap:nowrap"><input id="codigoPlus" autocapitalize="characters" placeholder="PC-XXXX-XXXX"><button class="btn small" data-act="resgatar">Ativar</button></div></label></section>`;
@@ -3330,7 +3394,8 @@ function evPremiumDono(e){
 }
 const PLUS_LISTAS_GRATIS=2;
 const plusGratisUsadas=()=>Math.max(evCred.plusGratis||0,evCred.plusGratisUsado?1:0);
-const evPode=()=>isOwner||(evCred.saldo||0)>=1||(isPlus(myId)&&plusGratisUsadas()<PLUS_LISTAS_GRATIS);
+const plusDaIndicacao=()=>!!(planos[myId]&&planos[myId].codigo==='indicacao');
+const evPode=()=>isOwner||(evCred.saldo||0)>=1||(isPlus(myId)&&!plusDaIndicacao()&&plusGratisUsadas()<PLUS_LISTAS_GRATIS);
 const evSalvarItens=itens=>db.doc('eventos/'+evAberto).update({itens}).catch(()=>toast('Não foi possível salvar. Tente de novo.'));
 
 function renderEventos(){
@@ -3357,7 +3422,7 @@ function renderEventos(){
   h+=`<section class="panel"><b>Como funciona</b><span class="small">Montar a lista é grátis. Para liberar o link aos convidados, escolha um plano (pagamento único por lista):</span>
    <div class="ev-planos"><div class="ev-plano"><b>Comum</b><span class="ev-plano-p">${esc(evPreco())}</span><ul><li>Link para os convidados</li><li>Presentes sem repetir</li><li>Até 80 itens</li></ul></div>
    <div class="ev-plano top"><span class="ev-plano-tag">Mais completa</span><b>⭐ Premium</b><span class="ev-plano-p">${esc(evPremPreco())}</span><ul><li>Tudo da Comum</li><li>Capa com a sua foto</li><li>Quem deu cada presente + agradecer no WhatsApp</li><li>Estatísticas de visitas</li><li>QR Code para o convite</li></ul></div></div>
-   <span class="small" style="color:var(--muted)">${isPlus(myId)?`Seu Plus dá ${PLUS_LISTAS_GRATIS} listas Comuns grátis (já usou ${Math.min(plusGratisUsadas(),PLUS_LISTAS_GRATIS)}).`:`Assinantes do Plus ganham ${PLUS_LISTAS_GRATIS} listas Comuns grátis.`}${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}${(evCred.premium||0)>0?` <b>Você tem ${evCred.premium} crédito${evCred.premium>1?'s':''} Premium.</b>`:''} Você escolhe o plano depois de montar a lista.</span></section>`;
+   <span class="small" style="color:var(--muted)">${isPlus(myId)&&plusDaIndicacao()?'O Plus ganho por indicação não inclui listas grátis.':isPlus(myId)?`Seu Plus dá ${PLUS_LISTAS_GRATIS} listas Comuns grátis (já usou ${Math.min(plusGratisUsadas(),PLUS_LISTAS_GRATIS)}).`:`Assinantes do Plus ganham ${PLUS_LISTAS_GRATIS} listas Comuns grátis.`}${(evCred.saldo||0)>0?` <b>Você tem ${evCred.saldo} crédito${evCred.saldo>1?'s':''} para publicar.</b>`:''}${(evCred.premium||0)>0?` <b>Você tem ${evCred.premium} crédito${evCred.premium>1?'s':''} Premium.</b>`:''} Você escolhe o plano depois de montar a lista.</span></section>`;
   if(!lista.length&&!rec.length&&!evForm)h+=`<div class="empty"><b>Nenhuma lista ainda</b><span>Crie a primeira e já comece com sugestões prontas para o seu tipo de evento.</span></div>`;
   lista.forEach(([id,e])=>{const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;
     h+=`<button class="ev-card" data-ev="abrir" data-id="${esc(id)}"><span class="ev-emo" style="background:${T.cor}">${T.e}</span><span class="ev-info"><b>${esc(e.titulo||T.n)}</b><span class="small" style="color:var(--muted)">${esc(T.n)}${e.data?' · '+esc(evData(e.data)):''} · ${(e.itens||[]).length} ite${(e.itens||[]).length===1?'m':'ns'}</span></span><span class="when ${e.publicado?'soon':''}">${e.publicado?'Publicada':'Rascunho'}</span></button>`});
@@ -4108,6 +4173,10 @@ app.addEventListener('click',async e=>{
     case 'fVerPerfil': fichaStep=null;draft=null;setTab('perfil',false);break;
     case 'verMeuPerfil': if(dirty){toast('Salve primeiro para ver a versão final');break}setTab('perfil',false);break;
     case 'tab': setTab(ds.id);break;
+    case 'indAbrir': setTab('indicar');break;
+    case 'indFechar': try{localStorage.setItem('pc_indX',String(Date.now()+7*864e5))}catch(x){}keep(render);break;
+    case 'indWhats': window.open('https://wa.me/?text='+encodeURIComponent(indMsg()),'_blank');break;
+    case 'indCopiar': {const l=profileLink(myId);const ok=()=>toast('Link copiado! Cole no WhatsApp ou onde quiser.');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(l).then(ok,()=>prompt('Copie o link:',l));else prompt('Copie o link:',l);break}
     case 'copy': copyText(ds.text);break;
     case 'follow': toggleFollow(ds.id);break;
     case 'approve': decide(ds.id,true);break;
@@ -4360,6 +4429,7 @@ async function gravarPerfil(patch,opt){opt=opt||{};
   delete novo.menorAjustado;
   if(souMenor()&&!idade.ajustado){idade={...idade,ajustado:true};db.doc('idades/'+myId).update({ajustado:true}).catch(()=>{})}
   raw.profiles[myId]=pubDoc;profiles[myId]=novo;
+  setTimeout(()=>{try{indConferir()}catch(e){}},1500);
   return novo;
 }
 
@@ -4524,7 +4594,7 @@ async function lgIdadeSalvar(){
   if(!temIdade&&!confirm(`Confira: ${+f.dia} de ${MESES_LONGOS[+f.mes-1]} de ${f.ano} (${anos} ${anos===1?'ano':'anos'}).\n\nDepois de salvar, não dá para mudar por aqui.`))return;
   lgOcupado=true;f.erro='';renderIdade();
   try{
-    if(!temIdade){try{const o=JSON.parse(localStorage.getItem('pc_origem')||'null')||{src:'direto'};met.origem={...o,conta:Date.now()};metDirty=true;setTimeout(metFlush,1500)}catch(e){}}
+    if(!temIdade){try{const o=JSON.parse(localStorage.getItem('pc_origem')||'null')||{src:'direto'};met.origem={...o,conta:Date.now()};metDirty=true;setTimeout(metFlush,1500);if(o.src==='perfil'&&o.ref){localStorage.setItem('pc_indReg',o.ref);setTimeout(()=>{try{indTentar()}catch(e){}},6000)}}catch(e){}}
     if(!temIdade)await db.doc('idades/'+myId).set({nasc:window.firebase.firestore.Timestamp.fromDate(dt),data,criado:Date.now(),cod:lgCodigo(),termos:TERMOS_VER,termosEm:Date.now()});
     else if(!termosOk)await db.doc('idades/'+myId).update({termos:TERMOS_VER,termosEm:Date.now()});
   }catch(e){return erro('Não foi possível salvar. Confira sua internet e tente de novo.')}
@@ -4871,6 +4941,8 @@ async function start(){
   coll('sorteios',n=>{raw.sorteios=n;applyRaw()});
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n;usernamesOk=true});
+  db.doc('indicacoes/'+myId).onSnapshot(s=>{indic=s.exists?s.data():{};indicOk=true;indPremioCheck();if(tab==='indicar'||tab==='mural')softRender()},()=>{indic={};indicOk=true});
+  setTimeout(()=>{try{indTentar()}catch(e){}},8000);
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;if(d.instalar){const r=d.instalar;instEstado={...instEstado,n:Math.max(instEstado.n||0,+r.n||0),ate:(r.ate||'')>(instEstado.ate||'')?r.ate:instEstado.ate,nunca:instEstado.nunca||!!r.nunca}}dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
