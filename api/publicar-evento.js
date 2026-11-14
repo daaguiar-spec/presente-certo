@@ -25,7 +25,8 @@ module.exports = async (req, res) => {
       const pl = await get('planos/' + user.uid);
       const c = cr ? cr.data : {};
       const ehAdmin = user.verificado && user.email === ADMIN;
-      const plus = !!(pl && pl.data.plus && pl.data.ate && pl.data.ate > new Date());
+      // o Plus ganho por indicação (codigo 'indicacao') não dá as listas de evento grátis
+      const plus = !!(pl && pl.data.plus && pl.data.ate && pl.data.ate > new Date() && pl.data.codigo !== 'indicacao');
       const writes = [];
       let motivo = '';
       if (ehAdmin) motivo = 'admin';
