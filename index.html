@@ -2646,7 +2646,12 @@ let indic={},indicOk=false;
 const IND_NIVEIS=[{n:3,txt:'1 mês de Plus'},{n:10,txt:'6 meses de Plus'}];
 function indLS(v){try{if(v===undefined)return localStorage.getItem('pc_ind')||'';localStorage.setItem('pc_ind',v)}catch(e){}return ''}
 function indApi(acao,extra){const u=firebase.auth().currentUser;if(!u)return Promise.resolve(null);
-  return u.getIdToken().then(t=>fetch('/api/servicos?f=indicacao',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({acao,...(extra||{})})})).then(r=>r.json()).catch(()=>null)}
+  const log=(x)=>{try{localStorage.setItem('pc_indLog',JSON.stringify({acao,...x,em:new Date().toLocaleTimeString('pt-BR')}).slice(0,400))}catch(e){}};
+  return u.getIdToken().then(t=>fetch('/api/servicos?f=indicacao',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({acao,...(extra||{})})}))
+    .then(r=>r.text().then(tx=>{log({st:r.status,r:tx.slice(0,250)});try{return JSON.parse(tx)}catch(e){return null}}))
+    .catch(e=>{log({erro:String(e&&e.message||e).slice(0,120)});return null})}
+function indDiag(){let o='',reg='',st='',lg='';try{o=localStorage.getItem('pc_origem')||'';reg=localStorage.getItem('pc_indReg')||'';st=localStorage.getItem('pc_ind')||'';lg=localStorage.getItem('pc_indLog')||''}catch(e){}
+  return `<details class="panel" style="font-size:12px;color:var(--muted)"><summary>Diagnóstico (para suporte)</summary><div style="word-break:break-all;margin-top:6px">origem: ${esc(o||'—')}<br>convite pendente: ${esc(reg||'—')}<br>situação: ${esc(st||'—')}<br>última resposta: ${esc(lg||'—')}<br>placar: ${indicOk?'ok':'carregando'} · ${Object.keys(indic.amigos||{}).length} convidado(s)</div></details>`}
 function indTentar(){let ref='';try{ref=localStorage.getItem('pc_indReg')||''}catch(e){}
   if(ref&&!indLS())indApi('registrar',{ref}).then(j=>{if(!j||!j.ok)return;try{localStorage.removeItem('pc_indReg')}catch(e){}indLS(j.registrado||j.ja?(j.valeu?'ok':'pend'):'x')});
   else indConferir()}
@@ -2679,8 +2684,9 @@ function renderIndicar(){
    <span class="small" style="color:var(--muted);display:block;margin-top:6px">O Plus ganho por indicação não inclui as listas de evento grátis.</span></section>
   <section class="panel"><b>Seus convidados</b>${am.length?am.map(([id,a])=>`<div class="ip-fr"><span class="ip-av">${esc(ini(a.nome))}</span><div><b>${esc(a.nome||'Amigo')}</b><small>${a.ok?'Montou a ficha':'Criou a conta, falta montar a ficha'}</small></div><span class="ip-tag ${a.ok?'ip-ok':'ip-wt'}">${a.ok?'✓ Valeu':'Quase'}</span></div>`).join('')
     :'<span class="small" style="color:var(--muted);display:block;margin-top:6px">Ninguém ainda. Mande seu link e acompanhe aqui quem entrou.</span>'}</section>
-  <section class="panel"><b>Seu link</b><div class="ip-link">${esc(profileLink(myId))}</div>${indBotoes()}</section>`;
+  <section class="panel"><b>Seu link</b><div class="ip-link">${esc(profileLink(myId))}</div>${indBotoes()}</section>${indDiag()}`;
   app.innerHTML=h+'</div>';
+  if(!renderIndicar.tentou){renderIndicar.tentou=true;try{indTentar()}catch(e){}}
 }
 function indPremioCheck(){const n=(indic.premios||[]).length;let vis=0;try{vis=+localStorage.getItem('pc_indVis_'+myId)||0}catch(e){}
   if(n>vis){try{localStorage.setItem('pc_indVis_'+myId,String(n))}catch(e){}const p=indic.premios[n-1]||{};
@@ -4941,7 +4947,7 @@ async function start(){
   coll('sorteios',n=>{raw.sorteios=n;applyRaw()});
   coll('parabens',n=>{raw.parabens=n;applyRaw()});
   coll('usernames',n=>{usernames=n;usernamesOk=true});
-  db.doc('indicacoes/'+myId).onSnapshot(s=>{indic=s.exists?s.data():{};indicOk=true;indPremioCheck();if(tab==='indicar'||tab==='mural')softRender()},()=>{indic={};indicOk=true});
+  const indOuvir=()=>db.doc('indicacoes/'+myId).onSnapshot(s=>{indic=s.exists?s.data():{};indicOk=true;indPremioCheck();if(tab==='indicar'||tab==='mural')softRender()},()=>{indic={};indicOk=true;setTimeout(indOuvir,20000)});indOuvir();
   setTimeout(()=>{try{indTentar()}catch(e){}},8000);
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;if(d.instalar){const r=d.instalar;instEstado={...instEstado,n:Math.max(instEstado.n||0,+r.n||0),ate:(r.ate||'')>(instEstado.ate||'')?r.ate:instEstado.ate,nunca:instEstado.nunca||!!r.nunca}}dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
