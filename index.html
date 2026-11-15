@@ -1327,7 +1327,8 @@ const LISTAS_LEGADO={lista_casamento:['Casamento','casamento'],lista_chabebe:['C
 const legadoAviso=(k,n)=>`<div class="notice" style="display:flex;flex-direction:column;gap:8px"><span>A <b>Lista de ${esc(LISTAS_LEGADO[k][0])}</b> agora funciona como <b>Lista de evento</b>: com link para os convidados escolherem sem repetir. Transforme a sua com um toque; os ${n} ${n===1?'item vai':'itens vão'} junto.</span><div><button class="btn small" data-act="legadoEv" data-k="${k}">Transformar em lista de evento</button></div></div>`;
 const LIMITE_SORTEIO=15;
 try{const u=new URLSearchParams(location.search).get('u');if(u)pendingOpen=u.replace(/^@/,'').toLowerCase()}catch(e){}
-(function(){try{if(localStorage.getItem('pc_origem'))return;const q=new URLSearchParams(location.search);let o;
+(function(){try{const q=new URLSearchParams(location.search);const ant=localStorage.getItem('pc_origem');
+  if(ant&&!(q.get('u')&&!localStorage.getItem('pc_conta')&&!/"src":"(perfil|instagram|facebook)"/.test(ant)))return;let o;
   if(q.get('utm_source'))o={src:q.get('utm_source').slice(0,30),med:(q.get('utm_medium')||'').slice(0,30),camp:(q.get('utm_campaign')||'').slice(0,40)};
   else if(q.get('u'))o={src:'perfil',ref:q.get('u').replace(/^@/,'').slice(0,40)};
   else if(q.get('t')==='sorteio'||q.get('g'))o={src:'sorteio'};
@@ -2650,6 +2651,11 @@ function indApi(acao,extra){const u=firebase.auth().currentUser;if(!u)return Pro
   return u.getIdToken().then(t=>fetch('/api/servicos?f=indicacao',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({acao,...(extra||{})})}))
     .then(r=>r.text().then(tx=>{log({st:r.status,r:tx.slice(0,250)});try{return JSON.parse(tx)}catch(e){return null}}))
     .catch(e=>{log({erro:String(e&&e.message||e).slice(0,120)});return null})}
+function indQuemBox(){
+  const criado=idade&&idade.criado?+idade.criado:0;const st=indLS();
+  if(!criado||Date.now()-criado>3*864e5||st==='pend'||st==='ok')return '';
+  return `<section class="panel"><b>Alguém te convidou?</b><span class="small" style="color:var(--muted);display:block;margin:4px 0 8px">Digite o @ de quem te mandou o PresenteCerto. Essa pessoa ganha ponto quando você montar sua ficha.</span>
+   <div class="row" style="flex-wrap:nowrap;gap:8px"><input id="indQuem" placeholder="@usuario" autocapitalize="none" autocorrect="off" style="flex:1;min-width:0"><button class="btn small" data-act="indQuem">Confirmar</button></div><span id="indQuemMsg" class="small" style="display:block;margin-top:6px"></span></section>`}
 function indDiag(){let o='',reg='',st='',lg='';try{o=localStorage.getItem('pc_origem')||'';reg=localStorage.getItem('pc_indReg')||'';st=localStorage.getItem('pc_ind')||'';lg=localStorage.getItem('pc_indLog')||''}catch(e){}
   return `<details class="panel" style="font-size:12px;color:var(--muted)"><summary>Diagnóstico (para suporte)</summary><div style="word-break:break-all;margin-top:6px">origem: ${esc(o||'—')}<br>convite pendente: ${esc(reg||'—')}<br>situação: ${esc(st||'—')}<br>última resposta: ${esc(lg||'—')}<br>placar: ${indicOk?'ok':'carregando'} · ${Object.keys(indic.amigos||{}).length} convidado(s)</div></details>`}
 function indTentar(){let ref='';try{ref=localStorage.getItem('pc_indReg')||''}catch(e){}
@@ -2684,7 +2690,7 @@ function renderIndicar(){
    <span class="small" style="color:var(--muted);display:block;margin-top:6px">O Plus ganho por indicação não inclui as listas de evento grátis.</span></section>
   <section class="panel"><b>Seus convidados</b>${am.length?am.map(([id,a])=>`<div class="ip-fr"><span class="ip-av">${esc(ini(a.nome))}</span><div><b>${esc(a.nome||'Amigo')}</b><small>${a.ok?'Montou a ficha':'Criou a conta, falta montar a ficha'}</small></div><span class="ip-tag ${a.ok?'ip-ok':'ip-wt'}">${a.ok?'✓ Valeu':'Quase'}</span></div>`).join('')
     :'<span class="small" style="color:var(--muted);display:block;margin-top:6px">Ninguém ainda. Mande seu link e acompanhe aqui quem entrou.</span>'}</section>
-  <section class="panel"><b>Seu link</b><div class="ip-link">${esc(profileLink(myId))}</div>${indBotoes()}</section>${indDiag()}`;
+  <section class="panel"><b>Seu link</b><div class="ip-link">${esc(profileLink(myId))}</div>${indBotoes()}</section>${indQuemBox()}${indDiag()}`;
   app.innerHTML=h+'</div>';
   if(!renderIndicar.tentou){renderIndicar.tentou=true;try{indTentar()}catch(e){}}
 }
@@ -4180,6 +4186,13 @@ app.addEventListener('click',async e=>{
     case 'verMeuPerfil': if(dirty){toast('Salve primeiro para ver a versão final');break}setTab('perfil',false);break;
     case 'tab': setTab(ds.id);break;
     case 'indAbrir': setTab('indicar');break;
+    case 'indQuem': {const i=document.getElementById('indQuem'),m=document.getElementById('indQuemMsg');const ref=String(i&&i.value||'').trim().replace(/^@/,'').toLowerCase();
+      if(!/^[a-z0-9._]{3,20}$/.test(ref)){m.textContent='Digite um @ válido.';break}
+      if(ref===handleOf(myId)){m.textContent='Esse é o seu próprio @ 😉';break}
+      m.textContent='Conferindo...';indApi('registrar',{ref}).then(j=>{
+        if(!j||!j.ok){m.textContent='Não deu agora. Confira sua internet e tente de novo.';return}
+        if(j.registrado||j.ja){indLS(j.valeu?'ok':'pend');m.textContent=j.ja?'Você já tinha um convite registrado.':(j.valeu?'Pronto! Quem te convidou já ganhou o ponto. 🎉':'Pronto! Quem te convidou ganha o ponto quando sua ficha passar de 30%.');setTimeout(()=>{if(tab==='indicar')softRender()},2500);return}
+        m.textContent=j.ignorado==='conta'?'O convite só vale para contas criadas nos últimos 3 dias.':j.ignorado==='ref'?'Não achamos esse @. Confira com quem te convidou.':'Não foi possível registrar.'});break}
     case 'indFechar': try{localStorage.setItem('pc_indX',String(Date.now()+7*864e5))}catch(x){}keep(render);break;
     case 'indWhats': window.open('https://wa.me/?text='+encodeURIComponent(indMsg()),'_blank');break;
     case 'indCopiar': {const l=profileLink(myId);const ok=()=>toast('Link copiado! Cole no WhatsApp ou onde quiser.');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(l).then(ok,()=>prompt('Copie o link:',l));else prompt('Copie o link:',l);break}
