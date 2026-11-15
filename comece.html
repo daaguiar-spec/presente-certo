@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7b4fd1">
+<title>PresenteCerto: nunca mais erre no presente</title>
+<meta name="description" content="Monte sua lista de presentes com tamanhos, gostos e desejos. Grátis.">
+<meta property="og:title" content="PresenteCerto">
+<meta property="og:description" content="Nunca mais erre no presente: tamanhos, gostos e lista de desejos de quem você ama.">
+<meta property="og:image" content="https://presente-certo-zeta.vercel.app/og.jpg">
+<link rel="icon" href="/icon-192.png">
+<!-- Página de entrada leve para anúncios: abre na hora (sem carregar o app). O app só carrega quando a pessoa toca no botão. -->
+<style>
+:root{--roxo:#7b4fd1;--roxo2:#5b2fc0;--fg:#211a2e;--muted:#6b6478;--bg:#fbf9ff;--card:#fff;--linha:#ece6f6;--am:#ffd54a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.w{max-width:480px;margin:0 auto;padding:18px 18px 40px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;letter-spacing:-.3px}
+.logo span{color:var(--roxo)}
+h1{font-size:31px;line-height:1.12;letter-spacing:-.6px;margin:22px 0 10px;font-weight:800}
+h1 em{font-style:normal;color:var(--roxo)}
+.lede{font-size:17px;line-height:1.45;color:var(--muted);margin:0 0 18px}
+.btn{display:block;text-align:center;background:var(--roxo);color:#fff;text-decoration:none;font-weight:700;font-size:18px;padding:17px 18px;border-radius:16px;box-shadow:0 8px 22px rgba(123,79,209,.32)}
+.btn:active{transform:scale(.98)}
+.sub{display:block;text-align:center;color:var(--muted);font-size:14px;margin:10px 0 0}
+.sub a{color:var(--roxo2);font-weight:700}
+.demo{background:var(--card);border:1px solid var(--linha);border-radius:20px;padding:14px;margin:22px 0;box-shadow:0 10px 30px rgba(60,30,120,.08)}
+.demo-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.av{width:42px;height:42px;border-radius:50%;background:#efe8fb;color:var(--roxo);font-weight:800;display:flex;align-items:center;justify-content:center}
+.demo-top b{display:block;font-size:15px}.demo-top small{color:var(--muted);font-size:13px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.tag{font-size:12px;font-weight:600;background:#f4f0fb;color:#4b3a72;border-radius:20px;padding:5px 10px}
+.it{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--linha)}
+.it i{font-style:normal;font-size:22px;width:36px;height:36px;border-radius:10px;background:#faf6ff;display:flex;align-items:center;justify-content:center}
+.it div{flex:1;min-width:0}.it b{display:block;font-size:14px}.it small{color:var(--muted);font-size:12px}
+.res{font-size:11px;font-weight:800;background:#e3f7ea;color:#16794a;border-radius:20px;padding:4px 9px;white-space:nowrap}
+.bens{display:grid;gap:10px;margin:0 0 24px}
+.ben{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--linha);border-radius:16px;padding:13px}
+.ben span{font-size:24px;line-height:1}.ben b{display:block;font-size:15px}.ben small{color:var(--muted);font-size:13.5px;line-height:1.35}
+.fim{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
+.fim a{color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="w">
+  <div class="logo"><span style="color:inherit">🎁</span><b style="font-weight:800">Presente<span>Certo</span></b></div>
+
+  <h1>Nunca mais dê (nem ganhe) presente <em>errado</em></h1>
+  <p class="lede">Monte sua lista com tamanhos, gostos e desejos. Seus amigos acertam no presente, e ninguém dá presente repetido.</p>
+
+  <a class="btn" id="cta" href="/">Criar minha conta grátis</a>
+  <span class="sub">Grátis · leva 1 minuto · já tem conta? <a id="entrar" href="/">Entrar</a></span>
+
+  <div class="demo" aria-label="Exemplo de lista de presentes">
+    <div class="demo-top"><span class="av">JR</span><div><b>Juliana Ribeiro</b><small>🎂 Aniversário em 5 dias</small></div></div>
+    <div class="tags"><span class="tag">Camiseta M</span><span class="tag">Calçado 37</span><span class="tag">Ama rosa e lilás</span></div>
+    <div class="it"><i>🌸</i><div><b>Perfume floral</b><small>R$ 220</small></div><span class="res">✓ Reservado</span></div>
+    <div class="it"><i>👜</i><div><b>Bolsa transversal caramelo</b><small>R$ 180</small></div></div>
+    <div class="it"><i>✨</i><div><b>Kit de skincare</b><small>R$ 150</small></div></div>
+  </div>
+
+  <div class="bens">
+    <div class="ben"><span>🎁</span><div><b>Sua lista de presentes</b><small>Tamanhos, cores, gostos e o que você quer ganhar, num link só.</small></div></div>
+    <div class="ben"><span>🎂</span><div><b>Aniversários lembrados</b><small>O app avisa antes do aniversário de quem você segue.</small></div></div>
+    <div class="ben"><span>🎄</span><div><b>Amigo secreto sem papelzinho</b><small>Sorteio no app e a ficha de quem você tirou.</small></div></div>
+  </div>
+
+  <a class="btn" href="/" data-cta>Criar minha lista grátis</a>
+  <p class="fim"><a href="/privacidade.html">Privacidade</a> · <a href="/termos.html">Termos de Uso</a></p>
+</main>
+<script>
+(function(){
+  // leva junto as etiquetas do anúncio (utm) para o app registrar de onde a pessoa veio
+  var q=location.search||'';
+  var alvo='/'+q;
+  document.getElementById('cta').href=alvo;
+  document.querySelectorAll('[data-cta]').forEach(function(a){a.href=alvo});
+  document.getElementById('entrar').href=alvo;
+  // depois que esta página abriu, vai baixando o app em segundo plano, para o botão abrir rápido
+  window.addEventListener('load',function(){setTimeout(function(){
+    ['/','https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js']
+      .forEach(function(h){var l=document.createElement('link');l.rel='prefetch';l.href=h;document.head.appendChild(l)});
+  },300)});
+})();
+</script>
+</body>
+</html>
