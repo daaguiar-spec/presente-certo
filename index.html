@@ -576,6 +576,9 @@ details summary::-webkit-details-marker{display:none}
 .menu-item{display:block;width:100%;text-align:left;border:0;background:none;padding:12px 10px;border-radius:10px;font:600 15px var(--body);color:var(--fg);cursor:pointer}
 .menu-item.menu-plus{background:#f4ecff;background:linear-gradient(90deg,#f4ecff,#ffeaf5);color:#5b2bb5;margin:4px 0}
 .menu-plus span{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:1px}
+.menu-item.menu-ind{background:linear-gradient(135deg,#6a3fc8,#a14fd6);color:#fff;margin:4px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.menu-item.menu-ind span{font-size:12px;font-weight:700;background:#ffd54a;color:#3c1e78;border-radius:20px;padding:3px 9px;white-space:nowrap}
+.menu-item.menu-ind:hover{background:linear-gradient(135deg,#5b33b3,#9140c4)}
 .menu-item:hover{background:var(--sunk)}
 .menu-item.sair{color:#c0392b;border-top:1px solid var(--line);margin-top:4px;border-radius:0 0 10px 10px}
 .spons{background:var(--gold-soft);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.6}
@@ -1478,6 +1481,8 @@ function buildNotifs(){
     Object.entries(por).forEach(([k,its])=>{its.sort((a,b)=>b.t-a.t);out.push({id:'li:'+id+':'+k,t:its[0].t,tipo:'listas',av:id,html:its.length===1?`${N(id)} adicionou <b>${esc(its[0].n)}</b> à lista.`:`${N(id)} adicionou ${its.length} itens à lista.`,go:{open:id}})})});
   // avisos do PresenteCerto
   avisosList().filter(x=>avisoPraMim(x)&&x.sino!==false).forEach(x=>out.push({id:'av:'+x.id,t:Date.parse(x.data||'')||0,tipo:'avisos',av:null,html:esc(x.texto),link:safeLink(x.link)?x.link:'',botao:x.botao||'Saiba mais',go:{tab:'mural'}}));
+  // novidade: Indique e ganhe (aviso único, enquanto ainda houver prêmio para ganhar)
+  if(indicOk&&indProx()&&!indValidos())out.push({id:'ind:novidade1',t:Date.parse('2026-11-15T18:00:00-03:00'),tipo:'avisos',av:null,html:'<b>Novidade: Indique e ganhe 🎁</b> Convide 3 amigos e ganhe 1 mês de Plus grátis. Toque para pegar seu link.',go:{tab:'indicar'}});
   // respostas às sugestões que a pessoa mandou
   minhasRespostas.forEach(r=>out.push({id:'rs:'+r.id,t:Date.parse(r.data||'')||0,tipo:'avisos',av:null,html:`A equipe do PresenteCerto respondeu sua sugestão: “${esc(String(r.texto||'').slice(0,90))}${String(r.texto||'').length>90?'…':''}”`,go:{tab:'sugestao'}}));
   // administrador: sugestões novas
@@ -1565,7 +1570,7 @@ function renderMenu(){
    :`<div class="menu-user"><img src="${esc(av(myId))}" alt=""><div style="min-width:0"><b>${esc(myName||'Você')}</b>${selo(myId)}<div class="small" style="color:var(--muted);overflow:hidden;text-overflow:ellipsis">${esc(myEmail||'')}</div></div></div>
    <button class="menu-item" data-menu="conta">👤 Editar perfil e foto</button>
    ${minhasLojas().length?'<button class="menu-item" data-menu="minhaloja">🏪 Minha loja</button>':''}
-   <button class="menu-item" data-menu="indicar">🎁 Indique e ganhe</button>
+   <button class="menu-item menu-ind" data-menu="indicar">🎁 Indique e ganhe${(()=>{const px=indProx();if(!px)return '';const v=indValidos();return `<span>${v?v+' de '+px.n:(px.n===3?'Ganhe 1 mês de Plus':'Ganhe 6 meses de Plus')}</span>`})()}</button>
    ${lojasVisiveis().length?'<button class="menu-item" data-menu="lojas">🛍️ Lojas parceiras e cupons</button>':''}
    ${!appInstalado()&&sistema()&&!dqInstalou?'<button class="menu-item" data-menu="instalar">📲 Instalar no celular</button>':''}
    <button class="menu-item" data-menu="noturno">${modoNoturnoAtivo()?'☀️ Modo diurno':'🌙 Modo noturno'}</button>
