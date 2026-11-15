@@ -2645,7 +2645,7 @@ function previaAvisoHtml(){
 // O servidor (api/_indicacao.js) registra quem convidou e libera o Plus. A indicação vale quando o amigo monta 30% da ficha.
 let indic={},indicOk=false;
 const IND_NIVEIS=[{n:3,txt:'1 mês de Plus'},{n:10,txt:'6 meses de Plus'}];
-function indLS(v){try{if(v===undefined)return localStorage.getItem('pc_ind')||'';localStorage.setItem('pc_ind',v)}catch(e){}return ''}
+function indLS(v){const k='pc_ind_'+(myId||'');try{if(v===undefined)return localStorage.getItem(k)||'';localStorage.setItem(k,v)}catch(e){}return ''}
 function indApi(acao,extra){const u=firebase.auth().currentUser;if(!u)return Promise.resolve(null);
   const log=(x)=>{try{localStorage.setItem('pc_indLog',JSON.stringify({acao,...x,em:new Date().toLocaleTimeString('pt-BR')}).slice(0,400))}catch(e){}};
   return u.getIdToken().then(t=>fetch('/api/servicos?f=indicacao',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({acao,...(extra||{})})}))
@@ -2656,7 +2656,7 @@ function indQuemBox(){
   if(!criado||Date.now()-criado>3*864e5||st==='pend'||st==='ok')return '';
   return `<section class="panel"><b>Alguém te convidou?</b><span class="small" style="color:var(--muted);display:block;margin:4px 0 8px">Digite o @ de quem te mandou o PresenteCerto. Essa pessoa ganha ponto quando você montar sua ficha.</span>
    <div class="row" style="flex-wrap:nowrap;gap:8px"><input id="indQuem" placeholder="@usuario" autocapitalize="none" autocorrect="off" style="flex:1;min-width:0"><button class="btn small" data-act="indQuem">Confirmar</button></div><span id="indQuemMsg" class="small" style="display:block;margin-top:6px"></span></section>`}
-function indDiag(){let o='',reg='',st='',lg='';try{o=localStorage.getItem('pc_origem')||'';reg=localStorage.getItem('pc_indReg')||'';st=localStorage.getItem('pc_ind')||'';lg=localStorage.getItem('pc_indLog')||''}catch(e){}
+function indDiag(){let o='',reg='',st='',lg='';try{o=localStorage.getItem('pc_origem')||'';reg=localStorage.getItem('pc_indReg')||'';st=localStorage.getItem('pc_ind_'+myId)||'';lg=localStorage.getItem('pc_indLog')||''}catch(e){}
   return `<details class="panel" style="font-size:12px;color:var(--muted)"><summary>Diagnóstico (para suporte)</summary><div style="word-break:break-all;margin-top:6px">origem: ${esc(o||'—')}<br>convite pendente: ${esc(reg||'—')}<br>situação: ${esc(st||'—')}<br>última resposta: ${esc(lg||'—')}<br>placar: ${indicOk?'ok':'carregando'} · ${Object.keys(indic.amigos||{}).length} convidado(s)</div></details>`}
 function indTentar(){let ref='';try{ref=localStorage.getItem('pc_indReg')||''}catch(e){}
   if(ref&&!indLS())indApi('registrar',{ref}).then(j=>{if(!j||!j.ok)return;try{localStorage.removeItem('pc_indReg')}catch(e){}indLS(j.registrado||j.ja?(j.valeu?'ok':'pend'):'x')});
@@ -2672,7 +2672,7 @@ function indCard(){
   let ate=0;try{ate=+localStorage.getItem('pc_indX')||0}catch(e){}if(Date.now()<ate)return '';
   const prox=indProx();if(!prox)return '';
   const v=indValidos(),falta=prox.n-v;
-  const tit=prox.n===3?'🎁 Convide 3 amigos e ganhe<br>1 mês de Plus grátis':'🎁 Chegue a 10 amigos e ganhe<br>6 meses de Plus grátis';
+  const tit=prox.n===3?'🎁 Convide 3 amigos e ganhe 1 mês de Plus grátis':'🎁 Chegue a 10 amigos e ganhe 6 meses de Plus grátis';
   const sub=falta===prox.n?'Vale quando o amigo cria a conta pelo seu link e monta a ficha.':falta===1?'Falta só 1! Vale quando o amigo cria a conta e monta a ficha.':`Faltam só ${falta}! Vale quando o amigo cria a conta e monta a ficha.`;
   const prog=prox.n===3?`<div class="ind-row">${[0,1,2].map(i=>`<div class="ind-sl${i<v?' on':''}">${i<v?'✓':i+1}</div>`).join('')}</div>`
     :`<div class="ind-bar"><i style="width:${Math.round(v/prox.n*100)}%"></i></div><span class="s">${v} de ${prox.n} amigos</span>`;
