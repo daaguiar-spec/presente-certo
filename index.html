@@ -3777,7 +3777,7 @@ function empPainelRH(e){
   }
   // RH também participa?
   if(!e.sorteado)h+=`<details class="emp-det" ${empParts[myId]?'':''}><summary>${empParts[myId]?'Sua participação (você também está no sorteio)':'Você também vai participar? Preencha sua ficha'}</summary>${empMinhaParte(e)}</details>`;
-  if(!e.sorteado)h+=`<div class="row"><button class="link" data-emp="excluir" style="color:var(--warn)">Excluir este evento</button></div>`;
+  h+=`<div class="row"><button class="link" data-emp="excluir" style="color:var(--warn)">Excluir este evento</button></div>`;
   return h;
 }
 function empMailto(e,lista){
@@ -3829,7 +3829,11 @@ app.addEventListener('click',async ev=>{
         toast(novo?'Pronto! Você está no sorteio.':'Ficha atualizada');if(novo&&!empPartsOk){const id=empAberto;empAbrir(id)}}catch(e){toast('Não foi possível salvar. O sorteio pode já ter sido feito.')}break}
     case 'naoVou': try{await db.doc(`empresas/${empAberto}/participantes/${myId}`).set({nome:(val('epNome')||myName||'').slice(0,60),email:(myEmail||'').toLowerCase(),vai:false,em:Date.now()});toast('Avisamos o RH que você não vai.');if(!empPartsOk)empAbrir(empAberto)}catch(e){toast(failMsg)}break;
     case 'vou': try{await db.doc(`empresas/${empAberto}/participantes/${myId}`).set({...empParts[myId],vai:true,em:Date.now()});}catch(e){toast(failMsg)}break;
-    case 'excluir': if(confirm('Excluir este evento? Isso não pode ser desfeito.')){const id=empAberto;db.doc('empresas/'+id).delete().then(()=>{empFechar();toast('Evento excluído');render()}).catch(()=>toast(failMsg))}break;
+    case 'excluir': if(confirm(empDoc&&empDoc.sorteado?'Excluir este evento? O sorteio já foi feito: os participantes deixam de ver quem tiraram. Isso não pode ser desfeito.':'Excluir este evento? Isso não pode ser desfeito.')){const id=empAberto;
+      (async()=>{const d=db.doc('empresas/'+id);
+        // apaga também a lista de convidados e as fichas que as regras permitirem
+        for(const sub of ['convites','participantes']){try{const sn=await d.collection(sub).get();await Promise.all(sn.docs.map(x=>x.ref.delete().catch(()=>{})))}catch(e){}}
+        await d.delete();empFechar();toast('Evento excluído');render()})().catch(()=>toast(failMsg))}break;
     case 'salvarCfg': {const lk=id=>{let x=val(id).replace(/\s+/g,'');if(x&&!/^https?:\/\//i.test(x))x='https://'+x;return x.slice(0,300)};
       saveConfig({...config,empLinks:{pequeno:lk('emLkP'),medio:lk('emLkM'),grande:lk('emLkG')}},'Links do amigo secreto de empresa salvos');break}
   }
