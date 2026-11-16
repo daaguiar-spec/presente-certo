@@ -459,6 +459,21 @@ button.pf-marca[aria-pressed="true"]{background:var(--accent);color:var(--accent
 .md-item .shop{margin-top:8px;gap:6px;align-items:center}
 .md-item .shop>span{display:none}
 .md-item .shop a{background:var(--accent-soft);color:var(--accent);font-weight:700;text-decoration:none;padding:5px 10px;border-radius:99px;font-size:12.5px}
+.hj-ov{position:fixed;inset:0;background:rgba(20,10,40,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9990;animation:hjF .2s ease}
+.hj{background:var(--surface);color:var(--fg);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(0,0,0,.2);animation:hjS .28s ease;max-height:86vh;overflow:auto}
+@keyframes hjF{from{opacity:0}}@keyframes hjS{from{transform:translateY(40px);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.hj-ov,.hj{animation:none}}
+.hj-al{width:42px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 12px}
+.hj-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.hj-top b{font-size:20px}.hj-x{background:var(--sunk);border:0;width:34px;height:34px;border-radius:50%;font-size:15px;color:var(--muted);cursor:pointer;flex:none}
+.hj-sub{color:var(--muted);font-size:14px;margin:2px 0 10px;display:block}
+.hj-it{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.hj-av{width:46px;height:46px;border-radius:50%;flex:none;position:relative;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:22px}
+.hj-av img{width:46px;height:46px;border-radius:50%;object-fit:cover;display:block}.hj-av i{position:absolute;right:-5px;bottom:-5px;font-style:normal;font-size:18px}
+.hj-it>div{flex:1;min-width:0}.hj-it b{display:block;font-size:15px;line-height:1.25}.hj-it small{color:var(--muted);font-size:13px}
+.hj-bt{flex:none;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:9px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.hj-bt.g{background:var(--accent-soft);color:var(--accent)}
+.hj-it.hj-hoje{background:linear-gradient(135deg,#fff6d6,#ffe9f3);border-radius:16px;padding:12px;border-top:0;margin-bottom:4px;color:#2a2233}.hj-it.hj-hoje small{color:#6b6478}
+.hj-fim{margin-top:12px;font-size:14px;text-align:center}
 .cel-ov{position:fixed;inset:0;background:rgba(20,10,40,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
 .cel-c{background:var(--surface);color:var(--fg);border-radius:22px;padding:24px 22px;text-align:center;max-width:340px;display:flex;flex-direction:column;align-items:stretch}.cel-c h2{margin:6px 0}.cel-c p{color:var(--muted);margin:0 0 14px}
 .ind{background:linear-gradient(135deg,#6a3fc8,#a14fd6);color:#fff;border-radius:18px;padding:16px;position:relative;cursor:pointer}
@@ -1450,7 +1465,7 @@ function followBtn(id){
 
 /* ---------- Sino de avisos ---------- */
 let notifEstado={lidoAte:0,lidos:[],desligados:[]},notifAberto=false,notifPrefs=false,menuAberto=false,menuSair=false;
-const NOTIF_TIPOS={seguidores:'Novos seguidores e pedidos',parabens:'Parabéns recebidos',agradecimentos:'Agradecimentos',datas:'Aniversários e datas chegando',sorteio:'Amigo secreto',vaquinha:'Vaquinhas que você organiza',listas:'Listas atualizadas de amigos',avisos:'Avisos do PresenteCerto',plus:'Seu Plus'};
+const NOTIF_TIPOS={resumo:'Resumo do dia ao abrir o app',seguidores:'Novos seguidores e pedidos',parabens:'Parabéns recebidos',agradecimentos:'Agradecimentos',datas:'Aniversários e datas chegando',sorteio:'Amigo secreto',vaquinha:'Vaquinhas que você organiza',listas:'Listas atualizadas de amigos',avisos:'Avisos do PresenteCerto',plus:'Seu Plus'};
 function buildNotifs(){
   if(!myId)return [];
   const out=[],me=profiles[myId]||{},fol=following().filter(id=>profiles[id]&&canSee(id));
@@ -2703,6 +2718,46 @@ function indPremioCheck(){const n=(indic.premios||[]).length;let vis=0;try{vis=+
   if(n>vis){try{localStorage.setItem('pc_indVis_'+myId,String(n))}catch(e){}const p=indic.premios[n-1]||{};
     const d=document.createElement('div');d.className='cel-ov';d.innerHTML=`<div class="cel-c" role="dialog" aria-modal="true"><div style="font-size:60px">🎉</div><h2>Você ganhou ${p.n===10?'mais 5 meses':'1 mês'} de Plus!</h2><p>${p.n||3} amigos entraram pelo seu link. Obrigado por espalhar o PresenteCerto!</p><button class="btn" data-cel="plus">Ver o que o Plus tem</button><button class="link" data-cel="ok" style="margin-top:8px">Fechar</button></div>`;
     d.addEventListener('click',e=>{const b=e.target.closest('[data-cel]');if(!b&&e.target!==d)return;d.remove();if(b&&b.dataset.cel==='plus')setTab('plus')});document.body.appendChild(d)}}
+// ---------- Resumo do dia ("Hoje no PresenteCerto") ----------
+// Abre no máximo 1 vez por dia, só quando há algo que importa (aniversário hoje ou em até 7 dias, amigo secreto).
+let resumoFeito=false;
+function resumoItens(){
+  const out=[],pn=id=>esc(String(nm(id)).split(' ')[0]);
+  const fol=following().filter(id=>id!==myId&&profiles[id]&&canSee(id)&&!isEx(id));
+  const evs=[];fol.forEach(id=>eventsFor(id).forEach(e=>{if(e.dias>=0&&e.dias<=7)evs.push(e)}));evs.sort((a,b)=>a.dias-b.dias);
+  evs.filter(e=>e.dias===0).forEach(e=>{const an=e.label==='Aniversário';out.push({hoje:true,av:e.id,ic:an?'🎂':'🎉',tit:`Hoje é ${esc(e.label.toLowerCase())} de ${pn(e.id)}!`,sub:an?'Deixe seus parabéns':'Veja a ficha de presentes',bt:an?'Dar parabéns':'Ver',go:{open:e.id}})});
+  const lim=Date.now()-3*864e5;
+  allSorteios().forEach(x=>{if(!(x.pares||x.sorteado)||!(x.org===myId||(x.membros||[]).includes(myId)))return;const t=Date.parse(x.sorteadoEm||'')||0;if(t<lim)return;
+    out.push({emo:'🎄',tit:`Sorteio feito: ${esc(x.nome)}`,sub:'Veja quem você tirou',bt:'Ver',go:{tab:'sorteio'}})});
+  allSorteios().forEach(x=>{if(x.org!==myId||x.pares||x.sorteado)return;const n=Object.entries(x.entrou||{}).filter(([u,em])=>u!==myId&&(Date.parse(em)||0)>Date.now()-864e5).length;if(!n)return;
+    out.push({emo:'🎄',tit:n===1?`1 pessoa entrou em ${esc(x.nome)}`:`${n} pessoas entraram em ${esc(x.nome)}`,sub:'Veja o grupo do amigo secreto',bt:'Ver',go:{tab:'sorteio'}})});
+  evs.filter(e=>e.dias>0).forEach(e=>{const p=profiles[e.id]||{};const n=(p.desejos||[]).length+(p.precisa||[]).length;const qd=e.dias===1?'amanhã':'em '+e.dias+' dias';
+    out.push({av:e.id,ic:'🎁',tit:e.label==='Aniversário'?`${pn(e.id)} faz aniversário ${qd}`:`${esc(e.label)} de ${pn(e.id)} ${e.dias===1?'é amanhã':qd}`,sub:n?(n===1?'Tem 1 presente na lista':`Tem ${n} presentes na lista`):'Veja a ficha de presentes',bt:n?'Ver a lista':'Ver a ficha',go:{open:e.id}})});
+  return out.slice(0,3);
+}
+function resumoTentar(){
+  if(resumoFeito||!myId||!db||!profiles[myId])return;
+  if((notifEstado.desligados||[]).includes('resumo'))return;
+  let visto='';try{visto=localStorage.getItem('pc_hoje_'+myId)||''}catch(e){}
+  if(visto===hoje()){resumoFeito=true;return}
+  if(tab!=='mural'||viewing||notifAberto||menuAberto||document.querySelector('.dq-ov,.cel-ov,.crop-ov,.hj-ov'))return;
+  if(!idadeIndisp&&(!idadeOk||!idade||idade.termos!==TERMOS_VER||precisaHandle()||esperandoResp()||respPend))return;
+  if(typeof fichaBoasVindas!=='undefined'&&fichaBoasVindas)return;
+  if(idade&&idade.criado&&Date.now()-(+idade.criado)<864e5)return;
+  const its=resumoItens();if(!its.length)return;
+  resumoFeito=true;try{localStorage.setItem('pc_hoje_'+myId,hoje())}catch(e){}
+  const dt=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  const ov=document.createElement('div');ov.className='hj-ov';
+  ov.innerHTML=`<div class="hj" role="dialog" aria-modal="true" aria-label="Hoje no PresenteCerto"><div class="hj-al"></div>
+   <div class="hj-top"><b>Hoje no PresenteCerto</b><button class="hj-x" data-hj="x" aria-label="Fechar">✕</button></div><span class="hj-sub">${esc(dt.charAt(0).toUpperCase()+dt.slice(1))}</span>
+   ${its.map((x,i)=>`<div class="hj-it${x.hoje?' hj-hoje':''}" data-hj="ir" data-i="${i}"><span class="hj-av">${x.av?`<img src="${esc(av(x.av))}" alt=""><i>${x.ic}</i>`:x.emo}</span><div><b>${x.tit}</b><small>${x.sub}</small></div><button class="hj-bt${x.hoje?'':' g'}">${x.bt}</button></div>`).join('')}
+   <div class="hj-fim"><button class="link" data-hj="avisos">Ver todos os avisos</button></div></div>`;
+  const fechar=()=>ov.remove();
+  ov.addEventListener('click',e=>{if(e.target===ov){fechar();return}const b=e.target.closest('[data-hj]');if(!b)return;const a=b.dataset.hj;fechar();
+    if(a==='avisos'){notifAberto=true;notifPrefs=false;renderSino();return}
+    if(a==='ir'){const g=its[+b.dataset.i].go;if(g.open){tab='pessoas';viewing=g.open;form=null;document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab==='pessoas'));render();window.scrollTo(0,0)}else if(g.tab)setTab(g.tab)}});
+  document.body.appendChild(ov);try{trackView('pop:hoje')}catch(e){}
+}
 function pendCard(){
   if(!myId||Date.now()-pendIni<4000||!pendPronto())return '';
   if(pendFeitoAgora){if(!pendOkTimer)pendOkTimer=setTimeout(()=>{pendOkTimer=null;pendFeitoAgora=false;const el=document.querySelector('.pend.ok');if(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),400)}},8000);
@@ -4967,6 +5022,7 @@ async function start(){
   coll('usernames',n=>{usernames=n;usernamesOk=true});
   const indOuvir=()=>db.doc('indicacoes/'+myId).onSnapshot(s=>{indic=s.exists?s.data():{};indicOk=true;indPremioCheck();if(tab==='indicar'||tab==='mural')softRender()},()=>{indic={};indicOk=true;setTimeout(indOuvir,20000)});indOuvir();
   setTimeout(()=>{try{indTentar()}catch(e){}},8000);
+  [3500,8000,15000].forEach(ms=>setTimeout(()=>{try{resumoTentar()}catch(e){}},ms));
   coll('planos',n=>{planos=n;planosOk=true;if(tab!=='aparencia')aplicarTema(prefsEfetivas());tentarInicio();tentarDestaque()});
   db.doc(`data/users/${myId}/destaques`).onSnapshot(s=>{const d=s.exists?s.data():{};dqVistos={...(d.vistos||{}),...dqVistos};dqInstalou=dqInstalou||!!d.instalou;if(d.instalar){const r=d.instalar;instEstado={...instEstado,n:Math.max(instEstado.n||0,+r.n||0),ate:(r.ate||'')>(instEstado.ate||'')?r.ate:instEstado.ate,nunca:instEstado.nunca||!!r.nunca}}dqVistosOk=true;tentarDestaque()},()=>{dqVistosOk=true;tentarDestaque()});
   if(isOwner){coll('codigos',n=>{codigos=n});coll('assinaturas',n=>{assinaturas=n});db.collection('feedback').onSnapshot(s=>{const n={};s.docs.forEach(d=>{if(d.exists)n[d.id]=d.data()});feedbacks=n;atualizarSino();if(notifAberto)renderSino();if(tab==='admin')softRender()},()=>{})}
