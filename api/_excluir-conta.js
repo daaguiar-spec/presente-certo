@@ -39,9 +39,34 @@ module.exports = async (req, res) => {
       for (const sub of ['convites', 'participantes', 'resultado']) (await docs(`${ev.path}/${sub}`)).forEach((d) => add(d.path));
       add(ev.path);
     }
+    // participação em amigo secreto de empresas criados por outras pessoas (ficha e resultado da pessoa).
+    // Fica separado: se as regras não deixarem apagar, não impede a exclusão da conta.
+    const extras = [];
+    // participação em amigo secreto de empresas criados por outras pessoas (ficha e resultado da pessoa)
+    for (const ev of await docs('empresas')) {
+      if (ev.data && ev.data.dono === uid) continue; // os eventos que a própria pessoa criou já foram tratados acima
+      let tem = null; try { tem = await R.getDoc(`${ev.path}/participantes/${uid}`); } catch (e) { tem = null; }
+      if (tem) extras.push(`${ev.path}/participantes/${uid}`, `${ev.path}/resultado/${uid}`);
+    }
     // sugestões e denúncias que enviou
     (await busca('feedback', 'uid', uid)).forEach((d) => add(d.path));
     (await busca('denuncias', 'uid', uid)).forEach((d) => add(d.path));
+
+    for (const p of extras) { try { await R.commit([R.W.del(p)]); } catch (e) { console.error('excluir-conta: participação', p.replace(uid, '<id>'), e && e.message); } }
+    // sai dos grupos de amigo secreto de outras pessoas que ainda não foram sorteados
+    try {
+      for (const d of await docs('sorteios')) {
+        if (d.id === uid) continue;
+        const lista = Array.isArray(d.data.lista) ? d.data.lista : [];
+        let mudou = false;
+        const nova = lista.map((x) => {
+          if (!x || x.pares || x.sorteado || !(x.membros || []).includes(uid)) return x;
+          mudou = true; const entrou = { ...(x.entrou || {}) }; delete entrou[uid];
+          return { ...x, membros: x.membros.filter((m) => m !== uid), entrou };
+        });
+        if (mudou) { try { await R.commit([R.W.set(d.path, { ...d.data, lista: nova }, { pre: d })]); } catch (e) { console.error('excluir-conta: grupo', d.path, e && e.message); } }
+      }
+    } catch (e) { console.error('excluir-conta: grupos', e && e.message); }
 
     // apaga em lote; se o lote falhar, tenta um por um para descobrir qual documento travou
     let n = 0; const falhas = [];
