@@ -3635,7 +3635,7 @@ function eventosAdmin(){
 }
 
 /* ---------- Amigo Secreto para Empresas ---------- */
-const EMP_PLANOS={pequeno:{n:'Pequeno',lim:30,preco:'R$ 49',campo:'empPequeno'},medio:{n:'Médio',lim:100,preco:'R$ 99',campo:'empMedio'},grande:{n:'Grande',lim:300,preco:'R$ 149',campo:'empGrande',extra:'Sorteio por setor'}};
+const EMP_PLANOS={pequeno:{n:'Pequeno',lim:30,preco:'R$ 29,90',campo:'empPequeno'},medio:{n:'Médio',lim:100,preco:'R$ 39,90',campo:'empMedio'},grande:{n:'Grande',lim:300,preco:'R$ 59,90',campo:'empGrande',extra:'Sorteio por setor'}};
 const EMP_CORES=['#0f4c81','#7b4fd1','#c0392b','#1f8a5b','#d35400','#2c3e50'];
 let empMeus={},empAberto=null,empDoc,empParts={},empConv={},empRes=null,empForm=null,empUnsubs=[],pendingEmp=null,empPartsOk=false;
 try{const e=new URLSearchParams(location.search).get('emp');if(e)pendingEmp=e.replace(/[^A-Za-z0-9_-]/g,'')}catch(e){}
@@ -3833,7 +3833,7 @@ app.addEventListener('click',async ev=>{
   }
 });
 function empresasAdmin(){const L=config.empLinks||{};
-  return `<section class="panel"><h2>Amigo Secreto para Empresas</h2><p class="lede" style="margin:0">Crie na Kiwify 3 produtos de pagamento único com “amigo secreto” no nome e o tamanho: <b>Amigo Secreto Empresas Pequeno</b> (R$ 49), <b>Amigo Secreto Empresas Médio</b> (R$ 99) e <b>Amigo Secreto Empresas Grande</b> (R$ 149). O webhook já cadastrado dá o crédito sozinho.</p>
+  return `<section class="panel"><h2>Amigo Secreto para Empresas</h2><p class="lede" style="margin:0">Crie na Kiwify 3 produtos de pagamento único com “amigo secreto” no nome e o tamanho: <b>Amigo Secreto Empresas Pequeno</b> (R$ 29,90), <b>Amigo Secreto Empresas Médio</b> (R$ 39,90) e <b>Amigo Secreto Empresas Grande</b> (R$ 59,90). O webhook já cadastrado dá o crédito sozinho.</p>
    <label class="f">Link Pequeno (até 30)<input id="emLkP" autocapitalize="off" value="${esc(L.pequeno||'')}" placeholder="pay.kiwify.com.br/..."></label>
    <label class="f">Link Médio (até 100)<input id="emLkM" autocapitalize="off" value="${esc(L.medio||'')}" placeholder="pay.kiwify.com.br/..."></label>
    <label class="f">Link Grande (até 300)<input id="emLkG" autocapitalize="off" value="${esc(L.grande||'')}" placeholder="pay.kiwify.com.br/..."></label>
