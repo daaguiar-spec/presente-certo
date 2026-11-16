@@ -1018,7 +1018,7 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
       const t=await u.getIdToken();
       const r=await fetch('/api/sugestoes',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({prompt})});
       if(r.status===429)throw {code:'rate_limited'};
-      if(!r.ok)throw {code:'unavailable'};
+      if(!r.ok){let j={};try{j=await r.json()}catch(e){}throw {code:'unavailable',motivo:j.motivo||('http'+r.status)}}
       return (await r.json()).resultado;
     }
   });
@@ -3746,6 +3746,8 @@ function empPainelRH(e){
   }else if(plano)h+=`<div class="emp-ok">✓ Plano ${esc(plano.n)} ativo · até ${lim} pessoas</div>`;
   // sorteio feito
   if(e.sorteado)h+=`<section class="panel hl"><b>✅ Sorteio feito</b><span class="small">${e.sorteadoN||vao.length} participantes. Cada pessoa já vê quem tirou, no app e pelo link. Ninguém, nem você, vê quem tirou quem.</span></section>`;
+  // quem organizou e também participa vê o próprio resultado logo aqui, igual aos outros participantes
+  if(e.sorteado&&empParts[myId]&&empParts[myId].vai!==false)h+=empMinhaParte(e);
   // convite
   const msg=`${empMsgTexto(e)}\n${l}`;
   if(!e.sorteado)h+=`<section class="panel hl"><b>📨 Convide a equipe</b><span class="small">Mande este link no grupo da empresa ou por e-mail. Cada pessoa entra com o Google ou com o e-mail.</span><div class="pix-code" style="user-select:all">${esc(l)}</div><div class="row"><button class="btn small" data-emp="compartilhar">Compartilhar</button><button class="btn small ghost" data-act="copy" data-text="${esc(msg)}">Copiar mensagem + link</button><button class="btn small ghost" data-act="copy" data-text="${esc(l)}">Copiar link</button></div>${msgEditor('emp-'+empAberto,empMsgCfg(e,empAberto))}</section>`;
@@ -3756,7 +3758,7 @@ function empPainelRH(e){
    ${!e.sorteado?`<div class="row"><button class="btn small" data-emp="lembrar">🔔 Lembrar quem falta</button></div>`:''}</section>`;
   // participantes
   h+=`<section class="panel"><b>👥 Participantes (${vao.length})</b>${parts.length?`<div class="emp-lista">${parts.sort((a,b)=>String(a[1].nome).localeCompare(String(b[1].nome))).map(([uid,p])=>{const ok=((p.ficha||{}).ideias||[]).filter(Boolean).length;
-     return `<div class="emp-pess"><span class="av">${esc(String(p.nome||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><div style="min-width:0;flex:1"><b>${esc(p.nome||'Sem nome')}</b><span class="small">${esc(p.setor||'')}</span></div>${p.vai===false?'<span class="emp-st n">Não vai</span>':ok?'<span class="emp-st ok">✓ Ficha pronta</span>':'<span class="emp-st p">Sem ficha</span>'}${!e.sorteado?`<button class="link" data-emp="tirar" data-id="${esc(uid)}" aria-label="Remover ${esc(p.nome||'')}">✕</button>`:''}</div>`}).join('')}</div>`:'<span class="muted">Ninguém entrou ainda. Mande o link para a equipe.</span>'}
+     return `<div class="emp-pess"><span class="av">${esc(String(p.nome||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><div style="min-width:0;flex:1"><b>${esc(p.nome||'Sem nome')}</b><span class="small">${esc(p.setor||'')}</span></div>${p.vai===false?'<span class="emp-st n">Não vai</span>':ok?'<span class="emp-st ok">✓ Ficha pronta</span>':'<span class="emp-st p">Sem ficha</span>'}${!e.sorteado||isOwner?`<button class="link" data-emp="tirar" data-id="${esc(uid)}" aria-label="Remover ${esc(p.nome||'')}">✕</button>`:''}</div>`}).join('')}</div>`:'<span class="muted">Ninguém entrou ainda. Mande o link para a equipe.</span>'}
    ${pend.length&&!e.sorteado?`<div class="emp-mail"><b>✉️ ${pend.length} convidado${pend.length>1?'s ainda não entraram':' ainda não entrou'}</b><span class="small">O convite sai do <b>seu</b> e-mail: toque abaixo e o seu aplicativo de e-mail abre com a mensagem e o link prontos. É só enviar.</span><div class="row"><a class="btn small" href="${esc(empMailto(e,pend))}">Enviar convite por e-mail</a><button class="btn small ghost" data-act="copy" data-text="${esc(pend.map(c=>c.email).join(', '))}">Copiar e-mails</button></div></div>`:''}
    ${pend.length?`<div class="flabel">Convidados que ainda não entraram (${pend.length})</div><div class="emp-lista">${pend.map(c=>`<div class="emp-pess"><span class="av">✉️</span><div style="min-width:0;flex:1"><b>${esc(c.nome||c.email)}</b>${c.nome||c.setor?`<span class="small">${esc(c.nome?c.email:'')}${c.setor?(c.nome?' · ':'')+esc(c.setor):''}</span>`:''}</div>${!e.sorteado?`<button class="link" data-emp="tirarConv" data-id="${esc(empChaveEmail(c.email))}">✕</button>`:''}</div>`).join('')}</div>`:''}
    ${!e.sorteado?`<details class="emp-det"><summary>+ Adicionar convidados por e-mail</summary><span class="small" style="color:var(--muted)">Cole os e-mails, um por linha. Depois toque em “Enviar convite por e-mail” para mandar o link a todos de uma vez. Pode copiar direto da planilha, no formato <b>Nome; e-mail; setor</b>.</span><textarea id="emConv" rows="5" placeholder="Mariana Souza; mariana@empresa.com; Financeiro&#10;carlos@empresa.com"></textarea><div class="row"><button class="btn small" data-emp="addConv">Adicionar</button></div></details>`:''}</section>`;
@@ -3774,7 +3776,7 @@ function empPainelRH(e){
     h+=`<section class="panel hl"><b>🎲 Sorteio</b><span class="small">${e.pago||isOwner?`Quando todos tiverem confirmado, faça o sorteio. Depois dele, ninguém entra nem muda a ficha.`:`Até aqui foi tudo grátis. Para sortear, escolha um plano no quadro amarelo acima (a partir de ${EMP_PLANOS.pequeno.preco}, pagamento único).`}</span><div class="row"><button class="btn" data-emp="sortear" ${e.pago||isOwner?'':'disabled'}>${e.pago||isOwner?'Fazer o sorteio agora':'🔒 Sorteio liberado após o plano'}</button></div></section>`;
   }
   // RH também participa?
-  h+=`<details class="emp-det" ${empParts[myId]?'':''}><summary>${empParts[myId]?'Sua participação (você também está no sorteio)':'Você também vai participar? Preencha sua ficha'}</summary>${empMinhaParte(e)}</details>`;
+  if(!e.sorteado)h+=`<details class="emp-det" ${empParts[myId]?'':''}><summary>${empParts[myId]?'Sua participação (você também está no sorteio)':'Você também vai participar? Preencha sua ficha'}</summary>${empMinhaParte(e)}</details>`;
   if(!e.sorteado)h+=`<div class="row"><button class="link" data-emp="excluir" style="color:var(--warn)">Excluir este evento</button></div>`;
   return h;
 }
@@ -4902,11 +4904,7 @@ function msgEditor(id,cfg){
   return `<div class="msg-ed" data-msged="${esc(id)}"><b>✉️ ${esc(cfg.titulo||'Mensagem do convite')}</b>${cfg.ajuda?`<span class="small" style="color:var(--muted)">${esc(cfg.ajuda)}</span>`:''}
    <textarea data-msgtxt="${esc(id)}" rows="5" maxlength="${max}" aria-label="${esc(cfg.titulo||'Mensagem do convite')}">${esc(st.texto)}</textarea>
    <span class="small msg-cont" data-msgcont="${esc(id)}">${st.texto.length}/${max}</span>
-   ${st.gerada?'<div class="msg-ia-ok">✨ Mensagem criada pela IA. Confira e ajuste antes de salvar.</div>':''}
-   <div class="flabel">✨ Gerar com IA: escolha o tom</div>
-   <div class="chips">${tons.map(t=>`<button class="chip" data-msg="tom" data-id="${esc(id)}" data-v="${t}" aria-pressed="${st.tom===t}">${MSG_TONS[t]}</button>`).join('')}</div>
-   <label class="f">Quer contar algo? (opcional)<input data-msgextra="${esc(id)}" maxlength="150" value="${esc(st.extra)}" placeholder="${esc(cfg.dica||'Ex.: um detalhe especial')}"></label>
-   <div class="row"><button class="btn ghost" data-msg="gerar" data-id="${esc(id)}" ${st.gerando?'disabled':''}>${st.gerando?'Escrevendo…':st.gerada?'✨ Gerar outra':'✨ Gerar mensagem'}</button>${cfg.salvar?`<button class="btn" data-msg="salvar" data-id="${esc(id)}">Salvar mensagem</button>`:''}</div>
+   ${cfg.salvar?`<div class="row"><button class="btn" data-msg="salvar" data-id="${esc(id)}">Salvar mensagem</button></div>`:''}
    <button class="link msg-padrao" data-msg="padrao" data-id="${esc(id)}">Voltar para a sugestão padrão</button></div>`;
 }
 async function msgGerar(id){
@@ -4921,7 +4919,8 @@ Regras: no máximo ${max-30} caracteres; escreva na primeira pessoa, como se fos
 Responda apenas com JSON neste formato: {"mensagem":"texto"}`;
   try{const out=await sample.json(prompt);const m=String((out&&out.mensagem)||'').replace(/https?:\/\/\S+/g,'').trim();if(!m)throw {code:'vazio'};
     st.texto=m.slice(0,max);st.gerada=true;if(cfg.aoMudar)cfg.aoMudar(st.texto)}
-  catch(e){toast(e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco e tente de novo.':'Não foi possível gerar agora. Tente de novo.')}
+  catch(e){const MOT={saldo:'a conta da Anthropic está sem créditos',chave:'a chave ANTHROPIC_API_KEY na Vercel é inválida','sem-chave':'falta a variável ANTHROPIC_API_KEY na Vercel','sem-firebase':'falta a variável FIREBASE_API_KEY na Vercel',modelo:'o modelo configurado (ANTHROPIC_MODEL) não existe',limite:'limite de uso da Anthropic atingido',sobrecarga:'a IA está sobrecarregada, tente daqui a pouco',resposta:'a IA respondeu em formato inesperado'};
+    const mt=e&&e.motivo;toast(e&&e.code==='rate_limited'?'Muitos pedidos seguidos. Espere um pouco e tente de novo.':isOwner&&mt?'IA fora do ar: '+(MOT[mt]||mt)+'.':'Não foi possível gerar agora. Tente de novo.')}
   st.gerando=false;keep(render);
 }
 document.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset)return;
@@ -4942,7 +4941,7 @@ const msgDataBR=d=>{const m=String(d||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);ret
 let minhasMsgs={};
 const CONVITE_PADRAO='Bora parar de errar presente? 😄 Fiz minha ficha no PresenteCerto com tamanho, gostos e lista de desejos. Me segue e faz a sua: assim eu nunca mais esqueço o seu aniversário e sempre acerto no presente. Leva 2 minutos!';
 function conviteCfg(){
-  return {titulo:'Mensagem do convite',ajuda:'É o texto que vai junto com o seu link no WhatsApp. Edite à vontade ou peça para a IA escrever.',dica:'Ex.: meu aniversário está chegando',
+  return {titulo:'Mensagem do convite',ajuda:'É o texto que vai junto com o seu link no WhatsApp. Edite à vontade.',dica:'Ex.: meu aniversário está chegando',
     tons:['divertida','carinhosa','formal','curta'],padrao:()=>CONVITE_PADRAO,atual:()=>minhasMsgs.convite||'',
     contexto:()=>{const p=profiles[myId]||{};return `Convite para amigos e família entrarem no PresenteCerto e seguirem quem convida. No PresenteCerto cada pessoa monta a ficha de presentes (tamanhos, gostos e lista de desejos) e recebe lembretes de aniversário, para todo mundo acertar no presente.\nQuem convida: ${myName||'a pessoa'}.${p.dia&&p.mes?`\nAniversário de quem convida: ${+p.dia} de ${MESES_LONGOS[+p.mes-1]}.`:''}`},
     salvar:async txt=>{await db.doc(`data/users/${myId}/mensagens`).set({convite:txt},{merge:true});minhasMsgs={...minhasMsgs,convite:txt}}};
@@ -4951,7 +4950,7 @@ function conviteEditorBox(){return `<details class="msg-det" data-msgdet="convit
 
 // Listas de evento: a mensagem fica no campo msg da lista (aparece no topo e vai junto com o link)
 function evMsgCfg(e,id){const T=EV_TIPOS[e.tipo]||EV_TIPOS.casamento;
-  return {titulo:'Mensagem do convite',ajuda:'É o texto que vai junto com o link no WhatsApp e aparece no topo da lista. Edite à vontade ou peça para a IA escrever.',
+  return {titulo:'Mensagem do convite',ajuda:'É o texto que vai junto com o link no WhatsApp e aparece no topo da lista. Edite à vontade.',
     dica:e.tipo==='casamento'?'Ex.: nos conhecemos na faculdade, festa na praia':e.tipo==='chabebe'?'Ex.: é uma menina, vai se chamar Alice':'Ex.: um detalhe especial da festa',
     tons:['romantica','divertida','formal','curta'],padrao:()=>T.msg,atual:()=>e.msg||'',
     contexto:()=>`Convite para ${T.n.toLowerCase()} com lista de presentes. O convidado abre o link, vê a lista, escolhe um presente e ele fica reservado, sem ninguém repetir.\nNome da lista: ${e.titulo||T.n}.${e.data?`\nData: ${msgDataBR(e.data)}.`:''}\nQuem convida: ${e.donoNome||myName||'a pessoa'}.`,
@@ -4971,7 +4970,7 @@ function soMsgCfg(){const f=form;const nome=((f&&f.nome)||'nosso amigo secreto')
 // Amigo Secreto para Empresas: a mensagem fica no evento da empresa
 const empConvitePadrao=e=>`Vem aí o ${e.nome||'amigo secreto'}! 🎁 Entre pelo link, confirme sua participação e preencha sua ficha de presentes (leva 1 minuto):`;
 function empMsgCfg(e,id){
-  return {titulo:'Mensagem do convite para a equipe',ajuda:'Vai junto com o link no WhatsApp e no e-mail. Edite à vontade ou peça para a IA escrever.',dica:'Ex.: a troca será na confraternização de fim de ano',
+  return {titulo:'Mensagem do convite para a equipe',ajuda:'Vai junto com o link no WhatsApp e no e-mail. Edite à vontade.',dica:'Ex.: a troca será na confraternização de fim de ano',
     tons:['formal','divertida','carinhosa','curta'],padrao:()=>empConvitePadrao(e),atual:()=>e.convite||'',
     contexto:()=>`Convite do RH para os colaboradores participarem do amigo secreto da empresa. Cada pessoa entra pelo link, confirma a participação e preenche uma ficha rápida de presentes. O sorteio é automático e ninguém vê quem tirou quem.\nNome do evento: ${e.nome||'Amigo secreto'}.${e.empresa?`\nEmpresa: ${e.empresa}.`:''}${e.data?`\nData da troca: ${msgDataBR(e.data)}.`:''}${empValor(e)?`\nValor: ${empValor(e)}.`:''}${e.prazo?`\nConfirmar até: ${msgDataBR(e.prazo)}.`:''}`,
     salvar:async txt=>{await db.doc('empresas/'+id).update({convite:txt});if(empDoc&&empAberto===id)empDoc={...empDoc,convite:txt}}};
