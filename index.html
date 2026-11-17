@@ -2858,7 +2858,9 @@ const podeVisual=()=>isOwner||isPlus(myId);
 function modoNoturnoAtivo(){const r=document.documentElement;const t=r.getAttribute('data-tema');if(t==='escurototal')return true;const e=r.getAttribute('data-escuro');return e==='1'||(e==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
 async function alternarNoturno(){
   const escuro=!modoNoturnoAtivo();const novo={...(aparencia||{}),v:2,escuro:escuro?'escuro':'claro'};
-  if(!escuro&&novo.tema==='escurototal')novo.tema='';
+  // um tema claro (ex.: Café) tem prioridade sobre o modo escuro: guarda o tema e volta com ele ao desligar
+  if(escuro&&novo.tema&&novo.tema!=='escurototal'){novo.temaAntes=novo.tema;novo.tema=''}
+  if(!escuro){if(novo.tema==='escurototal')novo.tema='';if(novo.temaAntes){novo.tema=novo.temaAntes;delete novo.temaAntes}}
   aparencia=novo;aplicarTema(prefsEfetivas());renderMenu();toast(escuro?'Modo noturno ligado 🌙':'Modo diurno ligado ☀️');
   try{await db.doc(`data/users/${myId}/aparencia`).set(novo)}catch(e){toast(failMsg)}
 }
