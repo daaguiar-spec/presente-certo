@@ -756,6 +756,15 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-gift:has(.inline-form),.pf-gift:has(.status .msg){flex-basis:min(82%,300px)}
 .pf-gimg{position:relative;height:110px;border-radius:12px;background:var(--sunk);display:flex;align-items:center;justify-content:center;font-size:50px;overflow:hidden;margin-bottom:4px}
 .pf-gimg img{width:100%;height:100%;object-fit:cover}
+.pf-gimg img.loja{object-fit:contain;background:#fff;padding:6px}
+.thumb.loja{object-fit:contain;background:#fff;border:1px solid var(--line)}
+.ll-busca,.ll-aviso{display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--muted);font-weight:600}
+.ll-spin{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);flex:none;animation:llgira .8s linear infinite}@keyframes llgira{to{transform:rotate(360deg)}}
+.ll-prev{display:flex;gap:11px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:9px}
+.ll-prev img,.ll-semft{width:64px;height:64px;border-radius:11px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--line)}
+.ll-semft{display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--sunk)}
+.ll-prev div{min-width:0}.ll-prev b{display:block;font-size:14px;line-height:1.3}.ll-prev small{display:block;color:var(--muted);font-size:12px}
+.ll-ok{display:inline-block;margin:4px 6px 0 0;font-size:11px;font-weight:800;color:var(--ribbon);background:var(--ribbon-soft);border-radius:20px;padding:2px 8px}
 .pf-n{position:absolute;left:6px;top:6px;background:var(--surface);color:var(--accent);font-size:12px;font-weight:800;border-radius:999px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0 6px}
 .pf-gt{font-weight:700;font-size:14px;overflow-wrap:anywhere}
 .pf-gs{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
@@ -1897,7 +1906,7 @@ function itemStatusHtml(owner,w){
 }
 function itemsView(owner,items,showStatus){
   return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
-    return `<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:''}${showStatus?shopLinks(w.t,null,safeLink(w.link)?'Ou procure em:':''):''}</div>${f?`<img class="thumb" src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:'<span></span>'}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
+    return `<div class="wish-item"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">${w.loja?esc(verNaLoja(w.loja)):'Ver onde comprar'}</a>`:''}${showStatus?shopLinks(w.t,null,safeLink(w.link)?'Ou procure em:':''):''}</div>${f?`<img class="thumb" src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:imgLoja(w.img)?`<img class="thumb loja" src="${esc(imgLoja(w.img))}" alt="Foto de ${esc(w.t)}" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:'<span></span>'}${showStatus?itemStatusHtml(owner,w):''}</div>`}).join('');
 }
 function aiBlock(id){
   const r=aiRes[id];
@@ -2011,8 +2020,8 @@ function marcasHtml(id,p){
 }
 function pfItems(owner,items,showStatus,key){
   const dono=owner===myId&&key;
-  return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);
-    return `<div class="pf-gift"><div class="pf-gimg" style="--c:${PF_TONS[i%PF_TONS.length]}">${f?`<img src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:`<span aria-hidden="true">${pfIcone(w.t)}</span>`}<span class="pf-n">${i+1}</span></div><div class="pf-gt">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="pf-gs">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a class="pf-link" href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">Ver onde comprar</a>`:''}${showStatus||owner===myId?shopLinks(w.t,null,safeLink(w.link)?'Ou procure em:':''):''}${showStatus?itemStatusHtml(owner,w):''}${dono?`<button class="pf-recebi" data-act="recebiVer" data-key="${key}" data-id="${esc(w.id)}">✓ Já ganhei</button>`:''}</div>`}).join('');
+  return items.map((w0,i)=>{const w={...w0,id:w0.id||('i'+i)};const f=fotoOf(owner,w.id);const fl=!f&&imgLoja(w.img);
+    return `<div class="pf-gift"><div class="pf-gimg" style="--c:${PF_TONS[i%PF_TONS.length]}">${f?`<img src="${esc(f)}" alt="Foto de ${esc(w.t)}">`:fl?`<img class="loja" src="${esc(fl)}" alt="Foto de ${esc(w.t)}" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:`<span aria-hidden="true">${pfIcone(w.t)}</span>`}<span class="pf-n">${i+1}</span></div><div class="pf-gt">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="pf-gs">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<a class="pf-link" href="${esc(affiliate(w.link))}" target="_blank" rel="noopener sponsored" data-track="loja:link">${w.loja?esc(verNaLoja(w.loja)):'Ver onde comprar'}</a>`:''}${showStatus||owner===myId?shopLinks(w.t,null,safeLink(w.link)?'Ou procure em:':''):''}${showStatus?itemStatusHtml(owner,w):''}${dono?`<button class="pf-recebi" data-act="recebiVer" data-key="${key}" data-id="${esc(w.id)}">✓ Já ganhei</button>`:''}</div>`}).join('');
 }
 
 /* ---------- Amigo secreto ---------- */
@@ -3371,6 +3380,30 @@ async function responderSugestao(id){
 /* ---------- Ofertas: buscar nome e foto pelo link ---------- */
 let ofDraft={};
 function ofGuardar(){const im=val('ofImg');ofDraft={...ofDraft,editId:ofDraft.editId,link:val('ofL'),titulo:val('ofT'),loja:val('ofLoja'),preco:val('ofP'),imagem:/^https:\/\//i.test(im)?im:''}}
+/* ---------- Ler o link do produto na lista (nome, foto e loja) ---------- */
+function imgLoja(u){u=String(u||'');return /^https:\/\/[^\s"'<>()]+$/i.test(u)?u.slice(0,1000):''}
+function verNaLoja(l){l=String(l||'').slice(0,40);return (/^(Mercado Livre|Ponto)$/i.test(l)?'Ver no ':'Ver na ')+l}
+let lerLinkTimer=null,lerLinkUlt='';
+function lidoHtml(k){const x=form&&form.lido;if(!x)return '';
+  if(x.erro)return '<div class="ll-aviso">Não conseguimos ler esta página agora. Escreva o nome do item abaixo; depois você pode pôr uma foto.</div>';
+  return `<div class="ll-prev">${imgLoja(x.img)?`<img src="${esc(imgLoja(x.img))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:'<span class="ll-semft">🎁</span>'}<div><b>${esc(x.titulo||'Produto')}</b>${x.loja?`<small>${esc(x.loja)}</small>`:''}<span class="ll-ok">✓ Encontrado</span>${imgLoja(x.img)?`<button class="link" data-act="lidoSemFoto" data-key="${k}">Tirar foto</button>`:'<small>Esta loja não mostra a foto. Depois você pode pôr uma.</small>'}</div></div>`}
+function renderLido(k){const el=app.querySelector('#'+k+'LS');if(!el)return;const h=lidoHtml(k);el.innerHTML=h;el.hidden=!h}
+async function lerLink(k){
+  const inp=app.querySelector('#'+k+'L');if(!inp||!form||form.type!=='outro')return;
+  let l=inp.value.replace(/\s+/g,'');if(!l){form.lido=null;lerLinkUlt='';renderLido(k);return}
+  if(!/^https?:\/\//i.test(l))l='https://'+l;
+  if(!/^https?:\/\/[^\/\s]+\.[a-z]{2,}/i.test(l)||l===lerLinkUlt)return;lerLinkUlt=l;
+  const el=app.querySelector('#'+k+'LS');if(el){el.hidden=false;el.innerHTML='<div class="ll-busca"><span class="ll-spin"></span>Buscando o nome e a foto na loja…</div>'}
+  let d={};
+  try{const u=window.firebase&&firebase.auth().currentUser;const t=u?await u.getIdToken():'';
+    const r=await fetch('/api/servicos?f=lerlink',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({url:l})});d=await r.json().catch(()=>({}))}catch(e){d={}}
+  if(lerLinkUlt!==l||!form||form.type!=='outro')return;
+  if(d.ok){form.lido={link:l,img:imgLoja(d.imagem),loja:String(d.loja||'').slice(0,40),titulo:String(d.titulo||'').slice(0,120)};
+    const tIn=app.querySelector('#'+k+'T');if(tIn&&form.lido.titulo&&(!tIn.value.trim()||tIn.value===form.autoT)){tIn.value=form.lido.titulo;form.autoT=tIn.value}}
+  else form.lido={link:l,img:'',loja:String(d.loja||'').slice(0,40),titulo:'',erro:true};
+  renderLido(k);
+}
+app.addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.lerlink)return;clearTimeout(lerLinkTimer);const k=t.dataset.lerlink;lerLinkTimer=setTimeout(()=>lerLink(k),500)});
 async function buscarProduto(){
   ofGuardar();let l=String(ofDraft.link||'').replace(/\s+/g,'');if(!l){toast('Cole o link do produto');app.querySelector('#ofL')?.focus();return}
   if(!/^https?:\/\//i.test(l))l='https://'+l;ofDraft.link=l;
@@ -3939,14 +3972,15 @@ function listEditor(key,title,hint,ph,cls){
        <label class="f">Detalhe<input id="eO" value="${esc(w.obs)}" maxlength="120"></label>
        <label class="f">Link<input id="eL" type="url" value="${esc(w.link)}" placeholder="https://"></label>
        <div class="row"><button class="btn small" data-act="saveEdit" data-key="${key}" data-i="${i}">Salvar alteração</button><button class="link" data-act="cancel">Cancelar</button></div></div></div>`;
-     return `<div class="wish-item" data-wid="${esc(w.id)}"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<div class="s">${esc(w.link)}</div>`:''}${f?`<img class="thumb sm" src="${esc(f)}" alt="">`:''}
-     <div class="item-actions"><button class="link" data-act="editItem" data-key="${key}" data-id="${esc(w.id)}">Editar</button><button class="link alt" data-act="foto" data-item="${esc(w.id)}">${f?'Trocar foto':'Adicionar foto'}</button>${f?`<button class="link alt" data-act="delFoto" data-item="${esc(w.id)}">Tirar foto</button>`:''}<button class="link item-del" data-act="del" data-key="${key}" data-i="${i}" aria-label="Remover ${esc(w.t)}">Remover</button></div></div>
+     return `<div class="wish-item" data-wid="${esc(w.id)}"><span class="n">${i+1}</span><div style="min-width:0"><div class="t">${esc(w.t)}${grauTag(w.grau)}</div>${w.preco||w.obs?`<div class="s">${esc([w.preco,w.obs].filter(Boolean).join(' · '))}</div>`:''}${safeLink(w.link)?`<div class="s">${esc(w.link)}</div>`:''}${f?`<img class="thumb sm" src="${esc(f)}" alt="">`:imgLoja(w.img)?`<img class="thumb sm loja" src="${esc(imgLoja(w.img))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:''}
+     <div class="item-actions"><button class="link" data-act="editItem" data-key="${key}" data-id="${esc(w.id)}">Editar</button><button class="link alt" data-act="foto" data-item="${esc(w.id)}">${f||imgLoja(w.img)?'Trocar foto':'Adicionar foto'}</button>${f?`<button class="link alt" data-act="delFoto" data-item="${esc(w.id)}">Tirar foto</button>`:imgLoja(w.img)?`<button class="link alt" data-act="imgLojaTirar" data-key="${key}" data-i="${i}">Tirar foto</button>`:''}<button class="link item-del" data-act="del" data-key="${key}" data-i="${i}" aria-label="Remover ${esc(w.t)}">Remover</button></div></div>
      <div class="item-ordem"><button class="icon-btn" data-act="up" data-key="${key}" data-i="${i}" aria-label="Subir" ${i===0?'disabled':''}>↑</button><button class="icon-btn" data-act="down" data-key="${key}" data-i="${i}" aria-label="Descer" ${i===items.length-1?'disabled':''}>↓</button></div></div>`}).join('')||'<div class="muted">Nada na lista ainda.</div>'}</div>
    ${items.length>=10?'<div class="notice">Sua lista chegou a 10 itens. Remova um para adicionar outro.</div>':''}
    ${items.length<10?quickAdd(key)+(form&&form.type==='outro'&&form.key===key?`<div class="inline-form"><b>Outro item</b>
-   <div class="grid2"><label class="f">Item<input id="${key}T" placeholder="${ph}"></label><label class="f">Faixa de preço<select id="${key}P"><option value="">—</option>${FAIXAS.map(f=>`<option>${f}</option>`).join('')}</select></label></div>
+   <label class="f">Link do produto (opcional)<input id="${key}L" type="url" inputmode="url" autocapitalize="off" autocomplete="off" data-lerlink="${key}" placeholder="Cole aqui o link da loja" value="${esc((form.lido&&form.lido.link)||'')}"></label>
+   <div id="${key}LS" ${form.lido?'':'hidden'}>${lidoHtml(key)}</div>
+   <div class="grid2"><label class="f">Item<input id="${key}T" placeholder="${ph}" value="${esc(form.autoT||'')}"></label><label class="f">Faixa de preço<select id="${key}P"><option value="">—</option>${FAIXAS.map(f=>`<option>${f}</option>`).join('')}</select></label></div>
    <div class="grid2"><label class="f">Quanto você quer<select id="${key}G"><option value="">—</option>${Object.keys(GRAUS).map(g=>`<option>${g}</option>`).join('')}</select></label><label class="f">Detalhe (opcional)<input id="${key}O" placeholder="Ex.: cor preta, modelo X"></label></div>
-   <label class="f">Link (opcional)<input id="${key}L" type="url" placeholder="https://"></label>
    <div class="row"><button class="btn small" data-act="addItem" data-key="${key}">Adicionar à lista</button><button class="link" data-act="cancel">Cancelar</button></div></div>`:`<div class="row"><button class="link" data-act="outro" data-key="${key}">Não achou? Escrever outro item, com link e detalhes</button></div>`):''}</section>`;
 }
 function quickAdd(key){
@@ -4314,7 +4348,7 @@ app.addEventListener('click',async e=>{
     case 'qPreco': {const q=quickSel[ds.key]||{};quickSel[ds.key]={...q,preco:q.preco===ds.v?'':ds.v};keep(renderMine);break}
     case 'qGrau': {const q=quickSel[ds.key]||{};quickSel[ds.key]={...q,grau:q.grau===ds.v?'':ds.v};keep(renderMine);break}
     case 'qItem': quickItem(ds.key,ds.v);break;
-    case 'outro': form={type:'outro',key:ds.key};keep(renderMine);setTimeout(()=>app.querySelector('#'+ds.key+'T')?.focus(),0);break;
+    case 'outro': form={type:'outro',key:ds.key};lerLinkUlt='';keep(renderMine);setTimeout(()=>app.querySelector('#'+ds.key+'T')?.focus(),0);break;
     case 'admListaDias': admListaDias=+ds.v;admListaAberta=true;keep(render);break;
     case 'addTag': addTag(ds.key,app.querySelector('#add-'+ds.key));break;
     case 'addMarca': addMarca(ds.g,app.querySelector('#mo'+ds.i));break;
@@ -4403,7 +4437,7 @@ app.addEventListener('click',async e=>{
     case 'recebi': {const it=draft[ds.key].splice(+ds.i,1)[0];draft.recebidos=[...(draft.recebidos||[]),{id:it.id,t:it.t,data:new Date().toISOString()}];dirty=true;keep(renderMine);toast('Movido para Presentes recebidos. Lembre de salvar.');break}
     case 'editItem': form={type:'editItem',key:ds.key,id:ds.id};keep(renderMine);setTimeout(()=>app.querySelector('#eT')?.focus(),0);break;
     case 'saveEdit': {const t=val('eT');if(!t){toast('O item precisa de um nome');break}const l=val('eL');if(l&&!safeLink(l)){toast('O link precisa começar com https://');break}
-      const it=draft[ds.key][+ds.i];Object.assign(it,{t:t.slice(0,120),preco:val('eP').slice(0,60),grau:val('eG'),obs:val('eO').slice(0,120),link:l.slice(0,500)});
+      const it=draft[ds.key][+ds.i];if((it.link||'')!==l.slice(0,500)){delete it.img;delete it.loja}Object.assign(it,{t:t.slice(0,120),preco:val('eP').slice(0,60),grau:val('eG'),obs:val('eO').slice(0,120),link:l.slice(0,500)});
       form=null;dirty=true;keep(renderMine);toast('Item alterado. Lembre de salvar a ficha.');break}
     case 'recebiVer': {const p=profiles[myId]||{};const k=ds.key;const it=(p[k]||[]).find(w=>w.id===ds.id);if(!it)break;
       try{await gravarPerfil({[k]:(p[k]||[]).filter(w=>w.id!==ds.id),recebidos:[...(p.recebidos||[]),{id:it.id,t:it.t,de:k,data:new Date().toISOString()}]});toast('Oba! Foi para “Presentes que já ganhei”.');keep(render)}catch(err){toast(failMsg)}break}
@@ -4419,9 +4453,14 @@ app.addEventListener('click',async e=>{
     case 'foto': fotoTarget=ds.item;document.getElementById('fotoInput').click();break;
     case 'capaFoto': fotoTarget='_capa';document.getElementById('fotoInput').click();break;
     case 'capaTirar': {const m={...(fotos[myId]||{})};delete m._capa;fotos[myId]=m;keep(render);db.doc(`fotos/${myId}/itens/_capa`).delete().then(()=>toast('Foto de fundo retirada')).catch(()=>toast(failMsg));break}
+    case 'lidoSemFoto': if(form&&form.lido){form.lido.img='';renderLido(ds.key)}break;
+    case 'imgLojaTirar': {const it=draft[ds.key]&&draft[ds.key][+ds.i];if(it){delete it.img;dirty=true;keep(renderMine);toast('Foto retirada. Lembre de salvar a ficha.')}break}
     case 'delFoto': {const m={...(fotos[myId]||{})};delete m[ds.item];fotos[myId]=m;keep(renderMine);db.doc(`fotos/${myId}/itens/${ds.item}`).delete().then(()=>toast('Foto retirada')).catch(()=>toast(failMsg));break}
     case 'addItem': {const k=ds.key,t=val(k+'T');if(!t){toast('Escreva o item');app.querySelector('#'+k+'T').focus();break}
-      const link=val(k+'L');const nid=uid();draft[k].push({id:nid,criado:new Date().toISOString(),t:t.slice(0,120),preco:val(k+'P').slice(0,60),grau:val(k+'G'),link:safeLink(link)?link.slice(0,500):'',obs:val(k+'O').slice(0,120)});
+      let link=val(k+'L').replace(/\s+/g,'');if(link&&!/^https?:\/\//i.test(link))link='https://'+link;const nid=uid();const lido=form&&form.lido&&form.lido.link===link?form.lido:null;
+      const novo={id:nid,criado:new Date().toISOString(),t:t.slice(0,120),preco:val(k+'P').slice(0,60),grau:val(k+'G'),link:safeLink(link)?link.slice(0,500):'',obs:val(k+'O').slice(0,120)};
+      if(lido&&novo.link){if(imgLoja(lido.img))novo.img=imgLoja(lido.img);if(lido.loja)novo.loja=lido.loja}
+      draft[k].push(novo);
       form=null;dirty=true;fichaNovos=[nid];keep(renderMine);toast('Adicionado à lista. Toque em Salvar para guardar.');break}
     case 'addData': {const tipo=val('dTipo'),dia=val('dDia'),mes=val('dMes'),ano=val('dAno').replace(/\D/g,'').slice(0,4);
       if(!dia||!mes){toast('Escolha o dia e o mês');break}

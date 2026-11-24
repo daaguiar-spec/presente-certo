@@ -4,7 +4,8 @@
 //  /api/servicos?f=sorteio-entrar  → entrar num amigo secreto pelo link de convite (_sorteio-entrar.js)
 //  /api/servicos?f=indicacao     → Indique e ganhe: registra quem convidou e dá o prêmio (_indicacao.js)
 //  /api/servicos?f=afiliados     → códigos de afiliado públicos para as páginas de guia (_afiliados.js)
-//  /api/servicos?f=previa&u=@     → prévia pública do perfil (aberto, adulto) para quem ainda não tem conta (_previa.js)
+//  /api/servicos?f=lerlink        → nome, foto e loja do link de um produto, para montar a lista (_lerlink.js)
+//  /api/servicos?f=previa&u=@    → prévia pública do perfil (aberto, adulto) para quem ainda não tem conta (_previa.js)
 // Os require são escritos por extenso para a Vercel incluir cada arquivo no pacote da função.
 // Aceita o arquivo com ou sem o sublinhado no nome (ao baixar, alguns navegadores tiram o "_" do começo).
 const tenta = (a, b) => { try { return a(); } catch (e) { if (e && e.code === 'MODULE_NOT_FOUND') return b(); throw e; } };
@@ -14,7 +15,8 @@ const rotas = {
   'previa': () => tenta(() => require('./_previa'), () => require('./previa')),
   'sorteio-entrar': () => tenta(() => require('./_sorteio-entrar'), () => require('./sorteio-entrar')),
   'indicacao': () => tenta(() => require('./_indicacao'), () => require('./indicacao')),
-  'afiliados': () => tenta(() => require('./_afiliados'), () => require('./afiliados'))
+  'afiliados': () => tenta(() => require('./_afiliados'), () => require('./afiliados')),
+  'lerlink': () => tenta(() => require('./_lerlink'), () => require('./lerlink'))
 };
 module.exports = async (req, res) => {
   const f = String((req.query && req.query.f) || '');
