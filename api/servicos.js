@@ -3,6 +3,7 @@
 //  /api/servicos?f=excluir-conta  → exclusão de conta pela própria pessoa (_excluir-conta.js)
 //  /api/servicos?f=sorteio-entrar  → entrar num amigo secreto pelo link de convite (_sorteio-entrar.js)
 //  /api/servicos?f=indicacao     → Indique e ganhe: registra quem convidou e dá o prêmio (_indicacao.js)
+//  /api/servicos?f=afiliados     → códigos de afiliado públicos para as páginas de guia (_afiliados.js)
 //  /api/servicos?f=previa&u=@     → prévia pública do perfil (aberto, adulto) para quem ainda não tem conta (_previa.js)
 // Os require são escritos por extenso para a Vercel incluir cada arquivo no pacote da função.
 // Aceita o arquivo com ou sem o sublinhado no nome (ao baixar, alguns navegadores tiram o "_" do começo).
@@ -12,7 +13,8 @@ const rotas = {
   'excluir-conta': () => tenta(() => require('./_excluir-conta'), () => require('./excluir-conta')),
   'previa': () => tenta(() => require('./_previa'), () => require('./previa')),
   'sorteio-entrar': () => tenta(() => require('./_sorteio-entrar'), () => require('./sorteio-entrar')),
-  'indicacao': () => tenta(() => require('./_indicacao'), () => require('./indicacao'))
+  'indicacao': () => tenta(() => require('./_indicacao'), () => require('./indicacao')),
+  'afiliados': () => tenta(() => require('./_afiliados'), () => require('./afiliados'))
 };
 module.exports = async (req, res) => {
   const f = String((req.query && req.query.f) || '');
