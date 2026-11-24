@@ -181,3 +181,8 @@ module.exports = async (req, res) => {
   }
 };
 module.exports.extrair = extrair; // usado nos testes
+// usados pelo leitor de links de quem monta a lista (_lerlink.js)
+module.exports.baixar = baixar;
+module.exports.nomeDoLink = nomeDoLink;
+module.exports.nomeLoja = nomeLoja;
+module.exports.enderecoPermitido = enderecoPermitido;
