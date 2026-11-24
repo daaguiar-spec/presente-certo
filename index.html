@@ -3003,7 +3003,7 @@ async function importSeed(){
 }
 let admIdades=null,admIdadesEm=0,admListaDias=30,admListaAberta=false,admNomesPedidos=false;
 document.addEventListener('toggle',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('cad-lista'))admListaAberta=t.open},true);
-const ORIG_NOME={ig:'Instagram (link da bio ou Story)',instagram:'Anúncio / Instagram',facebook:'Facebook',perfil:'Link de perfil de alguém',sorteio:'Link de amigo secreto',site:'Outro site',direto:'Direto (digitou ou favorito)'};
+const ORIG_NOME={guia:'Guia de presentes (site)',ig:'Instagram (link da bio ou Story)',instagram:'Anúncio / Instagram',facebook:'Facebook',perfil:'Link de perfil de alguém',sorteio:'Link de amigo secreto',site:'Outro site',direto:'Direto (digitou ou favorito)'};
 function adminCadastros(){
   if(!admIdades||Date.now()-admIdadesEm>60000){admIdadesEm=Date.now();admNomesPedidos=false;db.collection('idades').get().then(s=>{const n={};s.docs.forEach(d=>{n[d.id]=d.data()});admIdades=n;softRender()}).catch(()=>{admIdades=admIdades||{}})}
   if(!admIdades)return `<section class="panel"><h2>Novos cadastros</h2><span class="muted">Carregando…</span></section>`;
