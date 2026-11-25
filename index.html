@@ -756,6 +756,10 @@ ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;f
 .pf-gift:has(.inline-form),.pf-gift:has(.status .msg){flex-basis:min(82%,300px)}
 .pf-gimg{position:relative;height:110px;border-radius:12px;background:var(--sunk);display:flex;align-items:center;justify-content:center;font-size:50px;overflow:hidden;margin-bottom:4px}
 .pf-gimg img{width:100%;height:100%;object-fit:cover}
+.outro-cta{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:12px 0;padding:14px;border-radius:16px;border:2px dashed color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--fg);font:inherit;cursor:pointer}
+.outro-cta .oc-ic{width:44px;height:44px;border-radius:12px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
+.outro-cta b{display:block;font-size:16px;color:var(--accent)}.outro-cta small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+.outro-cta .oc-seta{margin-left:auto;font-size:26px;color:var(--accent);line-height:1}
 .pf-gimg img.loja{object-fit:contain;background:#fff;padding:6px}
 .thumb.loja{object-fit:contain;background:#fff;border:1px solid var(--line)}
 .ll-busca,.ll-aviso{display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--muted);font-weight:600}
@@ -3976,12 +3980,12 @@ function listEditor(key,title,hint,ph,cls){
      <div class="item-actions"><button class="link" data-act="editItem" data-key="${key}" data-id="${esc(w.id)}">Editar</button><button class="link alt" data-act="foto" data-item="${esc(w.id)}">${f||imgLoja(w.img)?'Trocar foto':'Adicionar foto'}</button>${f?`<button class="link alt" data-act="delFoto" data-item="${esc(w.id)}">Tirar foto</button>`:imgLoja(w.img)?`<button class="link alt" data-act="imgLojaTirar" data-key="${key}" data-i="${i}">Tirar foto</button>`:''}<button class="link item-del" data-act="del" data-key="${key}" data-i="${i}" aria-label="Remover ${esc(w.t)}">Remover</button></div></div>
      <div class="item-ordem"><button class="icon-btn" data-act="up" data-key="${key}" data-i="${i}" aria-label="Subir" ${i===0?'disabled':''}>↑</button><button class="icon-btn" data-act="down" data-key="${key}" data-i="${i}" aria-label="Descer" ${i===items.length-1?'disabled':''}>↓</button></div></div>`}).join('')||'<div class="muted">Nada na lista ainda.</div>'}</div>
    ${items.length>=10?'<div class="notice">Sua lista chegou a 10 itens. Remova um para adicionar outro.</div>':''}
-   ${items.length<10?quickAdd(key)+(form&&form.type==='outro'&&form.key===key?`<div class="inline-form"><b>Outro item</b>
+   ${items.length<10?(form&&form.type==='outro'&&form.key===key?`<div class="inline-form"><b>Outro item</b>
    <label class="f">Link do produto (opcional)<input id="${key}L" type="url" inputmode="url" autocapitalize="off" autocomplete="off" data-lerlink="${key}" placeholder="Cole aqui o link da loja" value="${esc((form.lido&&form.lido.link)||'')}"></label>
    <div id="${key}LS" ${form.lido?'':'hidden'}>${lidoHtml(key)}</div>
    <div class="grid2"><label class="f">Item<input id="${key}T" placeholder="${ph}" value="${esc(form.autoT||'')}"></label><label class="f">Faixa de preço<select id="${key}P"><option value="">—</option>${FAIXAS.map(f=>`<option>${f}</option>`).join('')}</select></label></div>
    <div class="grid2"><label class="f">Quanto você quer<select id="${key}G"><option value="">—</option>${Object.keys(GRAUS).map(g=>`<option>${g}</option>`).join('')}</select></label><label class="f">Detalhe (opcional)<input id="${key}O" placeholder="Ex.: cor preta, modelo X"></label></div>
-   <div class="row"><button class="btn small" data-act="addItem" data-key="${key}">Adicionar à lista</button><button class="link" data-act="cancel">Cancelar</button></div></div>`:`<div class="row"><button class="link" data-act="outro" data-key="${key}">Não achou? Escrever outro item, com link e detalhes</button></div>`):''}</section>`;
+   <div class="row"><button class="btn small" data-act="addItem" data-key="${key}">Adicionar à lista</button><button class="link" data-act="cancel">Cancelar</button></div></div>`:`<button class="outro-cta" data-act="outro" data-key="${key}"><span class="oc-ic">🔗</span><span><b>Colar o link de um presente</b><small>De qualquer loja. O nome e a foto vêm sozinhos.</small></span><span class="oc-seta">›</span></button>`)+quickAdd(key):''}</section>`;
 }
 function quickAdd(key){
   const cats=key==='precisa'?CAT_PRECISA:CAT_DESEJOS;const q=quickSel[key]||{};
